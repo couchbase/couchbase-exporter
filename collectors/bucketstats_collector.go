@@ -1,50 +1,41 @@
 package collectors
 
 import (
-	"main.go/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
-	"sync"
+	"github.com/couchbase/couchbase_exporter/util"
 	"time"
 )
 
 const FQ_NAMESPACE = "couchbase"
 
-type MetaCollector struct {
-	mutex  sync.Mutex
-	client util.Client
-
-	up             *prometheus.Desc
-	scrapeDuration *prometheus.Desc
-}
-
 type bucketStatsCollector struct {
 	m MetaCollector
 
-	AvgBgWaitTime            *prometheus.Desc
-	AvgActiveTimestampDrift  *prometheus.Desc
-	AvgReplicaTimestampDrift *prometheus.Desc
-	AvgDiskCommitTime        *prometheus.Desc
-	AvgDiskUpdateTime        *prometheus.Desc
-	BytesRead                *prometheus.Desc
-	BytesWritten             *prometheus.Desc
-	CasBadval                *prometheus.Desc
-	CasHits                  *prometheus.Desc
-	CasMisses                *prometheus.Desc
-	CmdGet                   *prometheus.Desc
-	CmdSet                   *prometheus.Desc
-	CouchTotalDiskSize       *prometheus.Desc
-	CouchViewsDataSize       *prometheus.Desc
-	CouchViewsActualDiskSize *prometheus.Desc
-	CouchViewsFragmentation  *prometheus.Desc
-	CouchViewsOps            *prometheus.Desc
-	CouchDocsDataSize        *prometheus.Desc
-	CouchDocsDiskSize        *prometheus.Desc
-	CouchDocsActualDiskSize  *prometheus.Desc
-	CouchDocsFragmentation   *prometheus.Desc
-	CPUIdleMs                *prometheus.Desc
-	CPULocalMs               *prometheus.Desc
-	CPUUtilizationRate       *prometheus.Desc
+	AvgBgWaitTime                    *prometheus.Desc
+	AvgActiveTimestampDrift          *prometheus.Desc
+	AvgReplicaTimestampDrift         *prometheus.Desc
+	AvgDiskCommitTime                *prometheus.Desc
+	AvgDiskUpdateTime                *prometheus.Desc
+	BytesRead                        *prometheus.Desc
+	BytesWritten                     *prometheus.Desc
+	CasBadval                        *prometheus.Desc
+	CasHits                          *prometheus.Desc
+	CasMisses                        *prometheus.Desc
+	CmdGet                           *prometheus.Desc
+	CmdSet                           *prometheus.Desc
+	CouchTotalDiskSize               *prometheus.Desc
+	CouchViewsDataSize               *prometheus.Desc
+	CouchViewsActualDiskSize         *prometheus.Desc
+	CouchViewsFragmentation          *prometheus.Desc
+	CouchViewsOps                    *prometheus.Desc
+	CouchDocsDataSize                *prometheus.Desc
+	CouchDocsDiskSize                *prometheus.Desc
+	CouchDocsActualDiskSize          *prometheus.Desc
+	CouchDocsFragmentation           *prometheus.Desc
+	CPUIdleMs                        *prometheus.Desc
+	CPULocalMs                       *prometheus.Desc
+	CPUUtilizationRate               *prometheus.Desc
 	CurrConnections                  *prometheus.Desc
 	CurrItems                        *prometheus.Desc
 	CurrItemsTot                     *prometheus.Desc

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/couchbase/metrics/objects"
-	"github.com/couchbase/metrics/util"
+	"github.com/couchbase/couchbase_exporter/objects"
+	"github.com/couchbase/couchbase_exporter/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"io/ioutil"
@@ -1733,13 +1733,13 @@ func collectPerNodeBucketMetrics(client util.Client, node string) {
 	fmt.Println("node: ")
 	fmt.Println(node)
 
-	abort, err := abortPerBucketCollection(client);
-	if err != nil {
-		logger.Error(err, "Unable to collect nodes")
-	}
-	if abort {
-		return
-	}
+	//abort, err := abortPerBucketCollection(client);
+	//if err != nil {
+	//	logger.Error(err, "Unable to collect nodes")
+	//}
+	//if abort {
+	//	return
+	//}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
 	defer cancel()
@@ -1753,7 +1753,7 @@ func collectPerNodeBucketMetrics(client util.Client, node string) {
 
 		if !rebalanced {
 			logger.Info("Waiting for Rebalance... retrying...")
-			return false, util.RetryOkError(err)
+			return false, err
 		} else {
 			go func() {
 				for {
@@ -2014,7 +2014,7 @@ func RunPerNodeBucketStatsCollection(client util.Client) {
 		fmt.Println("retry")
 		if currNode, err := getCurrentNode(client); err != nil {
 			logger.Error(err, "could not get current node, will retry")
-			return false, util.RetryOkError(err)
+			return false, err
 		} else {
 			fmt.Println(currNode)
 			collectPerNodeBucketMetrics(client, currNode)

@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
-	"main.go/collectors"
-	"main.go/util"
+	"github.com/couchbase/couchbase_exporter/collectors"
+	"github.com/couchbase/couchbase_exporter/util"
 
 	"github.com/operator-framework/operator-sdk/pkg/log/zap"
 	"github.com/prometheus/client_golang/prometheus"
