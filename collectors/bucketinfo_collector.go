@@ -1,7 +1,7 @@
 package collectors
 
 import (
-	"main.go/util"
+	"github.com/couchbase/couchbase_exporter/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"time"

@@ -3,7 +3,7 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"main.go/objects"
+	"github.com/couchbase/couchbase_exporter/objects"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
