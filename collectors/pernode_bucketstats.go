@@ -895,7 +895,7 @@ var (
 	)
 
 	EpKvSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE, subsystem,"ep_kv_size",
+		FQ_NAMESPACE, subsystem, "ep_kv_size",
 		"Total amount of user data cached in RAM in this bucket",
 		nil,
 	},
@@ -1621,30 +1621,20 @@ func setGaugeVec(vec prometheus.GaugeVec, stats []float64, bucketName, nodeName 
 	}
 }
 
-func getRebalanceStatus(c util.Client) (bool, error) {
+func getClusterBalancedStatus(c util.Client) (bool, error) {
 	node, err := c.Nodes()
 	if err != nil {
 		logger.Error(err, "bad")
 		return false, err
 	}
 
-	return node.Counters.RebalanceSuccess > 0, nil
-}
-
-func abortPerBucketCollection(c util.Client) (bool, error) {
-	node, err := c.Nodes()
-	if err != nil {
-		logger.Error(err, "bad")
-		return false, err
-	}
-
-	return len(node.Nodes) == 1, nil
+	return node.Counters.RebalanceSuccess > 0 || (node.Balanced && node.RebalanceStatus == "none"), nil
 }
 
 func getCurrentNode(c util.Client) (string, error) {
 	nodes, err := c.Nodes()
 	if err != nil {
-		logger.Error(err, "bad")
+		logger.Error(err, "unable to retrieve nodes")
 	}
 
 	for _, node := range nodes.Nodes {
@@ -1656,23 +1646,8 @@ func getCurrentNode(c util.Client) (string, error) {
 	return "", errors.New("Inexplicable error, sidecar is not running on any of the nodes")
 }
 
-func getSpecificNodeBucketStats(bucketName, nodeName, statistic string) interface{} {
-	req := getSpecificNodeBucketStatsURL(bucketName, nodeName)
-
-	var data []byte
-	data = dial(data, req)
-
-	var bucketStats objects.PerNodeBucketStats
-	if err := json.Unmarshal(data, &bucketStats); err != nil {
-		fmt.Println("some unmarshalling failed - getBucketNames")
-		fmt.Println(err)
-	}
-
-	return bucketStats.Op.Samples[statistic]
-}
-
-func getPerNodeBucketStats(bucketName, nodeName string) map[string]interface{} {
-	req := getSpecificNodeBucketStatsURL(bucketName, nodeName)
+func getPerNodeBucketStats(client util.Client, bucketName, nodeName string) map[string]interface{} {
+	req := getSpecificNodeBucketStatsURL(client, bucketName, nodeName)
 
 	var data []byte
 	data = dial(data, req)
@@ -1687,8 +1662,22 @@ func getPerNodeBucketStats(bucketName, nodeName string) map[string]interface{} {
 }
 
 // /pools/default/buckets/<bucket-name>/nodes/<node-name>/stats
-func getSpecificNodeBucketStatsURL(bucket, node string) *http.Request {
-	return makeRequest(domain + listBucketsURL + "/" + bucket + nodes + "/" + node + "/" + stats)
+func getSpecificNodeBucketStatsURL(client util.Client, bucket, node string) *http.Request {
+	servers, err := client.Servers(bucket)
+	if err != nil {
+		fmt.Println("get servers error: ")
+		fmt.Println(err)
+	}
+
+	correctURI := ""
+
+	for _, server := range servers.Servers {
+		if server.Hostname == node {
+			correctURI = server.Stats["uri"]
+		}
+	}
+
+	return makeRequest(client.Url(correctURI))
 }
 
 func makeRequest(url string) *http.Request {
@@ -1728,25 +1717,14 @@ func dial(data []byte, req *http.Request) []byte {
 	return data
 }
 
-func collectPerNodeBucketMetrics(client util.Client, node string) {
-
-	fmt.Println("node: ")
-	fmt.Println(node)
-
-	//abort, err := abortPerBucketCollection(client);
-	//if err != nil {
-	//	logger.Error(err, "Unable to collect nodes")
-	//}
-	//if abort {
-	//	return
-	//}
+func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime int) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
 	defer cancel()
 
 	outerErr := util.Retry(ctx, 20*time.Second, 10, func() (bool, error) {
 
-		rebalanced, err := getRebalanceStatus(client)
+		rebalanced, err := getClusterBalancedStatus(client)
 		if err != nil {
 			logger.Error(err, "Unable to get rebalance status")
 		}
@@ -1763,9 +1741,9 @@ func collectPerNodeBucketMetrics(client util.Client, node string) {
 					}
 
 					for _, bucket := range buckets {
-						logger.Info("Collecting stats for bucket: " + bucket.Name)
+						logger.Info("Collecting per-node bucket stats", "node", node, "bucket", bucket.Name)
 
-						samples := getPerNodeBucketStats(bucket.Name, node)
+						samples := getPerNodeBucketStats(client, bucket.Name, node)
 
 						setGaugeVec(*AvgDiskUpdateTime, strToFloatArr(fmt.Sprint(samples["avg_disk_update_time"])), bucket.Name, node)
 						setGaugeVec(*AvgDiskCommitTime, strToFloatArr(fmt.Sprint(samples["avg_disk_commit_time"])), bucket.Name, node)
@@ -1994,7 +1972,7 @@ func collectPerNodeBucketMetrics(client util.Client, node string) {
 						setGaugeVec(*SwapUsed, strToFloatArr(fmt.Sprint(samples["swap_used"])), bucket.Name, node)
 
 					}
-					time.Sleep(time.Second * 5)
+					time.Sleep(time.Second * time.Duration(refreshTime))
 				}
 			}()
 			logger.Info("Per Node Bucket Stats Go Thread executed successfully")
@@ -2006,18 +1984,16 @@ func collectPerNodeBucketMetrics(client util.Client, node string) {
 	}
 }
 
-func RunPerNodeBucketStatsCollection(client util.Client) {
+func RunPerNodeBucketStatsCollection(client util.Client, refreshTime int) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
 	outerErr := util.Retry(ctx, 20*time.Second, 8, func() (bool, error) {
-		fmt.Println("retry")
 		if currNode, err := getCurrentNode(client); err != nil {
 			logger.Error(err, "could not get current node, will retry")
 			return false, err
 		} else {
-			fmt.Println(currNode)
-			collectPerNodeBucketMetrics(client, currNode)
+			collectPerNodeBucketMetrics(client, currNode, refreshTime)
 		}
 		return true, nil
 	})
