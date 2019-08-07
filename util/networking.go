@@ -29,12 +29,12 @@ func NewClient(domain, user, password string) Client {
 	return client
 }
 
-func (c Client) url(path string) string {
+func (c Client) Url(path string) string {
 	return c.domain + "/" + path
 }
 
 func (c Client) get(path string, v interface{}) error {
-	resp, err := c.Client.Get(c.url(path))
+	resp, err := c.Client.Get(c.Url(path))
 	if err != nil {
 		return errors.Wrapf(err, "failed to get %s", path)
 	}
@@ -128,4 +128,10 @@ func (c Client) Tasks() ([]objects.Task, error) {
 	var tasks []objects.Task
 	err := c.get("pools/default/tasks", &tasks)
 	return tasks, errors.Wrap(err, "failed to get tasks")
+}
+
+func (c Client) Servers(bucket string) (objects.Servers, error) {
+	var servers objects.Servers
+	err := c.get("pools/default/buckets/" + bucket + "/nodes", &servers)
+	return servers, errors.Wrap(err, "failed to get servers")
 }

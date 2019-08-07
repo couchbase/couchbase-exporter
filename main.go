@@ -2,8 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/couchbase/couchbase_exporter/collectors"
 	"github.com/couchbase/couchbase_exporter/util"
+	"os"
+	"strconv"
 
 	"github.com/operator-framework/operator-sdk/pkg/log/zap"
 	"github.com/prometheus/client_golang/prometheus"
@@ -21,6 +24,7 @@ var (
 	passFlag  = flag.String("couchbase_password", "password", "Couchbase Server Password")
 	svrAddr   = flag.String("server_address", "127.0.0.1", "The address to host the server on")
 	svrPort   = flag.String("server_port", "9091", "The port to host the server on")
+	refreshTime = flag.String("per_node_refresh", "5", "How frequently to collect per_node_bucket_stats collector in seconds")
 )
 
 func main() {
@@ -28,6 +32,10 @@ func main() {
 	log.Info("Starting metrics collection...")
 
 	flag.Parse()
+
+	validateInt(*couchPort, "couchbase_port")
+	validateInt(*svrPort, "server_port")
+	validateInt(*refreshTime, "per_node_refresh")
 
 	couchbaseServer := "http://" + *couchAddr + ":" + *couchPort
 
@@ -38,7 +46,8 @@ func main() {
 	prometheus.MustRegister(collectors.NewNodesCollector(client))
 	prometheus.MustRegister(collectors.NewTaskCollector(client))
 
-	collectors.RunPerNodeBucketStatsCollection(client)
+	i, _ := strconv.Atoi(*refreshTime);
+	collectors.RunPerNodeBucketStatsCollection(client, i)
 
 	metricsServer := *svrAddr + ":" + *svrPort
 
@@ -49,4 +58,11 @@ func main() {
 		log.Error(err, "failed to start server:")
 	}
 
+}
+
+func validateInt(str, param string) {
+	if _, err := strconv.Atoi(str); err != nil {
+		fmt.Printf("%q is not a valid integer, parameter: %s.\n", str, param)
+		os.Exit(1)
+	}
 }
