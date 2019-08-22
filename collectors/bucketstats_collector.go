@@ -179,11 +179,18 @@ type bucketStatsCollector struct {
 	XdcOps                           *prometheus.Desc
 }
 
-func last(ss []float64) float64 {
-	if len(ss) == 0 {
-		return 0.0
+func last(stats []float64) float64 {
+	if len(stats) == 0 {
+		return 0
 	}
-	return ss[len(ss)-1]
+	return stats[len(stats)-1]
+}
+
+func min(x, y float64) float64 {
+	if x > y {
+		return y
+	}
+	return x
 }
 
 // Describe all metrics
@@ -420,9 +427,8 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.EpActiveHlcDrift, prometheus.GaugeValue, last(stats.Op.Samples.EpActiveHlcDrift), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.EpClockCasDriftThresholdExceeded, prometheus.GaugeValue, last(stats.Op.Samples.EpClockCasDriftThresholdExceeded), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.EpBgFetched, prometheus.GaugeValue, last(stats.Op.Samples.EpBgFetched), bucket.Name)
-		// for some reason, this ratio can be > 100, so we added a `min` function
-		//ch <- prometheus.MustNewConstMetric(c.EpCacheMissRate, prometheus.GaugeValue, min(last(stats.Op.Samples.EpCacheMissRate), 100), bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.EpCacheMissRate, prometheus.GaugeValue, last(stats.Op.Samples.EpCacheMissRate), bucket.Name)
+		// percentage can exceed 100 due to code within CB, so needs limiting to 100
+		ch <- prometheus.MustNewConstMetric(c.EpCacheMissRate, prometheus.GaugeValue, min(last(stats.Op.Samples.EpCacheMissRate), 100), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.EpDcp2iBackoff, prometheus.GaugeValue, last(stats.Op.Samples.EpDcp2IBackoff), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.EpDcp2iCount, prometheus.GaugeValue, last(stats.Op.Samples.EpDcp2ICount), bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.EpDcp2iItemsRemaining, prometheus.GaugeValue, last(stats.Op.Samples.EpDcp2IItemsRemaining), bucket.Name)

@@ -25,11 +25,6 @@ var (
 )
 
 const (
-	domain         = "http://localhost:8091"
-	homeDirURL     = "/pools/default"
-	listBucketsURL = "/pools/default/buckets"
-	stats          = "/stats"
-	nodes          = "/nodes"
 	subsystem      = "per_node_bucket"
 )
 
@@ -1697,7 +1692,7 @@ func dial(data []byte, req *http.Request) []byte {
 		response, err := client.Do(req)
 		if err != nil {
 			fmt.Println(err)
-			return false, util.RetryOkError(err)
+			return false, err
 		}
 
 		defer response.Body.Close()
@@ -1705,7 +1700,7 @@ func dial(data []byte, req *http.Request) []byte {
 		data, _ = ioutil.ReadAll(response.Body)
 		if response.StatusCode != http.StatusOK {
 			fmt.Println("http response is NOT OKAY " + response.Status)
-			return false, util.RetryOkError(errors.New("Remote call failed with response: " + response.Status + ", " + string(data)))
+			return false, errors.New("Remote call failed with response: " + response.Status + ", " + string(data))
 		}
 		return true, nil
 	})
