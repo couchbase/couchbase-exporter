@@ -190,7 +190,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(c.xdcrChangesLeft, prometheus.GaugeValue, float64(task.ChangesLeft), task.Source, task.Target)
 			ch <- prometheus.MustNewConstMetric(c.xdcrDocsChecked, prometheus.GaugeValue, float64(task.DocsChecked), task.Source, task.Target)
 			ch <- prometheus.MustNewConstMetric(c.xdcrDocsWritten, prometheus.GaugeValue, float64(task.DocsWritten), task.Source, task.Target)
-			//ch <- prometheus.MustNewConstMetric(c.xdcrPaused, prometheus.GaugeValue, fromBool(task.PauseRequested), task.Source, task.Target)
+			ch <- prometheus.MustNewConstMetric(c.xdcrPaused, prometheus.GaugeValue, boolToFloat64(task.PauseRequested), task.Source, task.Target)
 			ch <- prometheus.MustNewConstMetric(c.xdcrErrors, prometheus.GaugeValue, float64(len(task.Errors)), task.Source, task.Target)
 		case "clusterLogsCollection":
 			ch <- prometheus.MustNewConstMetric(c.clusterLogsCollection, prometheus.GaugeValue, task.Progress)

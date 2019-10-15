@@ -27,13 +27,13 @@ import (
 var log = logf.Log.WithName("metrics")
 
 var (
-	couchAddr = flag.String("couchbase_address", "localhost", "The address where Couchbase Server is running")
-	couchPort = flag.String("couchbase_port", "8091", "The port where Couchbase Server is running.")
-	userFlag  = flag.String("couchbase_username", "Administrator", "Couchbase Server Username")
-	passFlag  = flag.String("couchbase_password", "password", "Couchbase Server Password")
-	svrAddr   = flag.String("server_address", "127.0.0.1", "The address to host the server on")
-	svrPort   = flag.String("server_port", "9091", "The port to host the server on")
-	refreshTime = flag.String("per_node_refresh", "5", "How frequently to collect per_node_bucket_stats collector in seconds")
+	couchAddr = flag.String("couchbase-address", "localhost", "The address where Couchbase Server is running")
+	couchPort = flag.String("couchbase-port", "8091", "The port where Couchbase Server is running.")
+	userFlag  = flag.String("couchbase-username", "Administrator", "Couchbase Server Username")
+	passFlag  = flag.String("couchbase-password", "password", "Couchbase Server Password")
+	svrAddr   = flag.String("server-address", "127.0.0.1", "The address to host the server on")
+	svrPort   = flag.String("server-port", "9091", "The port to host the server on")
+	refreshTime = flag.String("per-node-refresh", "5", "How frequently to collect per_node_bucket_stats collector in seconds")
 )
 
 func main() {
@@ -42,9 +42,9 @@ func main() {
 
 	flag.Parse()
 
-	validateInt(*couchPort, "couchbase_port")
-	validateInt(*svrPort, "server_port")
-	validateInt(*refreshTime, "per_node_refresh")
+	validateInt(*couchPort, "couchbase-port")
+	validateInt(*svrPort, "server-port")
+	validateInt(*refreshTime, "per-node-refresh")
 
 	couchbaseServer := "http://" + *couchAddr + ":" + *couchPort
 
