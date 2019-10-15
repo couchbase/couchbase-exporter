@@ -1,0 +1,46 @@
+groups:
+- name: example
+  rules:
+  - alert: Bucket_Info_Collector_Down
+    expr: couchbase_bucketinfo_up
+    annotations:
+      summary: Couchbase Exporter BucketInfo collector is down
+
+  - alert: BucketStatCollectorUp
+    expr: couchbase_bucketstat_up
+    annotations:
+      summary: Couchbase Exporter BucketStats collector is down
+
+  - alert: NodeCollectorUp
+    expr: couchbase_node_up
+    annotations:
+      summary: Couchbase Exporter Node collector is down
+
+  - alert: TaskCollectorUp
+    expr: couchbase_task_up
+    annotations:
+      summary: Couchbase Exporter Task collector is down
+
+  - alert: Couchbase_Failover
+    expr: couchbase_node_failover - avg_over_time(couchbase_node_failover[1m]) > 0
+    annotations:
+      summary: Couchbase cluster failover
+      description: Couchbase cluster suffers from a failover. Please check cluster state.
+
+  - alert: Couchbase_Bucket_Commit_Failed
+    expr: cb_bucket_ep_item_commit_failed > 0
+    annotations:
+      summary: Couchbase bucket commit failed
+      description: A failure occured when committing data to disk for bucket {{ $labels.bucket }}.
+
+  - alert: Couchbase_Rebalance_Failed
+    expr: couchbase_node_rebalance_failure - avg_over_time(couchbase_node_rebalance_failure[1m]) > 0
+    annotations:
+      summary: Couchbase cluster failover
+      description: Couchbase cluster suffers from a failover. Please check cluster state.
+
+  - alert: Couchbase_Node_Cluster_Membership
+    expr: couchbase_node_cluster_membership == 0
+    annotations:
+      summary: Couchbase node cluster membership
+      description: Node {{ $labels.instance }} is out of the cluster.

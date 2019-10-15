@@ -13,6 +13,7 @@ import (
 	"github.com/couchbase/couchbase_exporter/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"strconv"
 	"time"
 )
 
@@ -49,6 +50,19 @@ type nodesCollector struct {
 	mcdMemoryAllocated *prometheus.Desc
 	//thisNode
 	clusterCompatibility *prometheus.Desc
+	clusterMembership    *prometheus.Desc
+
+	ctrRebalanceSuccess        *prometheus.Desc
+	ctrRebalanceStart          *prometheus.Desc
+	ctrRebalanceFail           *prometheus.Desc
+	ctrRebalanceStop           *prometheus.Desc
+	ctrFailoverNode            *prometheus.Desc
+	ctrFailover                *prometheus.Desc
+	ctrFailoverComplete        *prometheus.Desc
+	ctrFailoverIncomplete      *prometheus.Desc
+	ctrGracefulFailoverStart   *prometheus.Desc
+	ctrGracefulFailoverSuccess *prometheus.Desc
+	ctrGracefulFailoverFail    *prometheus.Desc
 }
 
 func NewNodesCollector(client util.Client) prometheus.Collector {
@@ -73,6 +87,36 @@ func NewNodesCollector(client util.Client) prometheus.Collector {
 		healthy: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "healthy"),
 			"Is this node healthy",
+			[]string{"node"},
+			nil,
+		),
+		systemStatsCPUUtilizationRate: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "systemstats_cpu_utilization_rate"),
+			"systemstats_cpu_utilization_rate",
+			[]string{"node"},
+			nil,
+		),
+		systemStatsSwapTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "systemstats_swap_total"),
+			"systemstats_swap_total",
+			[]string{"node"},
+			nil,
+		),
+		systemStatsSwapUsed: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "systemstats_swap_used"),
+			"systemstats_swap_used",
+			[]string{"node"},
+			nil,
+		),
+		systemStatsMemTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "systemstats_mem_total"),
+			"systemstats_mem_total",
+			[]string{"node"},
+			nil,
+		),
+		systemStatsMemFree: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "systemstats_mem_free"),
+			"systemstats_mem_free",
 			[]string{"node"},
 			nil,
 		),
@@ -166,6 +210,108 @@ func NewNodesCollector(client util.Client) prometheus.Collector {
 			[]string{"node"},
 			nil,
 		),
+		uptime: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "uptime"),
+			"uptime",
+			[]string{"node"},
+			nil,
+		),
+		memoryTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "memory_total"),
+			"memory_total",
+			[]string{"node"},
+			nil,
+		),
+		memoryFree: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "memory_free"),
+			"memory_free",
+			[]string{"node"},
+			nil,
+		),
+		mcdMemoryAllocated: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "memcached_memory_allocated"),
+			"memcached_memory_allocated",
+			[]string{"node"},
+			nil,
+		),
+		mcdMemoryReserved: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "memcached_memory_reserved"),
+			"memcached_memory_reserved",
+			[]string{"node"},
+			nil,
+		),
+		clusterMembership: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "cluster_membership"),
+			"whether or not node is part of the CB cluster",
+			[]string{"node"},
+			nil,
+		),
+		ctrFailover: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "failover"),
+			"failover",
+			nil,
+			nil,
+		),
+		ctrFailoverNode: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "failover_node"),
+			"failover_node",
+			nil,
+			nil,
+		),
+		ctrFailoverComplete: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "failover_complete"),
+			"failover_complete",
+			nil,
+			nil,
+		),
+		ctrFailoverIncomplete: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "failover_incomplete"),
+			"failover_incomplete",
+			nil,
+			nil,
+		),
+		ctrRebalanceStart: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "rebalance_start"),
+			"rebalance_start",
+			nil,
+			nil,
+		),
+		ctrRebalanceStop: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "rebalance_stop"),
+			"rebalance_stop",
+			nil,
+			nil,
+		),
+		ctrRebalanceSuccess: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "rebalance_success"),
+			"rebalance_success",
+			nil,
+			nil,
+		),
+		ctrRebalanceFail: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "rebalance_failure"),
+			"rebalance_failure",
+			nil,
+			nil,
+		),
+		ctrGracefulFailoverStart: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "graceful_failover_start"),
+			"graceful_failover_start",
+			nil,
+			nil,
+		),
+		ctrGracefulFailoverSuccess: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "graceful_failover_success"),
+			"graceful_failover_success",
+			nil,
+			nil,
+		),
+		ctrGracefulFailoverFail: prometheus.NewDesc(
+			prometheus.BuildFQName(FQ_NAMESPACE, subsystem, "graceful_failover_fail"),
+			"graceful_failover_fail",
+			nil,
+			nil,
+		),
 	}
 }
 
@@ -188,6 +334,43 @@ func (c *nodesCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.interestingStatsCmdGet
 	ch <- c.interestingStatsGetHits
 	ch <- c.interestingStatsEpBgFetched
+	ch <- c.systemStatsCPUUtilizationRate
+	ch <- c.systemStatsMemFree
+	ch <- c.systemStatsMemTotal
+	ch <- c.systemStatsSwapTotal
+	ch <- c.systemStatsSwapUsed
+	ch <- c.uptime
+	ch <- c.memoryTotal
+	ch <- c.memoryFree
+	ch <- c.mcdMemoryAllocated
+	ch <- c.mcdMemoryReserved
+	ch <- c.clusterMembership
+	ch <- c.ctrFailover
+	ch <- c.ctrFailoverNode
+	ch <- c.ctrFailoverComplete
+	ch <- c.ctrFailoverIncomplete
+	ch <- c.ctrRebalanceStart
+	ch <- c.ctrRebalanceStop
+	ch <- c.ctrRebalanceSuccess
+	ch <- c.ctrRebalanceFail
+	ch <- c.ctrGracefulFailoverSuccess
+	ch <- c.ctrGracefulFailoverFail
+	ch <- c.ctrGracefulFailoverStart
+}
+
+
+func boolToFloat64(b bool) float64 {
+	if b {
+		return 1.0
+	}
+	return 0.0
+}
+
+func ifActive(s string) float64 {
+	if s == "active" {
+		return 1.0
+	}
+	return 0.0
 }
 
 // Collect all metrics
@@ -208,7 +391,7 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	// nolint: lll
 	for _, node := range nodes.Nodes {
 		log.Debugf("Collecting %s node metrics...", node.Hostname)
-		//ch <- prometheus.MustNewConstMetric(c.healthy, prometheus.GaugeValue, fromBool(node.Status == "healthy"), node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.healthy, prometheus.GaugeValue, boolToFloat64(node.Status == "healthy"), node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsCouchDocsActualDiskSize, prometheus.GaugeValue, node.InterestingStats.CouchDocsActualDiskSize, node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsCouchDocsDataSize, prometheus.GaugeValue, node.InterestingStats.CouchDocsDataSize, node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsCouchViewsActualDiskSize, prometheus.GaugeValue, node.InterestingStats.CouchViewsActualDiskSize, node.Hostname)
@@ -223,7 +406,37 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsCmdGet, prometheus.GaugeValue, node.InterestingStats.CmdGet, node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsGetHits, prometheus.GaugeValue, node.InterestingStats.GetHits, node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsEpBgFetched, prometheus.GaugeValue, node.InterestingStats.EpBgFetched, node.Hostname)
+
+		ch <- prometheus.MustNewConstMetric(c.systemStatsCPUUtilizationRate, prometheus.GaugeValue, node.SystemStats.CPUUtilizationRate, node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.systemStatsSwapUsed, prometheus.GaugeValue, node.SystemStats.SwapUsed, node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.systemStatsSwapTotal, prometheus.GaugeValue, node.SystemStats.SwapTotal, node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.systemStatsMemTotal, prometheus.GaugeValue, node.SystemStats.MemTotal, node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.systemStatsMemFree, prometheus.GaugeValue, node.SystemStats.MemFree, node.Hostname)
+
+		up, err := strconv.ParseFloat(node.Uptime, 64)
+		if err != nil {
+			return
+		}
+
+		ch <- prometheus.MustNewConstMetric(c.uptime, prometheus.CounterValue, up, node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.memoryTotal, prometheus.GaugeValue, node.MemoryTotal, node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.memoryFree, prometheus.GaugeValue, node.MemoryFree, node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.mcdMemoryAllocated, prometheus.GaugeValue, node.McdMemoryAllocated, node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.mcdMemoryReserved, prometheus.GaugeValue, node.McdMemoryReserved, node.Hostname)
+		ch <- prometheus.MustNewConstMetric(c.clusterMembership, prometheus.CounterValue, ifActive(node.ClusterMembership), node.Hostname)
 	}
+
+	ch <- prometheus.MustNewConstMetric(c.ctrFailover, prometheus.CounterValue, nodes.Counters.Failover)
+	ch <- prometheus.MustNewConstMetric(c.ctrFailoverNode, prometheus.CounterValue, nodes.Counters.FailoverNode)
+	ch <- prometheus.MustNewConstMetric(c.ctrFailoverComplete, prometheus.CounterValue, nodes.Counters.FailoverComplete)
+	ch <- prometheus.MustNewConstMetric(c.ctrFailoverIncomplete, prometheus.CounterValue, nodes.Counters.FailoverIncomplete)
+	ch <- prometheus.MustNewConstMetric(c.ctrRebalanceStart, prometheus.CounterValue, nodes.Counters.RebalanceStart)
+	ch <- prometheus.MustNewConstMetric(c.ctrRebalanceStop, prometheus.CounterValue, nodes.Counters.RebalanceStop)
+	ch <- prometheus.MustNewConstMetric(c.ctrRebalanceSuccess, prometheus.CounterValue, nodes.Counters.RebalanceSuccess)
+	ch <- prometheus.MustNewConstMetric(c.ctrRebalanceFail, prometheus.CounterValue, nodes.Counters.RebalanceFail)
+	ch <- prometheus.MustNewConstMetric(c.ctrGracefulFailoverSuccess, prometheus.CounterValue, nodes.Counters.GracefulFailoverSuccess)
+	ch <- prometheus.MustNewConstMetric(c.ctrGracefulFailoverFail, prometheus.CounterValue, nodes.Counters.GracefulFailoverFail)
+	ch <- prometheus.MustNewConstMetric(c.ctrGracefulFailoverStart, prometheus.CounterValue, nodes.Counters.GracefulFailoverStart)
 
 	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1)
 	// nolint: lll
