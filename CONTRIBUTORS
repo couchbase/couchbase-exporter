@@ -1,0 +1,6 @@
+Portions of this project were based on work by TOTVS Labs in
+https://github.com/totvslabs/couchbase-exporter.
+
+This project also took inspiration from
+https://github.com/leansys-team/couchbase_exporter which is currently
+hosted at https://github.com/blakelead/couchbase_exporter.
