@@ -6,7 +6,7 @@ The Couchbase Prometheus Exporter is an official [Prometheus Exporter](https://p
 These include, but are not limited to, CPU and Memory usage, Ops per second, read and write rates, and queue sizes. 
 Metrics can be refined to a per node and also a per bucket basis. 
 
-####Technical Overview
+### Technical Overview
 
 We run four main collectors (as is the standard for prometheus exporters. see [Writing Exporters](https://prometheus.io/docs/instrumenting/writing_exporters/)) for bucketInfo, bucketStats, nodes, and tasks. These are items that collect cluster-wide statistics on demand when requested by something like say for example, Grafana. 
 
@@ -79,7 +79,7 @@ To consume the metrics, we need to set up Prometheus and optionally Grafana to c
 
 There are a couple of ways to install and configure both. 
 The easiest way by far is to run the [kube-prometheus](https://github.com/coreos/kube-prometheus) package, which bundles 
-the Prometheus Operator, AlertManager and Grafana. This is great if you are running Couchbase Automonous Operator.
+the Prometheus Operator, AlertManager, Grafana, and many others. This is great if you are running Couchbase Automonous Operator.
 Alternatively, you can check out the official [Prometheus Helm Chart](https://github.com/helm/charts/tree/master/stable/prometheus).  
 
 Otherwise see below.

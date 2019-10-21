@@ -55,7 +55,7 @@ func main() {
 	prometheus.MustRegister(collectors.NewNodesCollector(client))
 	prometheus.MustRegister(collectors.NewTaskCollector(client))
 
-	i, _ := strconv.Atoi(*refreshTime);
+	i, _ := strconv.Atoi(*refreshTime)
 	collectors.RunPerNodeBucketStatsCollection(client, i)
 
 	metricsServer := *svrAddr + ":" + *svrPort
