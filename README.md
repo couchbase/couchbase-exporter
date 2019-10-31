@@ -31,7 +31,7 @@ Most of the useful statistics will be found in bucketStats, nodes and perNodeBuc
 
 #### Local Setup
 
-If you have Couchbase server running locally, run the command `docker build --tag couchbase_exporter .` to build the image.
+If you have Couchbase server running locally, run the command `docker build --tag couchbase-exporter:v1 .` to build the image.
 
 Then run `docker run --name couchbase-exporter -d -p 9091:9091 couchbase-exporter:v1`.
 This will run the exporter with the default arguments above.
@@ -98,7 +98,7 @@ and report as ACTIVE.
 #### Docker Setup
 
 If you have Couchbase Exporter running as a Docker container, the provided `prometheus.yml` configuration will need editing
-as the `localhost:9091` will be reported as DOWN. As with the [previous Docker Setup section](link), use the commands 
+as the `localhost:9091` will be reported as DOWN. As with the [previous Docker Setup section](#docker-setup), use the commands
 `docker network list` and `docker network inspect <network-ID>` to find the IPv4 Address of the Couchbase Exporter container and 
 substitute this value for `localhost` in the list of scrape targets. The port will still, obviously, be `9091`.
 
