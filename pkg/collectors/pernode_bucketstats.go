@@ -11,14 +11,12 @@ package collectors
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/couchbase/couchbase_exporter/objects"
-	"github.com/couchbase/couchbase_exporter/util"
+	"github.com/couchbase/couchbase_exporter/pkg/objects"
+	"github.com/couchbase/couchbase_exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"io/ioutil"
 	"net/http"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"strconv"
@@ -34,7 +32,7 @@ var (
 )
 
 const (
-	subsystem      = "per_node_bucket"
+	subsystem = "per_node_bucket"
 )
 
 var (
@@ -1647,78 +1645,36 @@ func getCurrentNode(c util.Client) (string, error) {
 		}
 	}
 
-	return "", errors.New("Inexplicable error, sidecar is not running on any of the nodes")
+	return "", errors.New("Inexplicable error, sidecar container cannot find Couchbase Hostname")
 }
 
 func getPerNodeBucketStats(client util.Client, bucketName, nodeName string) map[string]interface{} {
-	req := getSpecificNodeBucketStatsURL(client, bucketName, nodeName)
-
-	var data []byte
-	data = dial(data, req)
+	url := getSpecificNodeBucketStatsURL(client, bucketName, nodeName)
 
 	var bucketStats objects.PerNodeBucketStats
-	if err := json.Unmarshal(data, &bucketStats); err != nil {
-		fmt.Println("some unmarshalling failed - getBucketNames")
-		fmt.Println(err)
+	err := client.Get(url, &bucketStats)
+	if err != nil {
+		logger.Error(err, "unable to GET PerNodeBucketStats")
 	}
 
 	return bucketStats.Op.Samples
 }
 
 // /pools/default/buckets/<bucket-name>/nodes/<node-name>/stats
-func getSpecificNodeBucketStatsURL(client util.Client, bucket, node string) *http.Request {
+func getSpecificNodeBucketStatsURL(client util.Client, bucket, node string) string {
 	servers, err := client.Servers(bucket)
 	if err != nil {
-		fmt.Println("get servers error: ")
-		fmt.Println(err)
+		logger.Error(err, "unable to retrieve Servers")
 	}
 
 	correctURI := ""
-
 	for _, server := range servers.Servers {
 		if server.Hostname == node {
 			correctURI = server.Stats["uri"]
 		}
 	}
 
-	return makeRequest(client.Url(correctURI))
-}
-
-func makeRequest(url string) *http.Request {
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
-	}
-	req.SetBasicAuth(username, passwd)
-	return req
-}
-
-func dial(data []byte, req *http.Request) []byte {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	outerErr := util.Retry(ctx, 5*time.Second, 5, func() (bool, error) {
-		response, err := client.Do(req)
-		if err != nil {
-			fmt.Println(err)
-			return false, err
-		}
-
-		defer response.Body.Close()
-
-		data, _ = ioutil.ReadAll(response.Body)
-		if response.StatusCode != http.StatusOK {
-			fmt.Println("http response is NOT OKAY " + response.Status)
-			return false, errors.New("Remote call failed with response: " + response.Status + ", " + string(data))
-		}
-		return true, nil
-	})
-	if outerErr != nil {
-		fmt.Println("getting default stats failed")
-		fmt.Println(outerErr)
-	}
-
-	return data
+	return correctURI
 }
 
 func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime int) {

@@ -12,7 +12,7 @@
 package collectors
 
 import (
-	"github.com/couchbase/couchbase_exporter/util"
+	"github.com/couchbase/couchbase_exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"strconv"
@@ -359,7 +359,6 @@ func (c *nodesCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.ctrGracefulFailoverFail
 	ch <- c.ctrGracefulFailoverStart
 }
-
 
 func boolToFloat64(b bool) float64 {
 	if b {

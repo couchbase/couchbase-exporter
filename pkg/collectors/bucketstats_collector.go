@@ -12,9 +12,9 @@
 package collectors
 
 import (
+	"github.com/couchbase/couchbase_exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
-	"github.com/couchbase/couchbase_exporter/util"
 	"time"
 )
 
