@@ -17,14 +17,14 @@ import (
 	"github.com/couchbase/couchbase_exporter/pkg/collectors"
 	"github.com/couchbase/couchbase_exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/client_golang/prometheus"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 
-	"github.com/operator-framework/operator-sdk/pkg/log/zap"
-	"github.com/prometheus/client_golang/prometheus"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 const (
@@ -53,7 +53,7 @@ var (
 )
 
 func main() {
-	logf.SetLogger(zap.Logger())
+	logf.SetLogger(zap.New())
 	log.Info("Starting metrics collection...")
 
 	flag.Parse()

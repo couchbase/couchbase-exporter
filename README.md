@@ -70,8 +70,9 @@ In this example, we would include `"--couchbase-address", "172.17.0.2"` in the C
 In both cases, you should see the exporter displaying metrics at `localhost:9091/metrics`.
 
 ### Standalone
-Navigate to either `bin/darwin` to build for Mac or `bin/linux` in your terminal.
-Run `couchbase_exporter` with the any of the optional arguments.
+If running on Linux, simply run `couchbase_exporter` with the any of the optional arguments in the main directory.
+
+Or navigate to `bin/darwin` to run on Mac.
 
 ## Setting up Monitoring tools
 
