@@ -16,7 +16,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"github.com/couchbase/couchbase_exporter/pkg/objects"
+	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"

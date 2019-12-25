@@ -1,4 +1,4 @@
-module github.com/couchbase/couchbase_exporter
+module github.com/couchbase/couchbase-exporter
 
 go 1.12
 
