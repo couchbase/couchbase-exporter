@@ -9,8 +9,8 @@ build: $(SOURCE) go.mod
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -ldflags="-s -w" -o build/couchbase-exporter
 
 image-artifacts: build
-	mkdir -p $(ARTIFACTS)
-	cp build/couchbase-exporter $(ARTIFACTS)
+	mkdir -p $(ARTIFACTS)/build
+	cp build/couchbase-exporter $(ARTIFACTS)/build
 	cp Dockerfile $(ARTIFACTS)
 
 dist: image-artifacts
