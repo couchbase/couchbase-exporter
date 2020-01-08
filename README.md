@@ -16,6 +16,8 @@ Most of the useful statistics will be found in bucketStats, nodes and perNodeBuc
 
 ## Usage
 
+Firstly make sure to build the exporter binary using `make`.
+
 ### Couchbase Exporter Arguments
 | Arg | Description | Default |
 | ------- | ------- | ------------|
