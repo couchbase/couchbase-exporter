@@ -5,12 +5,15 @@ productVersion = $(version)-$(bldNum)
 ARTIFACTS = build/artifacts/exporter
 
 build: $(SOURCE) go.mod
-	mkdir -p build
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -ldflags="-s -w" -o build/couchbase-exporter
+	for platform in linux darwin ; do \
+	  echo "Building $$platform binary" ; \
+	  mkdir -p build/$$platform ; \
+	  GOOS=$$platform GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -ldflags="-s -w" -o bin/$$platform/couchbase-exporter ; \
+	done
 
 image-artifacts: build
-	mkdir -p $(ARTIFACTS)/build
-	cp build/couchbase-exporter $(ARTIFACTS)/build
+	mkdir -p $(ARTIFACTS)/bin/linux
+	cp build/linux/couchbase-exporter $(ARTIFACTS)/bin/linux
 	cp Dockerfile $(ARTIFACTS)
 
 dist: image-artifacts

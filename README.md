@@ -38,16 +38,14 @@ If you have Couchbase server running locally, run the command `docker build --ta
 Then run `docker run --name couchbase-exporter -d -p 9091:9091 couchbase-exporter:v1`.
 This will run the exporter with the default arguments above.
 
-To specify the arguments, edit the CMD line in the Dockerfile provided. Note that specifying arguments is completely optional.
+Arguments can be specified by appending them to the docker run command. Note that specifying arguments is completely optional.
 For example, if you are running Couchbase at the address 10.1.2.3 with a port 9000, and a new password,
-and your Prometheus server is running at 10.0.0.1 on its default port, the file would be:
+and your Prometheus server is running at 10.0.0.1 on its default port, run:
 
-```
-FROM alpine:3.6
-ADD couchbase-exporter /usr/local/bin
-ADD main.go /usr/local/bin
-CMD ["couchbase-exporter", "--couchbase-address", "10.1.2.3", "--couchbase-port", "9000", "--couchbase-password", "mrkrabs101", "--server-address", 10.0.0.1]
-```
+`docker run --name couchbase-exporter -d -p 9091:9091 couchbase-exporter:v1 --couchbase-address 10.1.2.3 --couchbase-port 9000 --couchbase-password mrkrabs101 --server-address 10.0.0.1`
+
+To see a complete list of available arguments, run `docker run --rm couchbase-exporter --help`
+
 #### Docker Setup
 
 If running Couchbase as a separate Docker container, use `docker network list` to
