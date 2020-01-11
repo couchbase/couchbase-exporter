@@ -14,7 +14,7 @@ build: $(SOURCE) go.mod
 image-artifacts: build
 	mkdir -p $(ARTIFACTS)/bin/linux
 	cp bin/linux/couchbase-exporter $(ARTIFACTS)/bin/linux
-	cp Dockerfile* $(ARTIFACTS)
+	cp Dockerfile* LICENSE README.md $(ARTIFACTS)
 
 dist: image-artifacts
 	rm -rf dist
