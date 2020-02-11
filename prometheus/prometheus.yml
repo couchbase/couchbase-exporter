@@ -26,4 +26,13 @@ scrape_configs:
     # scheme defaults to 'http'.
 
     static_configs:
-      - targets: ['localhost:9090', '172.17.0.3:9091']
+      - targets: ['localhost:9090']
+  - job_name: 'couchbase'
+
+    scrape_interval:     1s # 1s is the lowest granularity, and set as an example. Please increase to your needs as it will most likely too frequent and wasteful.
+    scrape_timeout:      1s
+
+    metrics_path: /metrics
+
+    static_configs:
+      - targets: ['localhost:9091']

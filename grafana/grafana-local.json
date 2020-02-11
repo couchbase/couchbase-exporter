@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 1,
-  "iteration": 1571162329169,
+  "id": 3,
+  "iteration": 1581432979609,
   "links": [],
   "panels": [
     {
@@ -24,15 +24,18 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
+      "datasource": null,
       "fill": 2,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 10,
         "x": 0,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 2,
-      "interval": "5s",
+      "interval": "1s",
       "legend": {
         "alignAsTable": true,
         "avg": true,
@@ -48,7 +51,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "paceLength": 10,
       "percentage": false,
       "pointradius": 2,
@@ -62,7 +67,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "couchbase_bucketstat_cpu_utilization_rate{bucket=\"$bucket\"}\n",
+          "expr": "cbbucketstat_cpu_utilization_rate{bucket=~\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -114,13 +119,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
+      "datasource": null,
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 10,
         "x": 10,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 4,
       "legend": {
         "alignAsTable": true,
@@ -136,7 +144,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "paceLength": 10,
       "percentage": false,
       "pointradius": 2,
@@ -150,20 +160,20 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "couchbase_bucketstat_mem_used_bytes{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_mem_used_bytes{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A"
         },
         {
-          "expr": "couchbase_bucketstat_mem_actual_used_bytes{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_mem_actual_used_bytes{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "B"
         },
         {
-          "expr": "couchbase_bucketstat_mem_actual_used_free{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_mem_actual_free{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "C"
@@ -212,6 +222,7 @@
     },
     {
       "cacheTimeout": null,
+      "datasource": null,
       "gridPos": {
         "h": 8,
         "w": 4,
@@ -226,11 +237,29 @@
             "mean"
           ],
           "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
             "max": 100,
-            "min": 0
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "index": 0,
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "index": 1,
+                  "value": 80
+                }
+              ]
+            }
           },
-          "mappings": [],
-          "override": {},
+          "overrides": [],
           "thresholds": [
             {
               "color": "green",
@@ -249,10 +278,10 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "6.2.5",
+      "pluginVersion": "6.6.0",
       "targets": [
         {
-          "expr": "couchbase_per_node_bucket_curr_connections{bucket=\"$bucket\"}",
+          "expr": "cbpernodebucket_curr_connections{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -268,13 +297,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
+      "datasource": null,
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 0,
         "y": 8
       },
+      "hiddenSeries": false,
       "id": 6,
       "interval": "5s",
       "legend": {
@@ -291,7 +323,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "paceLength": 10,
       "percentage": false,
       "pointradius": 2,
@@ -303,7 +337,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "couchbase_bucketstat_ops{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_ops{bucket=\"$bucket\"}",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -356,13 +390,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
+      "datasource": null,
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 6,
         "x": 8,
         "y": 8
       },
+      "hiddenSeries": false,
       "id": 8,
       "interval": "5s",
       "legend": {
@@ -379,7 +416,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "paceLength": 10,
       "percentage": false,
       "pointradius": 2,
@@ -391,7 +430,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "couchbase_bucketstat_cmd_get{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_cmd_get{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "",
@@ -444,13 +483,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
+      "datasource": null,
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 6,
         "x": 14,
         "y": 8
       },
+      "hiddenSeries": false,
       "id": 22,
       "legend": {
         "avg": false,
@@ -465,7 +507,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 2,
       "points": false,
@@ -476,7 +520,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "couchbase_bucketstat_cmd_set{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_cmd_set{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -532,6 +576,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
+      "datasource": null,
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -585,7 +630,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "couchbase_bucketstat_curr_items{bucket=~\"$bucket\"}",
+          "expr": "cbbucketstat_curr_items{bucket=~\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -611,13 +656,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
+      "datasource": null,
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 0,
         "y": 16
       },
+      "hiddenSeries": false,
       "id": 10,
       "interval": "5s",
       "legend": {
@@ -633,7 +681,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "paceLength": 10,
       "percentage": false,
       "pointradius": 2,
@@ -645,14 +695,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "couchbase_bucketstat_disk_write_queue{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_disk_write_queue{bucket=\"$bucket\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
           "refId": "A"
         },
         {
-          "expr": "couchbase_bucketstat_ep_diskqueue_items{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_ep_diskqueue_items{bucket=\"$bucket\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -705,13 +755,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
+      "datasource": null,
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 6,
         "x": 8,
         "y": 16
       },
+      "hiddenSeries": false,
       "id": 16,
       "legend": {
         "avg": false,
@@ -726,7 +779,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "paceLength": 10,
       "percentage": false,
       "pointradius": 2,
@@ -738,7 +793,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "couchbase_bucketstat_couch_total_disk_size{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_couch_total_disk_size{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -790,13 +845,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
+      "datasource": null,
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 6,
         "x": 14,
         "y": 16
       },
+      "hiddenSeries": false,
       "id": 14,
       "interval": "5s",
       "legend": {
@@ -812,7 +870,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "paceLength": 10,
       "percentage": false,
       "pointradius": 2,
@@ -824,19 +884,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "couchbase_bucketstat_vbuckets_active_queue_size{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_vbuckets_active_queue_size{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "C"
         },
         {
-          "expr": "couchbase_bucketstat_vbuckets_pending_queue_size{bucket=\"$bucket\"}",
+          "expr": "cbbucketstat_vbuckets_pending_queue_size{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "D"
         },
         {
-          "expr": "couchbase_per_node_bucket_vb_replica_queue_size{bucket=\"$bucket\"}",
+          "expr": "cbpernodebucket_vb_replica_queue_size{bucket=\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "E"
@@ -892,6 +952,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
+      "datasource": null,
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -945,7 +1006,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "couchbase_bucketstat_curr_items_tot{bucket=~\"$bucket\"}",
+          "expr": "cbbucketstat_curr_items_tot{bucket=~\"$bucket\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -968,7 +1029,7 @@
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 18,
+  "schemaVersion": 22,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -976,9 +1037,8 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
-          "text": "gamesim-sample",
-          "value": "gamesim-sample"
+          "text": "default",
+          "value": "default"
         },
         "datasource": "Prometheus",
         "definition": "label_values(bucket)",
@@ -989,14 +1049,9 @@
         "name": "bucket",
         "options": [
           {
-            "selected": false,
-            "text": "beer-sample",
-            "value": "beer-sample"
-          },
-          {
             "selected": true,
-            "text": "gamesim-sample",
-            "value": "gamesim-sample"
+            "text": "default",
+          "value": "default"
           }
         ],
         "query": "label_values(bucket)",
@@ -1045,5 +1100,5 @@
   "timezone": "",
   "title": "Couchbase-Single",
   "uid": "QpALMugZz2z",
-  "version": 4
+  "version": 9
 }

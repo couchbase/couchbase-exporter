@@ -114,7 +114,7 @@ Now run
 
 to build the image and
 
-`docker run --name prometheus -d -p 9090:9090 my-prometheus`
+`docker run --name my-prometheus -d -p 9090:9090 my-prometheus`
 
 to run the Prometheus Server with our custom config.
 The Targets page should now look something like the following.
