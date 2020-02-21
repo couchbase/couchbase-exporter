@@ -2,7 +2,7 @@ SOURCE = $(shell find . -name *.go -type f)
 bldNum = $(if $(BLD_NUM),$(BLD_NUM),9999)
 version = $(if $(VERSION),$(VERSION),1.0.0)
 productVersion = $(version)-$(bldNum)
-ARTIFACTS = build/artifacts/exporter
+ARTIFACTS = build/artifacts/couchbase-exporter
 
 build: $(SOURCE) go.mod
 	for platform in linux darwin ; do \
