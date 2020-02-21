@@ -15,8 +15,8 @@ COPY LICENSE /licenses/LICENSE.txt
 COPY README.md /help.1
 
 ARG PROD_VERSION
+ARG PROD_BUILD
 ARG OS_BUILD
-ARG EXPORTER_BUILD
 
 # Install Couchbase Exporter
 COPY bin/linux/couchbase-exporter /usr/local/bin/couchbase-exporter
@@ -25,7 +25,7 @@ LABEL name="rhel8/couchbase-exporter" \
       vendor="Couchbase" \
       version="${PROD_VERSION}" \
       openshift_build="${OS_BUILD}" \
-      exporter_build="${EXPORTER_BUILD}" \
+      exporter_build="${PROD_BUILD}" \
       release="Latest" \
       summary="Couchbase Exporter ${PROD_VERSION}" \
       description="Couchbase Exporter ${PROD_VERSION}" \
