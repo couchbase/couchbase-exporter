@@ -1,6 +1,5 @@
-bin/darwin
-build
-dist
+bin/
+build/
+dist/
 img
-pkg
 .git
