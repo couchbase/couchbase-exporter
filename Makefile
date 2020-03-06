@@ -15,6 +15,7 @@ image-artifacts: build
 	mkdir -p $(ARTIFACTS)/bin/linux
 	cp Dockerfile Dockerfile.rhel
 	cp bin/linux/couchbase-exporter $(ARTIFACTS)/bin/linux
+	cp -a grafana pkg prometheus $(ARTIFACTS)
 	cp Dockerfile* LICENSE README.md $(ARTIFACTS)
 
 dist: image-artifacts
