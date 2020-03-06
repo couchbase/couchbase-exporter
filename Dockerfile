@@ -1,17 +1,10 @@
-FROM golang:1.13-alpine
-
-COPY . /go/src
-WORKDIR /go/src
-
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -ldflags="-s -w" -o /go/bin/couchbase-exporter
-
 FROM scratch
 
 # Add licenses and help file
 COPY LICENSE /licenses/LICENSE.txt
 COPY README.md /help.1
 COPY pkg grafana prometheus /
-COPY --from=0 /go/bin/couchbase-exporter /
+COPY bin/linux/couchbase-exporter /
 
 ARG PROD_VERSION
 ARG PROD_BUILD
