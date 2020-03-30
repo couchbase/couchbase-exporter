@@ -79,8 +79,8 @@ Or navigate to `bin/darwin` to run on Mac.
 To consume the metrics, we need to set up Prometheus and optionally Grafana to create custom dashboards.
 
 There are a couple of ways to install and configure both.
-The easiest way by far is to run the [kube-prometheus](https://github.com/coreos/kube-prometheus) package, which bundles
-the Prometheus Operator, AlertManager, Grafana, and many others. This is great if you are running Couchbase Automonous Operator.
+If you are familiar with Kubernetes, the easiest way by far is to setup and run the [kube-prometheus](https://github.com/coreos/kube-prometheus) package, which bundles
+the Prometheus Operator, AlertManager, Grafana, and many others. This is great if you are running the Couchbase Automonous Operator.
 Alternatively, you can check out the official [Prometheus Helm Chart](https://github.com/helm/charts/tree/master/stable/prometheus).
 
 Otherwise see below.

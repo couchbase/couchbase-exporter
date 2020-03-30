@@ -29,8 +29,9 @@ scrape_configs:
       - targets: ['localhost:9090']
   - job_name: 'couchbase'
 
-    scrape_interval:     1s # 1s is the lowest granularity, and set as an example. Please increase to your needs as it will most likely too frequent and wasteful.
-    scrape_timeout:      1s
+    # both these values can be set to a minimum of 1s granularity if such precision is needed
+    scrape_interval:     60s
+    scrape_timeout:      55s
 
     metrics_path: /metrics
 
