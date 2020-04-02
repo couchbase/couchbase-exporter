@@ -16,15 +16,15 @@ import (
 	"fmt"
 	"github.com/couchbase/couchbase-exporter/pkg/collectors"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
 const (
@@ -80,6 +80,12 @@ func main() {
 	prometheus.MustRegister(collectors.NewBucketStatsCollector(client))
 	prometheus.MustRegister(collectors.NewNodesCollector(client))
 	prometheus.MustRegister(collectors.NewTaskCollector(client))
+
+	prometheus.MustRegister(collectors.NewQueryCollector(client))
+	prometheus.MustRegister(collectors.NewIndexCollector(client))
+	prometheus.MustRegister(collectors.NewFTSCollector(client))
+	prometheus.MustRegister(collectors.NewCbasCollector(client))
+	prometheus.MustRegister(collectors.NewEventingCollector(client))
 
 	i, _ := strconv.Atoi(*refreshTime)
 	collectors.RunPerNodeBucketStatsCollection(client, i)

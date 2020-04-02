@@ -277,6 +277,4 @@ type Samples struct {
 	RestRequests       []float64 `json:"rest_requests"`
 	SwapTotal          []float64 `json:"swap_total"`
 	SwapUsed           []float64 `json:"swap_used"`
-
-	Timestamp []float64 `json:"timestamp"`
 }

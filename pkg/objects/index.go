@@ -1,4 +1,4 @@
-//  Copyright (c) 2019 Couchbase, Inc.
+//  Copyright (c) 2020 Couchbase, Inc.
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
 //    http://www.apache.org/licenses/LICENSE-2.0
@@ -9,12 +9,13 @@
 
 package objects
 
-type Server struct {
-	Hostname string            `json:"hostname"`
-	URI      string            `json:"uri"`
-	Stats    map[string]string `json:"stats"`
-}
-
-type Servers struct {
-	Servers []Server `json:"servers"`
+type Index struct {
+	Op struct {
+		Samples struct {
+			IndexMemoryQuota  []float64 `json:"index_memory_quota"`
+			IndexMemoryUsed   []float64 `json:"index_memory_used"`
+			IndexRAMPercent   []float64 `json:"index_ram_percent"`
+			IndexRemainingRAM []float64 `json:"index_remaining_ram"`
+		} `json:"samples"`
+	} `json:"op"`
 }
