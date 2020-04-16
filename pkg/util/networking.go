@@ -160,6 +160,7 @@ func (c Client) Nodes() (objects.Nodes, error) {
 	return nodes, errors.Wrap(err, "failed to Get nodes")
 }
 
+// NodesNodes returns the results of /pools/nodes/
 func (c Client) NodesNodes() (objects.Nodes, error) {
 	var nodes objects.Nodes
 	err := c.Get("pools/nodes", &nodes)
@@ -182,8 +183,65 @@ func (c Client) Tasks() ([]objects.Task, error) {
 
 func (c Client) Servers(bucket string) (objects.Servers, error) {
 	var servers objects.Servers
-	err := c.Get("pools/default/buckets/"+bucket+"/nodes", &servers)
+	err := c.Get(fmt.Sprintf("pools/default/buckets/%s/nodes", bucket), &servers)
 	return servers, errors.Wrap(err, "failed to Get servers")
+}
+
+func (c Client) Query() (objects.Query, error) {
+	var query objects.Query
+	err := c.Get("pools/default/buckets/@query/stats", &query)
+	return query, errors.Wrap(err, "failed to Get query stats")
+}
+
+func (c Client) Index() (objects.Index, error) {
+	var index objects.Index
+	err := c.Get("pools/default/buckets/@index/stats", &index)
+	return index, errors.Wrap(err, "failed to Get index stats")
+}
+
+func (c Client) Fts() (objects.FTS, error) {
+	var fts objects.FTS
+	err := c.Get("pools/default/buckets/@fts/stats", &fts)
+	return fts, errors.Wrap(err, "failed to Get FTS stats")
+}
+
+func (c Client) Cbas() (objects.Analytics, error) {
+	var cbas objects.Analytics
+	err := c.Get("pools/default/buckets/@cbas/stats", &cbas)
+	return cbas, errors.Wrap(err, "failed to Get Analytics stats")
+}
+
+func (c Client) Eventing() (objects.Eventing, error) {
+	var eventing objects.Eventing
+	err := c.Get("pools/default/buckets/@eventing/stats", &eventing)
+	return eventing, errors.Wrap(err, "failed to Get eventing stats")
+}
+
+func (c Client) QueryNode(node string) (objects.Query, error) {
+	var query objects.Query
+	err := c.Get(fmt.Sprintf("pools/default/buckets/@query/nodes/%s/stats", node), &query)
+	return query, errors.Wrap(err, "failed to Get query stats")
+}
+//
+func (c Client) IndexNode(node string) (objects.Index, error) {
+	var index objects.Index
+	err := c.Get("pools/default/buckets/@index/stats", &index)
+	return index, errors.Wrap(err, "failed to Get index stats")
+}
+
+func (c Client) GetCurrentNode() (string, error) {
+	nodes, err := c.Nodes()
+	if err != nil {
+		return "", fmt.Errorf("unable to retrieve nodes, %s", err)
+	}
+
+	for _, node := range nodes.Nodes {
+		if node.ThisNode {
+			return node.Hostname, nil // hostname seems to work? just don't use for single node setups
+		}
+	}
+
+	return "", errors.New("Inexplicable error, sidecar container cannot find Couchbase Hostname")
 }
 
 type AuthHandler struct {
