@@ -33,6 +33,14 @@ type Task struct {
 			Outgoing NodeProgress `json:"outgoing,omitempty"`
 		} `json:"perNode,omitempty"`
 	} `json:"detailedProgress,omitempty"`
+	StageInfo struct {
+		Analytics StageInfo `json:"analytics,omitempty"`
+		Eventing  StageInfo `json:"eventing,omitempty"`
+		Search    StageInfo `json:"search,omitempty"`
+		Index     StageInfo `json:"index,omitempty"`
+		Data      StageInfo `json:"data,omitempty"`
+		Query     StageInfo `json:"query,omitempty"`
+	} `json:"stageInfo,omitempty"`
 
 	// rebalance not running
 	StatusIsStale         bool `json:"statusIsStale"`
@@ -64,4 +72,12 @@ type NodeProgress struct {
 	DocsTransferred     int64 `json:"docsTransferred,omitempty"`
 	ActiveVBucketsLeft  int64 `json:"activeVBucketsLeft,omitempty"`
 	ReplicaVBucketsLeft int64 `json:"replicaVBucketsLeft,omitempty"`
+}
+
+type StageInfo struct {
+	TotalProgress   int64         `json:totalProgress,omitempty`
+	PerNodeProgress []interface{} `json:perNodeProgress,omitempty`
+	StartTime       string        `json:startTime,omitempty`
+	CompletedTime   string        `json:completedTime,omitempty`
+	TimeTaken       int64         `json:timeTaken,omitempty`
 }
