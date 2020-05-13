@@ -16,7 +16,7 @@ type Task struct {
 	StatusId      string  `json:"statusId"`
 	Type          string  `json:"type"`
 	Status        string  `json:"status"`
-	RefreshPeriod string  `json:"recommendedRefreshPeriod,omitempty"`
+	RefreshPeriod float64 `json:"recommendedRefreshPeriod,omitempty"`
 	Progress      float64 `json:"progress,omitempty"`
 
 	// rebalance running
