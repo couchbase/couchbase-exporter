@@ -734,7 +734,7 @@ func NewBucketStatsCollector(client util.Client) prometheus.Collector {
 			nil,
 		),
 		CurrConnections: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "urr_connections"),
+			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "curr_connections"),
 			"Number of connections to this server including connections from external client SDKs, proxies, DCP requests and internal statistic gathering",
 			[]string{"bucket"},
 			nil,
