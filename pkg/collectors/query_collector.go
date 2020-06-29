@@ -10,10 +10,11 @@
 package collectors
 
 import (
+	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"time"
 )
 
 type queryCollector struct {
@@ -211,7 +212,7 @@ func (c *queryCollector) Collect(ch chan<- prometheus.Metric) {
 	queryStats, err := c.m.client.Query()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape query stats")
+		log.Error("failed to scrape query stats")
 		return
 	}
 

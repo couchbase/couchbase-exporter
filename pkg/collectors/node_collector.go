@@ -12,11 +12,12 @@
 package collectors
 
 import (
-	"github.com/couchbase/couchbase-exporter/pkg/util"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"strconv"
 	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
+	"github.com/couchbase/couchbase-exporter/pkg/util"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type nodesCollector struct {
@@ -385,13 +386,13 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	nodes, err := c.m.client.Nodes()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape nodes")
+		log.Error("failed to scrape nodes")
 		return
 	}
 
 	// nolint: lll
 	for _, node := range nodes.Nodes {
-		log.Debugf("Collecting %s node metrics...", node.Hostname)
+		log.Debug("Collecting %s node metrics...", node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.healthy, prometheus.GaugeValue, boolToFloat64(node.Status == "healthy"), node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsCouchDocsActualDiskSize, prometheus.GaugeValue, node.InterestingStats.CouchDocsActualDiskSize, node.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.interestingStatsCouchDocsDataSize, prometheus.GaugeValue, node.InterestingStats.CouchDocsDataSize, node.Hostname)

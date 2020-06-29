@@ -10,10 +10,11 @@
 package collectors
 
 import (
+	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"time"
 )
 
 type ftsCollector struct {
@@ -83,7 +84,7 @@ func (c *ftsCollector) Collect(ch chan<- prometheus.Metric) {
 	ftsStats, err := c.m.client.Fts()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape FTS stats")
+		log.Error("failed to scrape FTS stats")
 		return
 	}
 

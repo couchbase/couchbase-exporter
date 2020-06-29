@@ -28,6 +28,8 @@ Firstly make sure to build the exporter binary using `make`.
 | `--server-address` | The address to host the server on | 127.0.0.1 |
 | `--server-port` | The port to host the server on | 9091 |
 | `--per-node-refresh` | How frequently to collect `per_node_bucket_stats` in seconds | 5 |
+| `--log-level` | The log level of the exporter | warn |
+| `--log-json` | If true logs will be JSON formated | true |
 
 ### Docker
 

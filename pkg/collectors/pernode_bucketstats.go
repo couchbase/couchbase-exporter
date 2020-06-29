@@ -13,15 +13,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"net/http"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
-	"strconv"
-	"strings"
-	"time"
 )
 
 var (
