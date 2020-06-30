@@ -10,10 +10,11 @@
 package collectors
 
 import (
+	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"time"
 )
 
 type cbasCollector struct {
@@ -123,7 +124,7 @@ func (c *cbasCollector) Collect(ch chan<- prometheus.Metric) {
 	cbas, err := c.m.client.Cbas()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape Analytics stats")
+		log.Error("failed to scrape Analytics stats")
 		return
 	}
 

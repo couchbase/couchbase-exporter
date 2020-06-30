@@ -10,10 +10,11 @@
 package collectors
 
 import (
+	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"time"
 )
 
 type eventingCollector struct {
@@ -236,7 +237,7 @@ func (c *eventingCollector) Collect(ch chan<- prometheus.Metric) {
 	ev, err := c.m.client.Eventing()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape eventing stats")
+		log.Error("failed to scrape eventing stats")
 		return
 	}
 

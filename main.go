@@ -14,17 +14,16 @@ import (
 	"crypto/x509"
 	"flag"
 	"fmt"
-	"github.com/couchbase/couchbase-exporter/pkg/collectors"
-	"github.com/couchbase/couchbase-exporter/pkg/util"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"github.com/couchbase/couchbase-exporter/pkg/collectors"
+	"github.com/couchbase/couchbase-exporter/pkg/log"
+	"github.com/couchbase/couchbase-exporter/pkg/util"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const (
@@ -32,8 +31,6 @@ const (
 	operatorPass = "COUCHBASE_OPERATOR_PASS"
 	bearerToken  = "AUTH_BEARER_TOKEN"
 )
-
-var log = logf.Log.WithName("metrics")
 
 var (
 	couchAddr   = flag.String("couchbase-address", "localhost", "The address where Couchbase Server is running")
@@ -50,13 +47,21 @@ var (
 	ca         = flag.String("ca", "", "PKI certificate authority file")
 	clientCert = flag.String("client-cert", "", "client certificate file to authenticate this client with couchbase-server")
 	clientKey  = flag.String("client-key", "", "client private key file to authenticate this client with couchbase-server")
+	logLevel   = flag.String("log-level", "info", "log level (debug/info/warn/error)")
+	logJson    = flag.Bool("log-json", true, "if set to true, logs will be JSON formated")
 )
 
 func main() {
-	logf.SetLogger(zap.New())
-	log.Info("Starting metrics collection...")
-
 	flag.Parse()
+
+	if *logLevel != "" {
+		log.SetLevel(*logLevel)
+	}
+	if *logJson {
+		log.SetFormat("json")
+	}
+
+	log.Info("Starting metrics collection...")
 
 	validateInt(*svrPort, "server-port")
 	validateInt(*refreshTime, "per-node-refresh")
@@ -110,7 +115,7 @@ func serveMetrics() {
 
 	if len(*cert) == 0 && len(*key) == 0 {
 		if err := http.ListenAndServe(":"+*svrPort, &handler); err != nil {
-			log.Error(err, "failed to start server:")
+			log.Error("failed to start server: %v", err)
 		}
 	} else {
 		if len(*cert) != 0 && len(*key) != 0 {
@@ -118,12 +123,12 @@ func serveMetrics() {
 			log.Info("metrics server: " + metricsServer)
 
 			if err := http.ListenAndServeTLS(":"+*svrPort, *cert, *key, &handler); err != nil {
-				log.Error(err, "failed to start server:")
+				log.Error("failed to start server: %v", err)
 			}
 
 			log.Info("server started listening on", "server", metricsServer)
 		} else {
-			log.Error(fmt.Errorf("please specify both cert and key arguments"), "")
+			log.Error("please specify both cert and key arguments")
 			os.Exit(1)
 		}
 	}
@@ -191,7 +196,7 @@ func createClient(username, password string) util.Client {
 
 func validateInt(str, param string) {
 	if _, err := strconv.Atoi(str); err != nil {
-		log.Error(fmt.Errorf("%q is not a valid integer, parameter: %s.\n", str, param), "")
+		log.Error("%q is not a valid integer, parameter: %s.", str, param)
 		os.Exit(1)
 	}
 }

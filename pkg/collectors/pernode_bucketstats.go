@@ -11,17 +11,18 @@ package collectors
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"net/http"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
-	"strconv"
-	"strings"
-	"time"
 )
 
 var (
@@ -1636,16 +1637,16 @@ func getClusterBalancedStatus(c util.Client) (bool, error) {
 func getCurrentNode(c util.Client) (string, error) {
 	nodes, err := c.Nodes()
 	if err != nil {
-		logger.Error(err, "unable to retrieve nodes")
+		return "", fmt.Errorf("unable to retrieve nodes: %s", err)
 	}
 
 	for _, node := range nodes.Nodes {
-		if node.ThisNode {
+		if node.ThisNode { // "ThisNode" is a boolean value indicating that it is the current node
 			return node.Hostname, nil // hostname seems to work? just don't use for single node setups
 		}
 	}
 
-	return "", errors.New("Inexplicable error, sidecar container cannot find Couchbase Hostname")
+	return "", err
 }
 
 func getPerNodeBucketStats(client util.Client, bucketName, nodeName string) map[string]interface{} {
@@ -1950,7 +1951,7 @@ func RunPerNodeBucketStatsCollection(client util.Client, refreshTime int) {
 
 	outerErr := util.Retry(ctx, 20*time.Second, 8, func() (bool, error) {
 		if currNode, err := getCurrentNode(client); err != nil {
-			logger.Error(err, "could not get current node, will retry")
+			log.Error("could not get current node, will retry. %s", err)
 			return false, err
 		} else {
 			collectPerNodeBucketMetrics(client, currNode, refreshTime)

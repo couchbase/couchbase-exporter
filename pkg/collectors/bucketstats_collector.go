@@ -12,10 +12,11 @@
 package collectors
 
 import (
+	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"time"
 )
 
 const FQ_NAMESPACE = "cb"
@@ -384,17 +385,17 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 	buckets, err := c.m.client.Buckets()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape buckets")
+		log.Error("failed to scrape buckets")
 		return
 	}
 
 	// nolint: lll
 	for _, bucket := range buckets {
-		log.Debugf("Collecting %s bucket stats metrics...", bucket.Name)
+		log.Debug("Collecting %s bucket stats metrics...", bucket.Name)
 		stats, err := c.m.client.BucketStats(bucket.Name)
 		if err != nil {
 			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-			log.With("error", err).Error("failed to scrape bucket stats")
+			log.Error("failed to scrape bucket stats")
 			return
 		}
 

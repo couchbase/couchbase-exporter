@@ -10,10 +10,11 @@
 package collectors
 
 import (
+	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"time"
 )
 
 type bucketInfoCollector struct {
@@ -51,12 +52,12 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 	buckets, err := c.m.client.Buckets()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape buckets")
+		log.Error("failed to scrape buckets")
 		return
 	}
 
 	for _, bucket := range buckets {
-		log.Debugf("Collecting %s bucket metrics...", bucket.Name)
+		log.Debug("Collecting %s bucket metrics...", bucket.Name)
 
 		ch <- prometheus.MustNewConstMetric(c.basicstatsDataused, prometheus.GaugeValue, bucket.BucketBasicStats.DataUsed, bucket.Name)
 		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskfetches, prometheus.GaugeValue, bucket.BucketBasicStats.DiskFetches, bucket.Name)

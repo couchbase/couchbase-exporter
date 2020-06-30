@@ -10,10 +10,11 @@
 package collectors
 
 import (
+	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"time"
 )
 
 type indexCollector struct {
@@ -91,7 +92,7 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 	indexStats, err := c.m.client.Index()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape index stats")
+		log.Error("failed to scrape index stats")
 		return
 	}
 

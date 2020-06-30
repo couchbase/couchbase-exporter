@@ -12,10 +12,11 @@
 package collectors
 
 import (
+	"time"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"time"
 )
 
 type taskCollector struct {
@@ -161,13 +162,13 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	tasks, err := c.m.client.Tasks()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape tasks")
+		log.Error("failed to scrape tasks")
 		return
 	}
 	buckets, err := c.m.client.Buckets()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.With("error", err).Error("failed to scrape tasks")
+		log.Error("failed to scrape tasks")
 		return
 	}
 
@@ -188,7 +189,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 			compactsReported[task.Bucket] = true
 		case "xdcr":
-			log.Debugf("found xdcr tasks from %s to %s", task.Source, task.Target)
+			log.Debug("found xdcr tasks from %s to %s", task.Source, task.Target)
 			ch <- prometheus.MustNewConstMetric(c.xdcrChangesLeft, prometheus.GaugeValue, float64(task.ChangesLeft), task.Source, task.Target)
 			ch <- prometheus.MustNewConstMetric(c.xdcrDocsChecked, prometheus.GaugeValue, float64(task.DocsChecked), task.Source, task.Target)
 			ch <- prometheus.MustNewConstMetric(c.xdcrDocsWritten, prometheus.GaugeValue, float64(task.DocsWritten), task.Source, task.Target)
@@ -197,7 +198,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 		case "clusterLogsCollection":
 			ch <- prometheus.MustNewConstMetric(c.clusterLogsCollection, prometheus.GaugeValue, task.Progress)
 		default:
-			log.With("type", task.Type).Warn("not implemented")
+			log.Warn("not implemented")
 		}
 	}
 	// always report the compacting task, even if it is not happening

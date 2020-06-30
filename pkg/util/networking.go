@@ -222,6 +222,7 @@ func (c Client) QueryNode(node string) (objects.Query, error) {
 	err := c.Get(fmt.Sprintf("pools/default/buckets/@query/nodes/%s/stats", node), &query)
 	return query, errors.Wrap(err, "failed to Get query stats")
 }
+
 //
 func (c Client) IndexNode(node string) (objects.Index, error) {
 	var index objects.Index
@@ -229,6 +230,7 @@ func (c Client) IndexNode(node string) (objects.Index, error) {
 	return index, errors.Wrap(err, "failed to Get index stats")
 }
 
+// potentially deprecated
 func (c Client) GetCurrentNode() (string, error) {
 	nodes, err := c.Nodes()
 	if err != nil {
