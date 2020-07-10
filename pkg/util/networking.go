@@ -243,7 +243,7 @@ func (c Client) GetCurrentNode() (string, error) {
 		}
 	}
 
-	return "", errors.New("Inexplicable error, sidecar container cannot find Couchbase Hostname")
+	return "", errors.New("sidecar container cannot find Couchbase Hostname")
 }
 
 type AuthHandler struct {

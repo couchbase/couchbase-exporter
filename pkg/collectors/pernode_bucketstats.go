@@ -22,13 +22,9 @@ import (
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
 var (
-	username = "Administrator"
-	passwd   = "password"
-	logger   = logf.Log.WithName("metrics")
 	client   = http.Client{}
 )
 
@@ -1627,8 +1623,7 @@ func setGaugeVec(vec prometheus.GaugeVec, stats []float64, bucketName, nodeName 
 func getClusterBalancedStatus(c util.Client) (bool, error) {
 	node, err := c.Nodes()
 	if err != nil {
-		logger.Error(err, "bad")
-		return false, err
+		return false, fmt.Errorf("unable to retrieve nodes, %s", err)
 	}
 
 	return node.Counters.RebalanceSuccess > 0 || (node.Balanced && node.RebalanceStatus == "none"), nil
@@ -1655,7 +1650,7 @@ func getPerNodeBucketStats(client util.Client, bucketName, nodeName string) map[
 	var bucketStats objects.PerNodeBucketStats
 	err := client.Get(url, &bucketStats)
 	if err != nil {
-		logger.Error(err, "unable to GET PerNodeBucketStats")
+		log.Error("unable to GET PerNodeBucketStats %s", err)
 	}
 
 	return bucketStats.Op.Samples
@@ -1665,7 +1660,7 @@ func getPerNodeBucketStats(client util.Client, bucketName, nodeName string) map[
 func getSpecificNodeBucketStatsURL(client util.Client, bucket, node string) string {
 	servers, err := client.Servers(bucket)
 	if err != nil {
-		logger.Error(err, "unable to retrieve Servers")
+		log.Error("unable to retrieve Servers %s", err)
 	}
 
 	correctURI := ""
@@ -1687,22 +1682,22 @@ func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime in
 
 		rebalanced, err := getClusterBalancedStatus(client)
 		if err != nil {
-			logger.Error(err, "Unable to get rebalance status")
+			log.Error("Unable to get rebalance status %s", err)
 		}
 
 		if !rebalanced {
-			logger.Info("Waiting for Rebalance... retrying...")
+			log.Info("Waiting for Rebalance... retrying...")
 			return false, err
 		} else {
 			go func() {
 				for {
 					buckets, err := client.Buckets()
 					if err != nil {
-						logger.Error(err, "Unable to get buckets")
+						log.Error("Unable to get buckets %s", err)
 					}
 
 					for _, bucket := range buckets {
-						logger.Info("Collecting per-node bucket stats", "node", node, "bucket", bucket.Name)
+						log.Info("Collecting per-node bucket stats", "node", node, "bucket", bucket.Name)
 
 						samples := getPerNodeBucketStats(client, bucket.Name, node)
 
@@ -1936,12 +1931,12 @@ func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime in
 					time.Sleep(time.Second * time.Duration(refreshTime))
 				}
 			}()
-			logger.Info("Per Node Bucket Stats Go Thread executed successfully")
+			log.Info("Per Node Bucket Stats Go Thread executed successfully")
 			return true, nil
 		}
 	})
 	if outerErr != nil {
-		logger.Error(outerErr, "Getting Per Node Bucket Stats failed")
+		log.Error("Getting Per Node Bucket Stats failed %s", outerErr)
 	}
 }
 
