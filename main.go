@@ -29,14 +29,19 @@ import (
 const (
 	operatorUser = "COUCHBASE_OPERATOR_USER"
 	operatorPass = "COUCHBASE_OPERATOR_PASS"
+
+	envUser = "COUCHBASE_USER"
+	envPass = "COUCHBASE_PASS"
+
 	bearerToken  = "AUTH_BEARER_TOKEN"
 )
 
 var (
 	couchAddr   = flag.String("couchbase-address", "localhost", "The address where Couchbase Server is running")
 	couchPort   = flag.String("couchbase-port", "", "The port where Couchbase Server is running.")
-	userFlag    = flag.String("couchbase-username", "Administrator", "Couchbase Server Username")
-	passFlag    = flag.String("couchbase-password", "password", "Couchbase Server Password")
+	userFlag    = flag.String("couchbase-username", "Administrator", "Couchbase Server Username. Overridden by env-var COUCHBASE_USER if set." )
+	passFlag    = flag.String("couchbase-password", "password", "Plaintext Couchbase Server Password. Recommended to pass value via env-ver COUCHBASE_PASS. Overridden by aforementioned env-var.")
+
 	svrAddr     = flag.String("server-address", "127.0.0.1", "The address to host the server on")
 	svrPort     = flag.String("server-port", "9091", "The port to host the server on")
 	refreshTime = flag.String("per-node-refresh", "5", "How frequently to collect per_node_bucket_stats collector in seconds")
@@ -70,7 +75,16 @@ func main() {
 	username := *userFlag
 	password := *passFlag
 
-	// for operator only, override flags
+	// override flags if env vars exist.
+	// get couchbase server credentials
+	if os.Getenv(envUser) != "" {
+		username = os.Getenv(envUser)
+	}
+	if os.Getenv(envPass) != "" {
+		password = os.Getenv(envPass)
+	}
+
+	// for operator only, override both plain-text CLI flags and other env-vars.
 	// get couchbase server credentials
 	if os.Getenv(operatorUser) != "" {
 		username = os.Getenv(operatorUser)
