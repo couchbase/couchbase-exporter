@@ -95,9 +95,9 @@ func main() {
 
 	client := createClient(username, password)
 
+	prometheus.MustRegister(collectors.NewNodesCollector(client))
 	prometheus.MustRegister(collectors.NewBucketInfoCollector(client))
 	prometheus.MustRegister(collectors.NewBucketStatsCollector(client))
-	prometheus.MustRegister(collectors.NewNodesCollector(client))
 	prometheus.MustRegister(collectors.NewTaskCollector(client))
 
 	prometheus.MustRegister(collectors.NewQueryCollector(client))

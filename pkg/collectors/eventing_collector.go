@@ -52,146 +52,146 @@ func NewEventingCollector(client util.Client) prometheus.Collector {
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "up"),
 				"Couchbase cluster API is responding",
-				nil,
+				[]string{"cluster"},
 				nil,
 			),
 			scrapeDuration: prometheus.NewDesc(
 				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "scrape_duration_seconds"),
 				"Scrape duration in seconds",
-				nil,
+				[]string{"cluster"},
 				nil,
 			),
 		},
 		EventingBucketOpExceptionCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "bucket_op_exception_count"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingCheckpointFailureCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "checkpoint_failure_count"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingDcpBacklog: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "dcp_backlog"),
 			"Mutations yet to be processed by the function",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingFailedCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "failed_count"),
 			"Mutations for which the function execution failed",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingN1QlOpExceptionCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "n1ql_op_exception_count"),
 			"Number of disk bytes read on Analytics node per second",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingOnDeleteFailure: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "on_delete_failure"),
 			"Number of disk bytes written on Analytics node per second",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingOnDeleteSuccess: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "on_delete_success"),
 			"System load for Analytics node",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingOnUpdateFailure: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "on_update_failure"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingOnUpdateSuccess: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "on_update_success"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingProcessedCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "processed_count"),
 			"Mutations for which the function has finished processing",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTimeoutCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "timeout_count"),
 			"Function execution timed-out while processing",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestBucketOpExceptionCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_bucket_op_exception_count"),
 			"The total disk size used by Analytics",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestCheckpointFailureCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_checkpoint_failure_count"),
 			"Number of JVM garbage collections for Analytics node",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestDcpBacklog: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_dcp_backlog"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestFailedCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_failed_count"),
 			"Amount of JVM heap used by Analytics on this server",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestN1QlOpExceptionCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_n1ql_op_exception_count"),
 			"Number of disk bytes read on Analytics node per second",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestOnDeleteFailure: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_on_delete_failure"),
 			"Number of disk bytes written on Analytics node per second",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestOnDeleteSuccess: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_on_delete_success"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestOnUpdateFailure: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_on_update_failure"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestOnUpdateSuccess: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_on_update_success"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestProcessedCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_processed_count"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		EventingTestTimeoutCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "test_timeout_count"),
 			"",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 	}
@@ -232,7 +232,7 @@ func (c *eventingCollector) Collect(ch chan<- prometheus.Metric) {
 	defer c.m.mutex.Unlock()
 
 	start := time.Now()
-	log.Info("Collecting query metrics...")
+	log.Info("Collecting eventing metrics...")
 
 	ev, err := c.m.client.Eventing()
 	if err != nil {
@@ -241,30 +241,37 @@ func (c *eventingCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.EventingBucketOpExceptionCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingBucketOpExceptionCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingCheckpointFailureCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingCheckpointFailureCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingDcpBacklog, prometheus.GaugeValue, last(ev.Op.Samples.EventingDcpBacklog))
-	ch <- prometheus.MustNewConstMetric(c.EventingFailedCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingFailedCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingN1QlOpExceptionCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingN1QlOpExceptionCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingOnDeleteFailure, prometheus.GaugeValue, last(ev.Op.Samples.EventingOnDeleteFailure))
-	ch <- prometheus.MustNewConstMetric(c.EventingOnDeleteSuccess, prometheus.GaugeValue, last(ev.Op.Samples.EventingOnDeleteSuccess))
-	ch <- prometheus.MustNewConstMetric(c.EventingOnUpdateFailure, prometheus.GaugeValue, last(ev.Op.Samples.EventingOnUpdateFailure))
-	ch <- prometheus.MustNewConstMetric(c.EventingOnUpdateSuccess, prometheus.GaugeValue, last(ev.Op.Samples.EventingOnUpdateSuccess))
-	ch <- prometheus.MustNewConstMetric(c.EventingProcessedCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingProcessedCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingTimeoutCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTimeoutCount))
+	clusterName, err := c.m.client.ClusterName()
+	if err != nil {
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
+		log.Error("%s", err)
+		return
+	}
 
-	ch <- prometheus.MustNewConstMetric(c.EventingTestBucketOpExceptionCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestBucketOpExceptionCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestCheckpointFailureCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestCheckpointFailureCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestDcpBacklog, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestDcpBacklog))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestFailedCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestFailedCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestN1QlOpExceptionCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestN1QlOpExceptionCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestOnDeleteFailure, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestOnDeleteFailure))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestOnDeleteSuccess, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestOnDeleteSuccess))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestOnUpdateFailure, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestOnUpdateFailure))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestOnUpdateSuccess, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestOnUpdateSuccess))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestProcessedCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestProcessedCount))
-	ch <- prometheus.MustNewConstMetric(c.EventingTestTimeoutCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestTimeoutCount))
+	ch <- prometheus.MustNewConstMetric(c.EventingBucketOpExceptionCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingBucketOpExceptionCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingCheckpointFailureCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingCheckpointFailureCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingDcpBacklog, prometheus.GaugeValue, last(ev.Op.Samples.EventingDcpBacklog), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingFailedCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingFailedCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingN1QlOpExceptionCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingN1QlOpExceptionCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingOnDeleteFailure, prometheus.GaugeValue, last(ev.Op.Samples.EventingOnDeleteFailure), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingOnDeleteSuccess, prometheus.GaugeValue, last(ev.Op.Samples.EventingOnDeleteSuccess), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingOnUpdateFailure, prometheus.GaugeValue, last(ev.Op.Samples.EventingOnUpdateFailure), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingOnUpdateSuccess, prometheus.GaugeValue, last(ev.Op.Samples.EventingOnUpdateSuccess), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingProcessedCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingProcessedCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTimeoutCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTimeoutCount), clusterName)
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
+	ch <- prometheus.MustNewConstMetric(c.EventingTestBucketOpExceptionCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestBucketOpExceptionCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestCheckpointFailureCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestCheckpointFailureCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestDcpBacklog, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestDcpBacklog), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestFailedCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestFailedCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestN1QlOpExceptionCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestN1QlOpExceptionCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestOnDeleteFailure, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestOnDeleteFailure), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestOnDeleteSuccess, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestOnDeleteSuccess), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestOnUpdateFailure, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestOnUpdateFailure), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestOnUpdateSuccess, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestOnUpdateSuccess), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestProcessedCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestProcessedCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.EventingTestTimeoutCount, prometheus.GaugeValue, last(ev.Op.Samples.EventingTestTimeoutCount), clusterName)
+
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
 }

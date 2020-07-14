@@ -49,128 +49,128 @@ func NewQueryCollector(client util.Client) prometheus.Collector {
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "up"),
 				"Couchbase cluster API is responding",
-				nil,
+				[]string{"cluster"},
 				nil,
 			),
 			scrapeDuration: prometheus.NewDesc(
 				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "scrape_duration_seconds"),
 				"Scrape duration in seconds",
-				nil,
+				[]string{"cluster"},
 				nil,
 			),
 		},
 		QueryAvgReqTime: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "avg_req_time"),
 			"average request time",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryAvgSvcTime: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "avg_svc_time"),
 			"average service time",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryAvgResponseSize: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "avg_response_size"),
 			"average response size",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryAvgResultCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "avg_result_count"),
 			"average request time",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryActiveRequests: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "avg_requests"),
 			"average number of requests",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryErrors: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "errors"),
 			"number of query errors",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryInvalidRequests: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "invalid_requests"),
 			"number of invalid requests",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryQueuedRequests: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "queued_requests"),
 			"number of queued requests",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryRequestTime: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "request_time"),
 			"query request time",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryRequests: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "requests"),
 			"number of query requests",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryRequests1000Ms: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "requests_1000ms"),
 			"number of requests that take longer than 1000 ms per second",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryRequests250Ms: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "requests_250ms"),
 			"number of requests that take longer than 250 ms per second",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryRequests5000Ms: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "requests_5000ms"),
 			"number of requests that take longer than 5000 ms per second",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryRequests500Ms: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "requests_500ms"),
 			"number of requests that take longer than 500 ms per second",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryResultCount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "result_count"),
 			"query result count",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryResultSize: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "result_size"),
 			"query result size",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QuerySelects: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "selects"),
 			"number of queries involving SELECT",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryServiceTime: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "service_time"),
 			"query service time",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		QueryWarnings: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "warnings"),
 			"number of query warnings",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 	}
@@ -216,25 +216,32 @@ func (c *queryCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.QueryAvgReqTime, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryAvgReqTime))
-	ch <- prometheus.MustNewConstMetric(c.QueryAvgSvcTime, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryAvgSvcTime))
-	ch <- prometheus.MustNewConstMetric(c.QueryAvgResponseSize, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryAvgResponseSize))
-	ch <- prometheus.MustNewConstMetric(c.QueryAvgResultCount, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryAvgResultCount))
-	ch <- prometheus.MustNewConstMetric(c.QueryErrors, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryErrors))
-	ch <- prometheus.MustNewConstMetric(c.QueryInvalidRequests, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryInvalidRequests))
-	ch <- prometheus.MustNewConstMetric(c.QueryQueuedRequests, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryQueuedRequests))
-	ch <- prometheus.MustNewConstMetric(c.QueryRequestTime, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequestTime))
-	ch <- prometheus.MustNewConstMetric(c.QueryRequests, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests))
-	ch <- prometheus.MustNewConstMetric(c.QueryRequests1000Ms, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests1000Ms))
-	ch <- prometheus.MustNewConstMetric(c.QueryRequests250Ms, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests250Ms))
-	ch <- prometheus.MustNewConstMetric(c.QueryRequests5000Ms, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests5000Ms))
-	ch <- prometheus.MustNewConstMetric(c.QueryRequests500Ms, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests500Ms))
-	ch <- prometheus.MustNewConstMetric(c.QueryResultCount, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryResultCount))
-	ch <- prometheus.MustNewConstMetric(c.QueryResultSize, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryResultSize))
-	ch <- prometheus.MustNewConstMetric(c.QuerySelects, prometheus.GaugeValue, last(queryStats.Op.Samples.QuerySelects))
-	ch <- prometheus.MustNewConstMetric(c.QueryServiceTime, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryServiceTime))
-	ch <- prometheus.MustNewConstMetric(c.QueryWarnings, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryWarnings))
+	clusterName, err := c.m.client.ClusterName()
+	if err != nil {
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
+		log.Error("%s", err)
+		return
+	}
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
+	ch <- prometheus.MustNewConstMetric(c.QueryAvgReqTime, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryAvgReqTime), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryAvgSvcTime, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryAvgSvcTime), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryAvgResponseSize, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryAvgResponseSize), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryAvgResultCount, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryAvgResultCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryErrors, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryErrors), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryInvalidRequests, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryInvalidRequests), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryQueuedRequests, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryQueuedRequests), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryRequestTime, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequestTime), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryRequests, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryRequests1000Ms, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests1000Ms), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryRequests250Ms, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests250Ms), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryRequests5000Ms, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests5000Ms), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryRequests500Ms, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryRequests500Ms), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryResultCount, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryResultCount), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryResultSize, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryResultSize), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QuerySelects, prometheus.GaugeValue, last(queryStats.Op.Samples.QuerySelects), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryServiceTime, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryServiceTime), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.QueryWarnings, prometheus.GaugeValue, last(queryStats.Op.Samples.QueryWarnings), clusterName)
+
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
 }

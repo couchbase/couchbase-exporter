@@ -160,6 +160,13 @@ func (c Client) Nodes() (objects.Nodes, error) {
 	return nodes, errors.Wrap(err, "failed to Get nodes")
 }
 
+// ClusterName returns the name of the Cluster
+func (c Client) ClusterName() (string, error) {
+	var nodes objects.Nodes
+	err := c.Get("pools/default", &nodes)
+	return nodes.ClusterName, errors.Wrap(err, "failed to retrieve ClusterName")
+}
+
 // NodesNodes returns the results of /pools/nodes/
 func (c Client) NodesNodes() (objects.Nodes, error) {
 	var nodes objects.Nodes

@@ -47,7 +47,7 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 	defer c.m.mutex.Unlock()
 
 	start := time.Now()
-	log.Info("Collecting buckets metrics...")
+	log.Info("Collecting bucketinfo metrics...")
 
 	buckets, err := c.m.client.Buckets()
 	if err != nil {
@@ -56,20 +56,27 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
+	clusterName, err := c.m.client.ClusterName()
+	if err != nil {
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
+		log.Error("%s", err)
+		return
+	}
+
 	for _, bucket := range buckets {
 		log.Debug("Collecting %s bucket metrics...", bucket.Name)
 
-		ch <- prometheus.MustNewConstMetric(c.basicstatsDataused, prometheus.GaugeValue, bucket.BucketBasicStats.DataUsed, bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskfetches, prometheus.GaugeValue, bucket.BucketBasicStats.DiskFetches, bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskused, prometheus.GaugeValue, bucket.BucketBasicStats.DiskUsed, bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsItemcount, prometheus.GaugeValue, bucket.BucketBasicStats.ItemCount, bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsMemused, prometheus.GaugeValue, bucket.BucketBasicStats.MemUsed, bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsOpspersec, prometheus.GaugeValue, bucket.BucketBasicStats.OpsPerSec, bucket.Name)
-		ch <- prometheus.MustNewConstMetric(c.basicstatsQuotapercentused, prometheus.GaugeValue, bucket.BucketBasicStats.QuotaPercentUsed, bucket.Name)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsDataused, prometheus.GaugeValue, bucket.BucketBasicStats.DataUsed, bucket.Name, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskfetches, prometheus.GaugeValue, bucket.BucketBasicStats.DiskFetches, bucket.Name, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsDiskused, prometheus.GaugeValue, bucket.BucketBasicStats.DiskUsed, bucket.Name, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsItemcount, prometheus.GaugeValue, bucket.BucketBasicStats.ItemCount, bucket.Name, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsMemused, prometheus.GaugeValue, bucket.BucketBasicStats.MemUsed, bucket.Name, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsOpspersec, prometheus.GaugeValue, bucket.BucketBasicStats.OpsPerSec, bucket.Name, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.basicstatsQuotapercentused, prometheus.GaugeValue, bucket.BucketBasicStats.QuotaPercentUsed, bucket.Name, clusterName)
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
 
 }
 
@@ -82,56 +89,56 @@ func NewBucketInfoCollector(client util.Client) prometheus.Collector {
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "up"),
 				"Couchbase buckets API is responding",
-				nil,
+				[]string{"cluster"},
 				nil,
 			),
 			scrapeDuration: prometheus.NewDesc(
 				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "scrape_duration_seconds"),
 				"Scrape duration in seconds",
-				nil,
+				[]string{"cluster"},
 				nil,
 			),
 		},
 		basicstatsDataused: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "basic_dataused_bytes"),
 			"basic_dataused",
-			[]string{"bucket"},
+			[]string{"bucket", "cluster"},
 			nil,
 		),
 		basicstatsDiskfetches: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "basic_diskfetches"),
 			"basic_diskfetches",
-			[]string{"bucket"},
+			[]string{"bucket", "cluster"},
 			nil,
 		),
 		basicstatsDiskused: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "basic_diskused_bytes"),
 			"basic_diskused",
-			[]string{"bucket"},
+			[]string{"bucket", "cluster"},
 			nil,
 		),
 		basicstatsItemcount: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "basic_itemcount"),
 			"basic_itemcount",
-			[]string{"bucket"},
+			[]string{"bucket", "cluster"},
 			nil,
 		),
 		basicstatsMemused: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "basic_memused_bytes"),
 			"basic_memused",
-			[]string{"bucket"},
+			[]string{"bucket", "cluster"},
 			nil,
 		),
 		basicstatsOpspersec: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "basic_opspersec"),
 			"basic_opspersec",
-			[]string{"bucket"},
+			[]string{"bucket", "cluster"},
 			nil,
 		),
 		basicstatsQuotapercentused: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "basic_quota_user_percent"),
 			"basic_quotapercentused",
-			[]string{"bucket"},
+			[]string{"bucket", "cluster"},
 			nil,
 		),
 	}

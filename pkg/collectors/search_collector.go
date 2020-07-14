@@ -33,32 +33,32 @@ func NewFTSCollector(client util.Client) prometheus.Collector {
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "up"),
 				"Couchbase cluster API is responding",
-				nil,
+				[]string{"cluster"},
 				nil,
 			),
 			scrapeDuration: prometheus.NewDesc(
 				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "scrape_duration_seconds"),
 				"Scrape duration in seconds",
-				nil,
+				[]string{"cluster"},
 				nil,
 			),
 		},
 		FtsCurrBatchesBlockedByHerder: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "curr_batches_blocked_by_herder"),
 			"Number of DCP batches blocked by the FTS throttler due to high memory consumption",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		FtsNumBytesUsedRAM: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "num_bytes_used_ram"),
 			"Amount of RAM used by FTS on this server",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 		FtsTotalQueriesRejectedByHerder: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "total_queries_rejected_by_herder"),
 			"Number of fts queries rejected by the FTS throttler due to high memory consumption",
-			nil,
+			[]string{"cluster"},
 			nil,
 		),
 	}
@@ -79,7 +79,7 @@ func (c *ftsCollector) Collect(ch chan<- prometheus.Metric) {
 	defer c.m.mutex.Unlock()
 
 	start := time.Now()
-	log.Info("Collecting query metrics...")
+	log.Info("Collecting fts metrics...")
 
 	ftsStats, err := c.m.client.Fts()
 	if err != nil {
@@ -88,10 +88,17 @@ func (c *ftsCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.FtsCurrBatchesBlockedByHerder, prometheus.GaugeValue, last(ftsStats.Op.Samples.FtsCurrBatchesBlockedByHerder))
-	ch <- prometheus.MustNewConstMetric(c.FtsNumBytesUsedRAM, prometheus.GaugeValue, last(ftsStats.Op.Samples.FtsNumBytesUsedRAM))
-	ch <- prometheus.MustNewConstMetric(c.FtsTotalQueriesRejectedByHerder, prometheus.GaugeValue, last(ftsStats.Op.Samples.FtsTotalQueriesRejectedByHerder))
+	clusterName, err := c.m.client.ClusterName()
+	if err != nil {
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
+		log.Error("%s", err)
+		return
+	}
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
+	ch <- prometheus.MustNewConstMetric(c.FtsCurrBatchesBlockedByHerder, prometheus.GaugeValue, last(ftsStats.Op.Samples.FtsCurrBatchesBlockedByHerder), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.FtsNumBytesUsedRAM, prometheus.GaugeValue, last(ftsStats.Op.Samples.FtsNumBytesUsedRAM), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.FtsTotalQueriesRejectedByHerder, prometheus.GaugeValue, last(ftsStats.Op.Samples.FtsTotalQueriesRejectedByHerder), clusterName)
+
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
 }
