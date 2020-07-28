@@ -54,6 +54,10 @@ var (
 	clientKey  = flag.String("client-key", "", "client private key file to authenticate this client with couchbase-server")
 	logLevel   = flag.String("log-level", "info", "log level (debug/info/warn/error)")
 	logJson    = flag.Bool("log-json", true, "if set to true, logs will be JSON formatted")
+
+	backOffLimit = flag.String("backofflimit", "5", "number of retries after panicking before exiting")
+	panics = 0
+	panicLimit = 0
 )
 
 func main() {
@@ -66,10 +70,22 @@ func main() {
 		log.SetFormat("json")
 	}
 
+
 	log.Info("Starting metrics collection...")
 
-	validateInt(*svrPort, "server-port")
-	validateInt(*refreshTime, "per-node-refresh")
+	err := validateInt(*svrPort, "server-port")
+	if err != nil {
+		log.Error("%s", err)
+		writeToTerminationLog(err)
+		os.Exit(1)
+	}
+
+	err = validateInt(*refreshTime, "per-node-refresh")
+	if err != nil {
+		log.Error("%s", err)
+		writeToTerminationLog(err)
+		os.Exit(1)
+	}
 
 	// by default take credentials from flags (standalone)
 	username := *userFlag
@@ -93,7 +109,12 @@ func main() {
 		password = os.Getenv(operatorPass)
 	}
 
-	client := createClient(username, password)
+	client, err := createClient(username, password)
+	if err != nil {
+		log.Error("%s", err)
+		writeToTerminationLog(err)
+		os.Exit(1)
+	}
 
 	prometheus.MustRegister(collectors.NewNodesCollector(client))
 	prometheus.MustRegister(collectors.NewBucketInfoCollector(client))
@@ -106,14 +127,63 @@ func main() {
 	prometheus.MustRegister(collectors.NewCbasCollector(client))
 	prometheus.MustRegister(collectors.NewEventingCollector(client))
 
-	i, _ := strconv.Atoi(*refreshTime)
+	i, err := strconv.Atoi(*refreshTime)
+	if err != nil {
+		log.Error("%s", err)
+		writeToTerminationLog(err)
+		os.Exit(1)
+	}
 	collectors.RunPerNodeBucketStatsCollection(client, i)
 
-	serveMetrics()
+	for {
+		serveMetrics()
+	}
 }
+
+func writeToTerminationLog(mainErr error) {
+	if mainErr != nil {
+		i, err := strconv.Atoi(*backOffLimit)
+		if err != nil {
+			log.Error("%s", err)
+		}
+
+		if panics <= i {
+			f, err := os.OpenFile("/dev/termination-log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+			if err != nil {
+				panic(err)
+			}
+
+			defer f.Close()
+
+			if _, err = f.WriteString(fmt.Sprintf("%s\n", mainErr)); err != nil {
+				panic(err)
+			}
+			panics++
+		} else {
+			log.Error("backoffLimit reached")
+			os.Exit(1)
+		}
+	}
+}
+
+func check(mainErr error) {
+	if mainErr != nil {
+		writeToTerminationLog(mainErr)
+
+		log.Error("panicking %s", mainErr)
+		panic(fmt.Sprintf("%s", mainErr))
+	}
+}
+
 
 // serve the actual metrics
 func serveMetrics() {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Warn("Recovered in serveMetrics(): %s", r)
+		}
+	}()
+
 	token := *tokenFlag
 	if os.Getenv(bearerToken) != "" {
 		token = os.Getenv(bearerToken)
@@ -127,31 +197,33 @@ func serveMetrics() {
 	}
 	handler.ServeMux.Handle("/metrics", promhttp.Handler())
 
+	metricsServer := *svrAddr + ":" + *svrPort
 	if len(*cert) == 0 && len(*key) == 0 {
-		if err := http.ListenAndServe(":"+*svrPort, &handler); err != nil {
-			log.Error("failed to start server: %v", err)
+		if err := http.ListenAndServe(metricsServer, &handler); err != nil {
+			check(fmt.Errorf("failed to start server: %v", err))
 		}
+		log.Info("server started listening on", "server", metricsServer)
 	} else {
 		if len(*cert) != 0 && len(*key) != 0 {
-			metricsServer := *svrAddr + ":" + *svrPort
-			log.Info("metrics server: " + metricsServer)
-
 			if err := http.ListenAndServeTLS(":"+*svrPort, *cert, *key, &handler); err != nil {
 				log.Error("failed to start server: %v", err)
+				check(err)
 			}
-
 			log.Info("server started listening on", "server", metricsServer)
 		} else {
-			log.Error("please specify both cert and key arguments")
+			err := fmt.Errorf("please specify both cert and key arguments")
+			log.Error("%s", err)
+			writeToTerminationLog(err)
 			os.Exit(1)
 		}
 	}
 }
 
 // create and config client connection to Couchbase Server
-func createClient(username, password string) util.Client {
+func createClient(username, password string) (util.Client, error) {
 	// Default to nil
 	var tlsClientConfig tls.Config
+	var client util.Client
 
 	// Default to insecure
 	scheme := "http"
@@ -168,18 +240,15 @@ func createClient(username, password string) util.Client {
 
 		caContents, err := ioutil.ReadFile(*ca)
 		if err != nil {
-			fmt.Printf("could not read CA")
-			os.Exit(1)
+			return client, fmt.Errorf("could not read CA")
 		}
 		if ok := tlsClientConfig.RootCAs.AppendCertsFromPEM(caContents); !ok {
-			fmt.Printf("failed to append CA")
-			os.Exit(1)
+			return client, fmt.Errorf("failed to append CA")
 		}
 
 		certContents, err := ioutil.ReadFile(*clientCert)
 		if err != nil {
-			fmt.Printf("could not read client cert")
-			os.Exit(1)
+			return client, fmt.Errorf("could not read client cert %s", err)
 		}
 		key, err := ioutil.ReadFile(*clientKey)
 		if err != nil {
@@ -188,14 +257,13 @@ func createClient(username, password string) util.Client {
 		}
 		cert, err := tls.X509KeyPair(certContents, key)
 		if err != nil {
-			fmt.Printf("failed to create X509 KeyPair")
-			os.Exit(1)
+			return client, fmt.Errorf("failed to create X509 KeyPair")
 		}
 		tlsClientConfig.Certificates = append(tlsClientConfig.Certificates, cert)
 	} else {
 		if len(*clientCert) != 0 || len(*clientKey) != 0 {
 			fmt.Printf("please specify both clientCert and clientKey")
-			os.Exit(1)
+			return client, fmt.Errorf("please specify both clientCert and clientKey")
 		}
 	}
 
@@ -205,12 +273,14 @@ func createClient(username, password string) util.Client {
 
 	log.Info("dial CB Server at: " + scheme + "://" + *couchAddr + ":" + port)
 
-	return util.NewClient(scheme+"://"+*couchAddr+":"+port, username, password, &tlsClientConfig)
+	client = util.NewClient(scheme+"://"+*couchAddr+":"+port, username, password, &tlsClientConfig)
+	return client, nil
 }
 
-func validateInt(str, param string) {
+func validateInt(str, param string) error {
 	if _, err := strconv.Atoi(str); err != nil {
 		log.Error("%q is not a valid integer, parameter: %s.", str, param)
-		os.Exit(1)
+		return fmt.Errorf("%q is not a valid integer, parameter: %s.", str, param)
 	}
+	return nil
 }
