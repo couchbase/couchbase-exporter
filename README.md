@@ -21,13 +21,21 @@ Firstly make sure to build the exporter binary using `make`.
 ### Couchbase Exporter Arguments
 | Arg | Description | Default |
 | ------- | ------- | ------------|
-| `--couchbase-address` | The address where Couchbase Server is running | localhost  |
-| `--couchbase-port` | The port where Couchbase Server is running | 8091  |
-| `--couchbase-username` | Couchbase Server Username | Administrator |
-| `--couchbase-password` | Couchbase Server Password | password |
-| `--server-address` | The address to host the server on | 127.0.0.1 |
-| `--server-port` | The port to host the server on | 9091 |
-| `--per-node-refresh` | How frequently to collect `per_node_bucket_stats` in seconds | 5 |
+| `-couchbase-address` | The address where Couchbase Server is running | localhost  |
+| `-couchbase-port` | The port where Couchbase Server is running | 8091  |
+| `-couchbase-username` | Couchbase Server Username | Administrator |
+| `-couchbase-password` | Couchbase Server Password | password |
+| `-server-address` | The address to host the server on | 127.0.0.1 |
+| `-server-port` | The port to host the server on | 9091 |
+| `-per-node-refresh` | How frequently to collect `per_node_bucket_stats` in seconds | 5 |
+| `-token` | bearer token that allows access to `/metrics` |
+| `-cert`  | certificate file for exporter in order to serve metrics over TLS |
+| `-key` | private key file for exporter in order to serve metrics over TLS |
+| `-ca`  | PKI certificate authority file |
+| `-clientCert` | client certificate file to authenticate this client with couchbase-server |
+| `-clientKey`  | client private key file to authenticate this client with couchbase-server |
+| `-logLevel` | log level (debug/info/warn/error) | info
+| `-logJson` | if set to true, logs will be JSON formatted | true
 
 ### Docker
 

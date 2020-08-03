@@ -53,7 +53,7 @@ var (
 	clientCert = flag.String("client-cert", "", "client certificate file to authenticate this client with couchbase-server")
 	clientKey  = flag.String("client-key", "", "client private key file to authenticate this client with couchbase-server")
 	logLevel   = flag.String("log-level", "info", "log level (debug/info/warn/error)")
-	logJson    = flag.Bool("log-json", true, "if set to true, logs will be JSON formated")
+	logJson    = flag.Bool("log-json", true, "if set to true, logs will be JSON formatted")
 )
 
 func main() {
