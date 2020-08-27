@@ -121,17 +121,17 @@ func (c *cbasCollector) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
 	log.Info("Collecting cbas metrics...")
 
-	cbas, err := c.m.client.Cbas()
+	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("failed to scrape Analytics stats")
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("%s", err)
 		return
 	}
 
-	clusterName, err := c.m.client.ClusterName()
+	cbas, err := c.m.client.Cbas()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("%s", err)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("failed to scrape Analytics stats")
 		return
 	}
 

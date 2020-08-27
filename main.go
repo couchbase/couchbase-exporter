@@ -33,14 +33,14 @@ const (
 	envUser = "COUCHBASE_USER"
 	envPass = "COUCHBASE_PASS"
 
-	bearerToken  = "AUTH_BEARER_TOKEN"
+	bearerToken = "AUTH_BEARER_TOKEN"
 )
 
 var (
-	couchAddr   = flag.String("couchbase-address", "localhost", "The address where Couchbase Server is running")
-	couchPort   = flag.String("couchbase-port", "", "The port where Couchbase Server is running.")
-	userFlag    = flag.String("couchbase-username", "Administrator", "Couchbase Server Username. Overridden by env-var COUCHBASE_USER if set." )
-	passFlag    = flag.String("couchbase-password", "password", "Plaintext Couchbase Server Password. Recommended to pass value via env-ver COUCHBASE_PASS. Overridden by aforementioned env-var.")
+	couchAddr = flag.String("couchbase-address", "localhost", "The address where Couchbase Server is running")
+	couchPort = flag.String("couchbase-port", "", "The port where Couchbase Server is running.")
+	userFlag  = flag.String("couchbase-username", "Administrator", "Couchbase Server Username. Overridden by env-var COUCHBASE_USER if set.")
+	passFlag  = flag.String("couchbase-password", "password", "Plaintext Couchbase Server Password. Recommended to pass value via env-ver COUCHBASE_PASS. Overridden by aforementioned env-var.")
 
 	svrAddr     = flag.String("server-address", "127.0.0.1", "The address to host the server on")
 	svrPort     = flag.String("server-port", "9091", "The port to host the server on")

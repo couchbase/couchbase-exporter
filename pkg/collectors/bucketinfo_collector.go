@@ -49,17 +49,17 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
 	log.Info("Collecting bucketinfo metrics...")
 
-	buckets, err := c.m.client.Buckets()
+	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("failed to scrape buckets")
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("%s", err)
 		return
 	}
 
-	clusterName, err := c.m.client.ClusterName()
+	buckets, err := c.m.client.Buckets()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("%s", err)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("failed to scrape buckets")
 		return
 	}
 

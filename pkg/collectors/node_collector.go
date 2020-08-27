@@ -383,17 +383,17 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
 	log.Info("Collecting nodes metrics...")
 
-	nodes, err := c.m.client.Nodes()
+	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("failed to scrape nodes")
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("%s", err)
 		return
 	}
 
-	clusterName, err := c.m.client.ClusterName()
+	nodes, err := c.m.client.Nodes()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("%s", err)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("failed to scrape nodes")
 		return
 	}
 

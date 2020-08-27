@@ -81,17 +81,17 @@ func (c *ftsCollector) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
 	log.Info("Collecting fts metrics...")
 
-	ftsStats, err := c.m.client.Fts()
+	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("failed to scrape FTS stats")
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("%s", err)
 		return
 	}
 
-	clusterName, err := c.m.client.ClusterName()
+	ftsStats, err := c.m.client.Fts()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("%s", err)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("failed to scrape FTS stats")
 		return
 	}
 

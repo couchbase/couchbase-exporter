@@ -89,17 +89,17 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
 	log.Info("Collecting index metrics...")
 
-	indexStats, err := c.m.client.Index()
+	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("failed to scrape index stats")
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("%s", err)
 		return
 	}
 
-	clusterName, err := c.m.client.ClusterName()
+	indexStats, err := c.m.client.Index()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
-		log.Error("%s", err)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		log.Error("failed to scrape index stats")
 		return
 	}
 

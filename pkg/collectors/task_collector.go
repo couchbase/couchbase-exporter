@@ -161,7 +161,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 
 	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 		log.Error("%s", err)
 		return
 	}
