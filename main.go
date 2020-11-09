@@ -42,7 +42,7 @@ var (
 	userFlag  = flag.String("couchbase-username", "Administrator", "Couchbase Server Username. Overridden by env-var COUCHBASE_USER if set.")
 	passFlag  = flag.String("couchbase-password", "password", "Plaintext Couchbase Server Password. Recommended to pass value via env-ver COUCHBASE_PASS. Overridden by aforementioned env-var.")
 
-	svrAddr     = flag.String("server-address", "127.0.0.1", "The address to host the server on")
+	svrAddr     = flag.String("server-address", "", "The address to host the server on, default all interfaces")
 	svrPort     = flag.String("server-port", "9091", "The port to host the server on")
 	refreshTime = flag.String("per-node-refresh", "5", "How frequently to collect per_node_bucket_stats collector in seconds")
 
@@ -205,7 +205,7 @@ func serveMetrics() {
 		log.Info("server started listening on", "server", metricsServer)
 	} else {
 		if len(*cert) != 0 && len(*key) != 0 {
-			if err := http.ListenAndServeTLS(":"+*svrPort, *cert, *key, &handler); err != nil {
+			if err := http.ListenAndServeTLS(metricsServer, *cert, *key, &handler); err != nil {
 				log.Error("failed to start server: %v", err)
 				check(err)
 			}
