@@ -400,7 +400,7 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 		log.Debug("Collecting %s bucket stats metrics...", bucket.Name)
 		stats, err := c.m.client.BucketStats(bucket.Name)
 		if err != nil {
-			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0)
+			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 			log.Error("failed to scrape bucket stats")
 			return
 		}
