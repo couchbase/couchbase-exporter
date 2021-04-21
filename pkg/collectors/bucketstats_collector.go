@@ -604,13 +604,13 @@ func NewBucketStatsCollector(client util.Client) prometheus.Collector {
 		),
 		AvgActiveTimestampDrift: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "avg_active_timestamp_drift"),
-			"avg_active_timestamp_drift",
+			"Average drift (in seconds) per mutation on active vBuckets",
 			[]string{"bucket", "cluster"},
 			nil,
 		),
 		AvgReplicaTimestampDrift: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "avg_replica_timestamp_drift"),
-			"avg_replica_timestamp_drift",
+			"Average drift (in seconds) per mutation on replica vBuckets",
 			[]string{"bucket", "cluster"},
 			nil,
 		),
@@ -802,7 +802,7 @@ func NewBucketStatsCollector(client util.Client) prometheus.Collector {
 		),
 		EpActiveAheadExceptions: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "ep_active_ahead_exceptions"),
-			"_ep_active_ahead_exceptions",
+			"Total number of ahead exceptions for  all active vBuckets",
 			[]string{"bucket", "cluster"},
 			nil,
 		),
@@ -1180,7 +1180,7 @@ func NewBucketStatsCollector(client util.Client) prometheus.Collector {
 		),
 		EpReplicaAheadExceptions: prometheus.NewDesc(
 			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "ep_replica_ahead_exceptions"),
-			"ep_replica_ahead_exceptions",
+			"Total number of ahead exceptions (when timestamp drift between mutations and local time has exceeded 5000000 μs) per second for all replica vBuckets.",
 			[]string{"bucket", "cluster"},
 			nil,
 		),

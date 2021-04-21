@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	client   = http.Client{}
+	client = http.Client{}
 )
 
 const (
@@ -34,1101 +34,1381 @@ const (
 
 var (
 	AvgDiskUpdateTime = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "avg_disk_update_time",
-		"Average disk update time in microseconds as from disk_update histogram of timings",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "avg_disk_update_time",
+		Help: "Average disk update time in microseconds as from disk_update histogram of timings",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	AvgDiskCommitTime = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "avg_disk_commit_time",
-		"Average disk commit time in seconds as from disk_update histogram of timings",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "avg_disk_commit_time",
+		Help: "Average disk commit time in seconds as from disk_update histogram of timings",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	AvgBgWaitTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "avg_bg_wait_seconds",
-		" ",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "avg_bg_wait_seconds",
+		Help: " ",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	AvgActiveTimestampDrift = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "avg_active_timestamp_drift",
-		"  ",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "avg_active_timestamp_drift",
+		Help: "Average drift (in seconds) between mutation timestamps and the local time for active vBuckets. (measured from ep_active_hlc_drift and ep_active_hlc_drift_count)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	AvgReplicaTimestampDrift = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "avg_replica_timestamp_drift",
-		"  ",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "avg_replica_timestamp_drift",
+		Help: "Average drift (in seconds) between mutation timestamps and the local time for replica vBuckets. (measured from ep_replica_hlc_drift and ep_replica_hlc_drift_count)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CouchTotalDiskSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_total_disk_size",
-		"The total size on disk of all data and view files for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_total_disk_size",
+		Help: "The total size on disk of all data and view files for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchDocsFragmentation = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_docs_fragmentation",
-		"How much fragmented data there is to be compacted compared to real data for the data files in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_docs_fragmentation",
+		Help: "How much fragmented data there is to be compacted compared to real data for the data files in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchViewsFragmentation = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_views_fragmentation",
-		"How much fragmented data there is to be compacted compared to real data for the view index files in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_views_fragmentation",
+		Help: "How much fragmented data there is to be compacted compared to real data for the view index files in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchDocsActualDiskSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_docs_actual_disk_size",
-		"The size of all data files for this bucket, including the data itself, meta data and temporary files",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_docs_actual_disk_size",
+		Help: "The size of all data files for this bucket, including the data itself, meta data and temporary files",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchDocsDataSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_docs_data_size",
-		"The size of active data in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_docs_data_size",
+		Help: "The size of active data in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchDocsDiskSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_docs_disk_size",
-		"The size of all data files for this bucket, including the data itself, meta data and temporary files",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_docs_disk_size",
+		Help: "The size of all data files for this bucket, including the data itself, meta data and temporary files",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchSpatialDataSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_spatial_data_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_spatial_data_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchSpatialDiskSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_spatial_disk_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_spatial_disk_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchSpatialOps = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_spatial_ops",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_spatial_ops",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchViewsActualDiskSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_views_actual_disk_size",
-		"The size of all active items in all the indexes for this bucket on disk",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_views_actual_disk_size",
+		Help: "The size of all active items in all the indexes for this bucket on disk",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchViewsDataSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_views_data_size",
-		"The size of active data on for all the indexes in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_views_data_size",
+		Help: "The size of active data on for all the indexes in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchViewsDiskSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_views_disk_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_views_disk_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	CouchViewsOps = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "couch_views_ops",
-		"All the view reads for all design documents including scatter gather",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "couch_views_ops",
+		Help: "All the view reads for all design documents including scatter gather",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	HitRatio = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "hit_ratio",
-		"Hit ratio",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "hit_ratio",
+		Help: "Hit ratio",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpCacheMissRate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_cache_miss_rate",
-		"Percentage of reads per second to this bucket from disk as opposed to RAM",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_cache_miss_rate",
+		Help: "Percentage of reads per second to this bucket from disk as opposed to RAM",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	EpResidentItemsRate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_resident_items_rate",
-		"Percentage of all items cached in RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_resident_items_rate",
+		Help: "Percentage of all items cached in RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsIndexesCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_indexes_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_indexes_count",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	EpDcpViewsIndexesItemsRemaining = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_indexes_items_remaining",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_indexes_items_remaining",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	EpDcpViewsIndexesProducerCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_indexes_producer_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_indexes_producer_count",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 	EpDcpViewsIndexesTotalBacklogSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_indexes_total_backlog_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_indexes_total_backlog_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsIndexesItemsSent = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_indexes_items_sent",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_indexes_items_sent",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsIndexesTotalBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_indexes_total_bytes",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_indexes_total_bytes",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsIndexesBackoff = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_indexes_backoff",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_indexes_backoff",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	BgWaitCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "bg_wait_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "bg_wait_count",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	BgWaitTotal = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "bg_wait_total",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "bg_wait_total",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	BytesRead = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "bytes_read",
-		"Bytes Read",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "bytes_read",
+		Help: "Bytes Read",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	BytesWritten = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "bytes_written",
-		"Bytes written",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "bytes_written",
+		Help: "Bytes written",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CasBadVal = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "cas_bad_val",
-		"Compare and Swap bad values",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "cas_bad_val",
+		Help: "Compare and Swap bad values",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CasHits = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "cas_hits",
-		"Number of operations with a CAS id per second for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "cas_hits",
+		Help: "Number of operations with a CAS id per second for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CasMisses = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "cas_misses",
-		"Compare and Swap misses",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "cas_misses",
+		Help: "Compare and Swap misses",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CmdGet = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "cmd_get",
-		"Number of reads (get operations) per second from this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "cmd_get",
+		Help: "Number of reads (get operations) per second from this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CmdSet = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "cmd_set",
-		"Number of writes (set operations) per second to this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "cmd_set",
+		Help: "Number of writes (set operations) per second to this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CurrConnections = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "curr_connections",
-		"Number of connections to this server including connections from external client SDKs, proxies, DCP requests and internal statistic gathering",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "curr_connections",
+		Help: "Number of connections to this server including connections from external client SDKs, proxies, DCP requests and internal statistic gathering",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CurrItems = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "curr_items",
-		"Number of items in active vBuckets in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "curr_items",
+		Help: "Number of items in active vBuckets in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CurrItemsTot = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "curr_items_tot",
-		"Total number of items in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "curr_items_tot",
+		Help: "Total number of items in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	DecrHits = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "decr_hits",
-		"Decrement hits",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "decr_hits",
+		Help: "Decrement hits",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	DecrMisses = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "decr_misses",
-		"Decrement misses",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "decr_misses",
+		Help: "Decrement misses",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	DeleteHits = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "delete_hits",
-		"Number of delete operations per second for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "delete_hits",
+		Help: "Number of delete operations per second for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	DeleteMisses = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "delete_misses",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "delete_misses",
+		Help: "Number of delete operations per second for data that this bucket does not contain. (measured from delete_misses)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	DiskCommitCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "disk_commit_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "disk_commit_count",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	DiskCommitTotal = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "disk_commit_total",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "disk_commit_total",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	DiskUpdateCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "disk_update_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "disk_update_count",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	DiskUpdateTotal = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "disk_update_total",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "disk_update_total",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	DiskWriteQueue = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "disk_write_queue",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "disk_write_queue",
+		Help: "Number of items waiting to be written to disk in this bucket. (measured from ep_queue_size+ep_flusher_todo)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpActiveAheadExceptions = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_active_ahead_exceptions",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_active_ahead_exceptions",
+		Help: "Total number of ahead exceptions (when timestamp drift between mutations and local time has exceeded 5000000 μs) per second for all active vBuckets.",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpActiveHlcDrift = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_active_hlc_drift",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_active_hlc_drift",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpActiveHlcDriftCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_active_hlc_drift_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_active_hlc_drift_count",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpBgFetched = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_bg_fetched",
-		"Number of reads per second from disk for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_bg_fetched",
+		Help: "Number of reads per second from disk for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpClockCasDriftTheresholExceeded = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_clock_cas_drift_threshold_exceeded",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_clock_cas_drift_threshold_exceeded",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDataReadFailed = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_data_read_failed",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_data_read_failed",
+		Help: "Number of disk read failures. (measured from ep_data_read_failed)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDataWriteFailed = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_data_write_failed",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_data_write_failed",
+		Help: "Number of disk write failures. (measured from ep_data_write_failed)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcp2iBackoff = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_2i_backoff",
-		"Number of backoffs for indexes DCP connections",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_2i_backoff",
+		Help: "Number of backoffs for indexes DCP connections",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcp2iCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_2i_count",
-		"Number of indexes DCP connections",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_2i_count",
+		Help: "Number of indexes DCP connections",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcp2iItemsRemaining = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_2i_items_remaining",
-		"Number of indexes items remaining to be sent",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_2i_items_remaining",
+		Help: "Number of indexes items remaining to be sent",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcp2iItemsSent = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_2i_items_sent",
-		"Number of indexes items sent",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_2i_items_sent",
+		Help: "Number of indexes items sent",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcp2iProducerCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_2i_producers",
-		"Number of indexes producers",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_2i_producers",
+		Help: "Number of indexes producers",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcp2iTotalBacklogSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_2i_total_backlog_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_2i_total_backlog_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcp2iTotalBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_2i_total_bytes",
-		"Number of bytes per second being sent for indexes DCP connections",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_2i_total_bytes",
+		Help: "Number of bytes per second being sent for indexes DCP connections",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpCbasBackoff = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_cbas_backoff",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_cbas_backoff",
+		Help: "Number of backoffs per second for analytics DCP connections (measured from ep_dcp_cbas_backoff)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpCbasCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_cbas_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_cbas_count",
+		Help: "Number of internal analytics DCP connections in this bucket (measured from ep_dcp_cbas_count)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpCbasItemsRemaining = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_cbas_items_remaining",
-		"Number of items remaining to be sent to consumer in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_cbas_items_remaining",
+		Help: "Number of items remaining to be sent to consumer in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpCbasItemsSent = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_cbas_items_sent",
-		"Number of items per second being sent for a producer for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_cbas_items_sent",
+		Help: "Number of items per second being sent for a producer for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpCbasProducerCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_cbas_producer_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_cbas_producer_count",
+		Help: "Number of analytics senders for this bucket (measured from ep_dcp_cbas_producer_count)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpCbasTotalBacklogSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_cbas_total_backlog_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_cbas_total_backlog_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpCbasTotalBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_total_bytes",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_total_bytes",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpFtsBackoff = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_fts_backoff",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_fts_backoff",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpFtsCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_fts_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_fts_count",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpFtsItemsRemaining = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_fts_items_remaining",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_fts_items_remaining",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpFtsItemsSent = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_fts_items_sent",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_fts_items_sent",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpFtsProducerCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_fts_producer_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_fts_producer_count",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpFtsTotalBacklogSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_fts_backlog_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_fts_backlog_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpFtsTotalBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_fts_total_bytes",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_fts_total_bytes",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpOtherBackoff = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_other_backoff",
-		"Number of backoffs for other DCP connections",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_other_backoff",
+		Help: "Number of backoffs for other DCP connections",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpOtherCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_other_count",
-		"Number of other DCP connections in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_other_count",
+		Help: "Number of other DCP connections in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpOtherItemsRemaining = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_other_items_remaining",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_other_items_remaining",
+		Help: "Number of items remaining to be sent to consumer in this bucket (measured from ep_dcp_other_items_remaining)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpOtherItemsSent = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_other_items_sent",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_other_items_sent",
+		Help: "Number of items per second being sent for a producer for this bucket (measured from ep_dcp_other_items_sent)",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpOtherProducerCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_other_producer_count",
-		"Number of other senders for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_other_producer_count",
+		Help: "Number of other senders for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpOtherTotalBacklogSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_other_total_backlog_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_other_total_backlog_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpOtherTotalBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_other_total_bytes",
-		"Number of bytes per second being sent for other DCP connections for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_other_total_bytes",
+		Help: "Number of bytes per second being sent for other DCP connections for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpReplicaBackoff = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_replica_backoff",
-		"Number of backoffs for replication DCP connections",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_replica_backoff",
+		Help: "Number of backoffs for replication DCP connections",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpReplicaCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_replica_count",
-		"Number of internal replication DCP connections in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_replica_count",
+		Help: "Number of internal replication DCP connections in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpReplicaItemsRemaining = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_replica_items_remaining",
-		"Number of items remaining to be sent to consumer in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_replica_items_remaining",
+		Help: "Number of items remaining to be sent to consumer in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpReplicaItemsSent = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_replica_items_sent",
-		"Number of items per second being sent for a producer for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_replica_items_sent",
+		Help: "Number of items per second being sent for a producer for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpReplicaProducerCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_replica_producer_count",
-		"Number of replication senders for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_replica_producer_count",
+		Help: "Number of replication senders for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpReplicaTotalBacklogSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_replica_total_backlog_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_replica_total_backlog_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpReplicaTotalBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_replica_total_bytes",
-		"Number of bytes per second being sent for replication DCP connections for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_replica_total_bytes",
+		Help: "Number of bytes per second being sent for replication DCP connections for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsBackoff = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_backoff",
-		"Number of backoffs for views DCP connections",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_backoff",
+		Help: "Number of backoffs for views DCP connections",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_count",
-		"Number of views DCP connections",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_count",
+		Help: "Number of views DCP connections",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsItemsRemaining = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_items_remaining",
-		"Number of views items remaining to be sent",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_items_remaining",
+		Help: "Number of views items remaining to be sent",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsItemsSent = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_items_sent",
-		"Number of views items sent",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_items_sent",
+		Help: "Number of views items sent",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsProducerCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_producer_count",
-		"Number of views producers",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_producer_count",
+		Help: "Number of views producers",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsTotalBacklogSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_total_backlog_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_total_backlog_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpViewsTotalBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_views_total_bytes",
-		"Number bytes per second being sent for views DCP connections",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_views_total_bytes",
+		Help: "Number bytes per second being sent for views DCP connections",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpXdcrBackoff = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_xdcr_backoff",
-		"Number of backoffs for XDCR DCP connections",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_xdcr_backoff",
+		Help: "Number of backoffs for XDCR DCP connections",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpXdcrCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_xdcr_count",
-		"Number of internal XDCR DCP connections in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_xdcr_count",
+		Help: "Number of internal XDCR DCP connections in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpXdcrItemsRemaining = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_xdcr_items_remaining",
-		"Number of items remaining to be sent to consumer in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_xdcr_items_remaining",
+		Help: "Number of items remaining to be sent to consumer in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpXdcrItemsSent = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_xdcr_items_sent",
-		"Number of items per second being sent for a producer for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_xdcr_items_sent",
+		Help: "Number of items per second being sent for a producer for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpXdcrProducerCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_xdcr_producer_count",
-		"Number of XDCR senders for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_xdcr_producer_count",
+		Help: "Number of XDCR senders for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpXdcrTotalBacklogSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_xdcr_total_backlog_size",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_xdcr_total_backlog_size",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDcpXdcrTotalBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_dcp_xdcr_total_bytes",
-		"Number of bytes per second being sent for XDCR DCP connections for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_dcp_xdcr_total_bytes",
+		Help: "Number of bytes per second being sent for XDCR DCP connections for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDiskqueueDrain = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_diskqueue_drain",
-		"Total number of items per second being written to disk in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_diskqueue_drain",
+		Help: "Total number of items per second being written to disk in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDiskqueueFill = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_diskqueue_fill",
-		"Total number of items per second being put on the disk queue in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_diskqueue_fill",
+		Help: "Total number of items per second being put on the disk queue in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpDiskqueueItems = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_diskqueue_items",
-		"Total number of items waiting to be written to disk in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_diskqueue_items",
+		Help: "Total number of items waiting to be written to disk in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpFlusherTodo = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_flusher_todo",
-		"Number of items currently being written",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_flusher_todo",
+		Help: "Number of items currently being written",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpItemCommitFailed = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_item_commit_failed",
-		"Number of times a transaction failed to commit due to storage errors",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_item_commit_failed",
+		Help: "Number of times a transaction failed to commit due to storage errors",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpKvSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_kv_size",
-		"Total amount of user data cached in RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_kv_size",
+		Help: "Total amount of user data cached in RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpMaxSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_max_size",
-		"The maximum amount of memory this bucket can use",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_max_size",
+		Help: "The maximum amount of memory this bucket can use",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpMemHighWat = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_mem_high_wat",
-		"High water mark for auto-evictions",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_mem_high_wat",
+		Help: "High water mark for auto-evictions",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpMemLowWat = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_mem_low_wat",
-		"Low water mark for auto-evictions",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_mem_low_wat",
+		Help: "Low water mark for auto-evictions",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpMetaDataMemory = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_meta_data_memory",
-		"Total amount of item metadata consuming RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_meta_data_memory",
+		Help: "Total amount of item metadata consuming RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpNumNonResident = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_num_non_resident",
-		"Number of non-resident items",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_num_non_resident",
+		Help: "Number of non-resident items",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpNumOpsDelMeta = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_num_ops_del_meta",
-		"Number of delete operations per second for this bucket as the target for XDCR",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_num_ops_del_meta",
+		Help: "Number of delete operations per second for this bucket as the target for XDCR",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpNumOpsDelRetMeta = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_num_ops_del_ret_meta",
-		"Number of delRetMeta operations per second for this bucket as the target for XDCR",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_num_ops_del_ret_meta",
+		Help: "Number of delRetMeta operations per second for this bucket as the target for XDCR",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpNumOpsGetMeta = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_num_ops_get_meta",
-		"Number of metadata read operations per second for this bucket as the target for XDCR",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_num_ops_get_meta",
+		Help: "Number of metadata read operations per second for this bucket as the target for XDCR",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpNumOpsSetMeta = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_num_ops_set_meta",
-		"Number of set operations per second for this bucket as the target for XDCR",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_num_ops_set_meta",
+		Help: "Number of set operations per second for this bucket as the target for XDCR",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpNumOpsSetRetMeta = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_num_ops_set_ret_meta",
-		"Number of setRetMeta operations per second for this bucket as the target for XDCR",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_num_ops_set_ret_meta",
+		Help: "Number of setRetMeta operations per second for this bucket as the target for XDCR",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpNumValueEjects = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_num_value_ejects",
-		"Total number of items per second being ejected to disk in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_num_value_ejects",
+		Help: "Total number of items per second being ejected to disk in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpOomErrors = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_oom_errors",
-		"Number of times unrecoverable OOMs happened while processing operations",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_oom_errors",
+		Help: "Number of times unrecoverable OOMs happened while processing operations",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpOpsCreate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_ops_create",
-		"Total number of new items being inserted into this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_ops_create",
+		Help: "Total number of new items being inserted into this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpOpsUpdate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_ops_update",
-		"Number of items updated on disk per second for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_ops_update",
+		Help: "Number of items updated on disk per second for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpOverhead = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_overhead",
-		"Extra memory used by transient data like persistence queues or checkpoints",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_overhead",
+		Help: "Extra memory used by transient data like persistence queues or checkpoints",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpQueueSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_queue_size",
-		"Number of items queued for storage",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_queue_size",
+		Help: "Number of items queued for storage",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpReplicaAheadExceptions = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_replica_ahead_exceptions",
-		"Percentage of all items cached in RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_replica_ahead_exceptions",
+		Help: "Percentage of all items cached in RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpReplicaHlcDrift = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_replica_hlc_drift",
-		"The sum of the total Absolute Drift, which is the accumulated drift observed by the vBucket. Drift is always accumulated as an absolute value.",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_replica_hlc_drift",
+		Help: "The sum of the total Absolute Drift, which is the accumulated drift observed by the vBucket. Drift is always accumulated as an absolute value.",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpReplicaHlcDriftCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_replica_hlc_drift_count",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_replica_hlc_drift_count",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpTmpOomErrors = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_tmp_oom_errors",
-		"Number of back-offs sent per second to client SDKs due to OOM situations from this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_tmp_oom_errors",
+		Help: "Number of back-offs sent per second to client SDKs due to OOM situations from this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	EpVbTotal = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ep_vb_total",
-		"Total number of vBuckets for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ep_vb_total",
+		Help: "Total number of vBuckets for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	Evictions = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "evictions",
-		"Number of evictions",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "evictions",
+		Help: "Number of evictions",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	GetHits = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "get_hits",
-		"Number of get hits",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "get_hits",
+		Help: "Number of get hits",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	GetMisses = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "get_misses",
-		"Number of get misses",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "get_misses",
+		Help: "Number of get misses",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	IncrHits = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "incr_hits",
-		"Number of increment hits",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "incr_hits",
+		Help: "Number of increment hits",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	IncrMisses = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "incr_misses",
-		"Number of increment misses",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "incr_misses",
+		Help: "Number of increment misses",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	MemUsed = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "mem_used",
-		"Amount of memory used",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "mem_used",
+		Help: "Amount of memory used",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	Misses = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "misses",
-		"Number of misses",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "misses",
+		Help: "Number of misses",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	Ops = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "ops",
-		"Total amount of operations per second to this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "ops",
+		Help: "Total amount of operations per second to this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
@@ -1136,465 +1416,581 @@ var (
 	// lol Timestamp
 
 	VbActiveEject = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_eject",
-		"Number of items per second being ejected to disk from active vBuckets in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_eject",
+		Help: "Number of items per second being ejected to disk from active vBuckets in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveItmMemory = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_itm_memory",
-		"Amount of active user data cached in RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_itm_memory",
+		Help: "Amount of active user data cached in RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveMetaDataMemory = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_meta_data_memory",
-		"Amount of active item metadata consuming RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_meta_data_memory",
+		Help: "Amount of active item metadata consuming RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveNum = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_num",
-		"Number of vBuckets in the active state for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_num",
+		Help: "Number of vBuckets in the active state for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveNumNonresident = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_num_non_resident",
-		"Number of non resident vBuckets in the active state for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_num_non_resident",
+		Help: "Number of non resident vBuckets in the active state for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveOpsCreate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_ops_create",
-		"New items per second being inserted into active vBuckets in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_ops_create",
+		Help: "New items per second being inserted into active vBuckets in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveOpsUpdate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_ops_update",
-		"Number of items updated on active vBucket per second for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_ops_update",
+		Help: "Number of items updated on active vBucket per second for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveQueueAge = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_queue_age",
-		"Sum of disk queue item age in milliseconds",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_queue_age",
+		Help: "Sum of disk queue item age in milliseconds",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveQueueDrain = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_queue_drain",
-		"Number of active items per second being written to disk in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_queue_drain",
+		Help: "Number of active items per second being written to disk in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveQueueFill = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_queue_fill",
-		"Number of active items per second being put on the active item disk queue in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_queue_fill",
+		Help: "Number of active items per second being put on the active item disk queue in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveQueueSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_queue_size",
-		"Number of active items waiting to be written to disk in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_queue_size",
+		Help: "Number of active items waiting to be written to disk in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveQueueItems = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_queue_items",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_queue_items",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingCurrItems = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_curr_items",
-		"Number of items in pending vBuckets in this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_curr_items",
+		Help: "Number of items in pending vBuckets in this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingEject = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_eject",
-		"Number of items per second being ejected to disk from pending vBuckets in this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_eject",
+		Help: "Number of items per second being ejected to disk from pending vBuckets in this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingItmMemory = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_itm_memory",
-		"Amount of pending user data cached in RAM in this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_itm_memory",
+		Help: "Amount of pending user data cached in RAM in this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingMetaDataMemory = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_meta_data_memory",
-		"Amount of pending item metadata consuming RAM in this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_meta_data_memory",
+		Help: "Amount of pending item metadata consuming RAM in this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingNum = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_num",
-		"Number of vBuckets in the pending state for this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_num",
+		Help: "Number of vBuckets in the pending state for this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingNumNonResident = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_num_non_resident",
-		"Number of non resident vBuckets in the pending state for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_num_non_resident",
+		Help: "Number of non resident vBuckets in the pending state for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingOpsCreate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_ops_create",
-		"New items per second being instead into pending vBuckets in this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_ops_create",
+		Help: "New items per second being instead into pending vBuckets in this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingOpsUpdate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_ops_update",
-		"Number of items updated on pending vBucket per second for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_ops_update",
+		Help: "Number of items updated on pending vBucket per second for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingQueueAge = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_queue_age",
-		"Sum of disk pending queue item age in milliseconds",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_queue_age",
+		Help: "Sum of disk pending queue item age in milliseconds",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingQueueDrain = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_queue_drain",
-		"Number of pending items per second being written to disk in this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_queue_drain",
+		Help: "Number of pending items per second being written to disk in this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingQueueFill = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_queue_fill",
-		"Number of pending items per second being put on the pending item disk queue in this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_queue_fill",
+		Help: "Number of pending items per second being put on the pending item disk queue in this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingQueueSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_queue_size",
-		"Number of pending items waiting to be written to disk in this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_queue_size",
+		Help: "Number of pending items waiting to be written to disk in this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaCurrItems = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_curr_items",
-		"Number of items in replica vBuckets in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_curr_items",
+		Help: "Number of items in replica vBuckets in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaEject = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_eject",
-		"Number of items per second being ejected to disk from replica vBuckets in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_eject",
+		Help: "Number of items per second being ejected to disk from replica vBuckets in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaItmMemory = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_itm_memory",
-		"Amount of replica user data cached in RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_itm_memory",
+		Help: "Amount of replica user data cached in RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaMetaDataMemory = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_meta_data_memory",
-		"Amount of replica item metadata consuming in RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_meta_data_memory",
+		Help: "Amount of replica item metadata consuming in RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaNum = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_num",
-		"Number of vBuckets in the replica state for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_num",
+		Help: "Number of vBuckets in the replica state for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaNumNonResident = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_num_non_resident",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_num_non_resident",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaOpsCreate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_ops_create",
-		"New items per second being inserted into replica vBuckets in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_ops_create",
+		Help: "New items per second being inserted into replica vBuckets in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaOpsUpdate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_ops_update",
-		"Number of items updated on replica vBucket per second for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_ops_update",
+		Help: "Number of items updated on replica vBucket per second for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaQueueAge = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_queue_age",
-		"Sum of disk replica queue item age in milliseconds",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_queue_age",
+		Help: "Sum of disk replica queue item age in milliseconds",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaQueueDrain = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_queue_drain",
-		"Number of replica items per second being written to disk in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_queue_drain",
+		Help: "Number of replica items per second being written to disk in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaQueueFill = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_queue_fill",
-		"Number of replica items per second being put on the replica item disk queue in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_queue_fill",
+		Help: "Number of replica items per second being put on the replica item disk queue in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaQueueSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_queue_size",
-		"Number of replica items waiting to be written to disk in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_queue_size",
+		Help: "Number of replica items waiting to be written to disk in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbTotalQueueAge = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_total_queue_age",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_total_queue_age",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbAvgActiveQueueAge = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_avg_active_queue_age",
-		"Sum of disk queue item age in milliseconds",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_avg_active_queue_age",
+		Help: "Sum of disk queue item age in milliseconds",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbAvgReplicaQueueAge = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_avg_replica_queue_age",
-		"Average age in seconds of replica items in the replica item queue for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_avg_replica_queue_age",
+		Help: "Average age in seconds of replica items in the replica item queue for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbAvgPendingQueueAge = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_avg_pending_queue_age",
-		"Average age in seconds of pending items in the pending item queue for this bucket and should be transient during rebalancing",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_avg_pending_queue_age",
+		Help: "Average age in seconds of pending items in the pending item queue for this bucket and should be transient during rebalancing",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbAvgTotalQueueAge = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_avg_total_queue_age",
-		"Average age in seconds of all items in the disk write queue for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_avg_total_queue_age",
+		Help: "Average age in seconds of all items in the disk write queue for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbActiveResidentItemsRatio = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_active_resident_items_ratio",
-		"Percentage of active items cached in RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_active_resident_items_ratio",
+		Help: "Percentage of active items cached in RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbReplicaResidentItemsRatio = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_replica_resident_items_ratio",
-		"Percentage of active items cached in RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_replica_resident_items_ratio",
+		Help: "Percentage of active items cached in RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	VbPendingResidentItemsRatio = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "vb_pending_resident_items_ratio",
-		"Percentage of items in pending state vbuckets cached in RAM in this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "vb_pending_resident_items_ratio",
+		Help: "Percentage of items in pending state vbuckets cached in RAM in this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	XdcOps = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "xdc_ops",
-		"Total XDCR operations per second for this bucket",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "xdc_ops",
+		Help: "Total XDCR operations per second for this bucket",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CpuIdleMs = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "cpu_idle_ms",
-		"CPU idle milliseconds",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "cpu_idle_ms",
+		Help: "CPU idle milliseconds",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CpuLocalMs = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "cpu_local_ms",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "cpu_local_ms",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	CpuUtilizationRate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "cpu_utilization_rate",
-		"Percentage of CPU in use across all available cores on this server",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "cpu_utilization_rate",
+		Help: "Percentage of CPU in use across all available cores on this server",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	HibernatedRequests = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "hibernated_requests",
-		"Number of streaming requests on port 8091 now idle",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "hibernated_requests",
+		Help: "Number of streaming requests on port 8091 now idle",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	HibernatedWaked = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "hibernated_waked",
-		"Rate of streaming request wakeups on port 8091",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "hibernated_waked",
+		Help: "Rate of streaming request wakeups on port 8091",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	MemActualFree = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "mem_actual_free",
-		"Amount of RAM available on this server",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "mem_actual_free",
+		Help: "Amount of RAM available on this server",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	MemActualUsed = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "mem_actual_used",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "mem_actual_used",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	MemFree = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "mem_free",
-		"Amount of Memory free",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "mem_free",
+		Help: "Amount of Memory free",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	MemTotal = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "mem_total",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "mem_total",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	MemUsedSys = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "mem_used_sys",
-		"",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "mem_used_sys",
+		Help: "",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	RestRequests = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "rest_requests",
-		"Rate of http requests on port 8091",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "rest_requests",
+		Help: "Rate of http requests on port 8091",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	SwapTotal = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "swap_total",
-		"Total amount of swap available",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "swap_total",
+		Help: "Total amount of swap available",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)
 
 	SwapUsed = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		FQ_NAMESPACE + subsystem, "", "swap_used",
-		"Amount of swap space in use on this server",
-		nil,
+		Namespace: FQ_NAMESPACE + subsystem,
+		Subsystem: "",
+		Name: "swap_used",
+		Help: "Amount of swap space in use on this server",
+		ConstLabels: nil,
 	},
 		[]string{"bucket", "node", "cluster"},
 	)

@@ -1,0 +1,5 @@
+[gerrit]
+host=review.couchbase.org
+port=29418
+project=couchbase-exporter.git
+defaultbranch=master
