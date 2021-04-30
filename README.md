@@ -82,6 +82,45 @@ If running on Linux, simply run `couchbase-exporter` with the any of the optiona
 
 Or navigate to `bin/darwin` to run on Mac.
 
+## Customizing Metrics
+
+The Couchbase Prometheus Exporter allows for customizations via a config file to change the namespace, subsystem, name, and help text for each metric.
+It is also possible to enable or disable whether each metric is exported to Prometheus or not.
+
+### Generating a Config File
+
+To generate a config file, simply run the application with the `--print-config` flag to print the default config to standard console output:
+
+```
+`docker run --name couchbase-exporter couchbase/couchbase-exporter:v1 --print-config`
+```
+
+An example default config file is provided: [/example/config.json](./example/config.json).
+
+### Using a config file
+
+To use a config file, use the `--config-file` flag when you run the executable:
+
+```
+docker run --name couchbase-exporter -d -p 9091:9091 couchbase/couchbase-exporter:v1 --config-file ./sample/config.json` 
+```
+
+Alternatively, you can set the `COUCHBASE_CONFIG_FILE` environment variable.
+**NOTE:** CLI Parameters take precedent over Env Vars and Configuration file values.
+
+#### Using a Config File with Docker and the Couchbase Autonomous Operator
+
+To use a config file with the Couchbase Autonomous Operator, you must build a custom `couchbase-exporter` Docker image that sets the `COUCHBASE_CONFIG_FILE` environment variable and copies the config file.
+
+The following command generates a custom Docker image that incorporates the example config file [/example/Dockerfile](./example/Dockerfile):
+
+```
+make build container container-config
+```
+
+Once you've created the image and [made it available](https://kubernetes.io/docs/concepts/containers/images/) in your Kubernetes environment, you'll need to specify the image in [`couchbaseclusters.spec.monitoring.prometheus.image`](https://docs.couchbase.com/operator/current/resource/couchbasecluster.html#couchbaseclusters-spec-monitoring-prometheus-image).
+Once you create/modify the Couchbase cluster deployment with the new custom image, the Autonomous Operator will deploy and manage the `couchbase-exporter` sidecar container with the new custom configuration.
+
 ## Setting up Monitoring tools
 
 To consume the metrics, we need to set up Prometheus and optionally Grafana to create custom dashboards.

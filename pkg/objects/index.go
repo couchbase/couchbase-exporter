@@ -9,13 +9,16 @@
 
 package objects
 
+const (
+	// Samples Keys.
+	IndexMemoryQuota  = "index_memory_quota"
+	IndexMemoryUsed   = "index_memory_used"
+	IndexRAMPercent   = "index_ram_percent"
+	IndexRemainingRAM = "index_remaining_ram"
+)
+
 type Index struct {
 	Op struct {
-		Samples struct {
-			IndexMemoryQuota  []float64 `json:"index_memory_quota"`
-			IndexMemoryUsed   []float64 `json:"index_memory_used"`
-			IndexRAMPercent   []float64 `json:"index_ram_percent"`
-			IndexRemainingRAM []float64 `json:"index_remaining_ram"`
-		} `json:"samples"`
+		Samples map[string][]float64 `json:"samples"`
 	} `json:"op"`
 }

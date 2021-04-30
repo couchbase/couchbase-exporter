@@ -9,28 +9,30 @@
 
 package objects
 
+const (
+	QueryAvgReqTime      = "query_avg_req_time"
+	QueryAvgSvcTime      = "query_avg_svc_time"
+	QueryAvgResponseSize = "query_avg_response_size"
+	QueryAvgResultCount  = "query_avg_result_count"
+	QueryActiveRequests  = "query_active_requests"
+	QueryErrors          = "query_errors"
+	QueryInvalidRequests = "query_invalid_requests"
+	QueryQueuedRequests  = "query_queued_requests"
+	QueryRequestTime     = "query_request_time"
+	QueryRequests        = "query_requests"
+	QueryRequests1000Ms  = "query_requests_1000ms"
+	QueryRequests250Ms   = "query_requests_250ms"
+	QueryRequests5000Ms  = "query_requests_5000ms"
+	QueryRequests500Ms   = "query_requests_500ms"
+	QueryResultCount     = "query_result_count"
+	QueryResultSize      = "query_result_size"
+	QuerySelects         = "query_selects"
+	QueryServiceTime     = "query_service_time"
+	QueryWarnings        = "query_warnings"
+)
+
 type Query struct {
 	Op struct {
-		Samples struct {
-			QueryAvgReqTime      []float64 `json:"query_avg_req_time"`
-			QueryAvgSvcTime      []float64 `json:"query_avg_svc_time"`
-			QueryAvgResponseSize []float64 `json:"query_avg_response_size"`
-			QueryAvgResultCount  []float64 `json:"query_avg_result_count"`
-			QueryActiveRequests  []float64 `json:"query_active_requests"`
-			QueryErrors          []float64 `json:"query_errors"`
-			QueryInvalidRequests []float64 `json:"query_invalid_requests"`
-			QueryQueuedRequests  []float64 `json:"query_queued_requests"`
-			QueryRequestTime     []float64 `json:"query_request_time"`
-			QueryRequests        []float64 `json:"query_requests"`
-			QueryRequests1000Ms  []float64 `json:"query_requests_1000ms"`
-			QueryRequests250Ms   []float64 `json:"query_requests_250ms"`
-			QueryRequests5000Ms  []float64 `json:"query_requests_5000ms"`
-			QueryRequests500Ms   []float64 `json:"query_requests_500ms"`
-			QueryResultCount     []float64 `json:"query_result_count"`
-			QueryResultSize      []float64 `json:"query_result_size"`
-			QuerySelects         []float64 `json:"query_selects"`
-			QueryServiceTime     []float64 `json:"query_service_time"`
-			QueryWarnings        []float64 `json:"query_warnings"`
-		} `json:"samples"`
+		Samples map[string][]float64 `json:"samples"`
 	} `json:"op"`
 }

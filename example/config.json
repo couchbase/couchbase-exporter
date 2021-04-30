@@ -1,0 +1,4988 @@
+{
+    "couchbaseAddress": "localhost",
+    "couchbasePort": 8091,
+    "couchbaseUser": "Administrator",
+    "couchbasePassword": "password",
+    "serverAddress": "localhost",
+    "serverPort": 9091,
+    "refreshRate": 5,
+    "backoffLimit": 5,
+    "logLevel": "info",
+    "logJson": true,
+    "token": "",
+    "certificate": "",
+    "key": "",
+    "ca": "",
+    "clientCertificate": "",
+    "clientKey": "",
+    "collectors": {
+        "bucketInfo": {
+            "name": "BucketInfoCollector",
+            "namespace": "cb",
+            "subsystem": "bucketinfo",
+            "metrics": {
+                "dataUsed": {
+                    "name": "basic_dataused_bytes",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "basic_dataused",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "diskFetches": {
+                    "name": "basic_diskfetches",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "basic_diskfetches",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "diskUsed": {
+                    "name": "basic_diskused_bytes",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "basic_diskused",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "itemCount": {
+                    "name": "basic_itemcount",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "basic_itemcount",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "memUsed": {
+                    "name": "basic_memused_bytes",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "basic_memused",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "opsPerSec": {
+                    "name": "basic_opspersec",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "basic_opspersec",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "quotaPercentUsed": {
+                    "name": "basic_quota_user_percent",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "basic_quotapercentused",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                }
+            }
+        },
+        "bucketStats": {
+            "name": "BucketStats",
+            "namespace": "cb",
+            "subsystem": "bucketstats",
+            "metrics": {
+                "AvgActiveTimestampDrift": {
+                    "name": "avg_active_timestamp_drift",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average drift (in seconds) per mutation on active vBuckets",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "AvgBgWaitTime": {
+                    "name": "avg_bg_wait_seconds",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average background fetch time in seconds",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "AvgDiskCommitTime": {
+                    "name": "avg_disk_commit_time",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average disk commit time in seconds as from disk_update histogram of timings",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "AvgDiskUpdateTime": {
+                    "name": "avg_disk_update_time",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average disk update time in microseconds as from disk_update histogram of timings",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "AvgReplicaTimestampDrift": {
+                    "name": "avg_replica_timestamp_drift",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average drift (in seconds) per mutation on replica vBuckets",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "BytesRead": {
+                    "name": "read_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Bytes read",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "BytesWritten": {
+                    "name": "written_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Bytes written",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CPUIdleMs": {
+                    "name": "cpu_idle_ms",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "CPU idle milliseconds",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CPULocalMs": {
+                    "name": "cpu_local_ms",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "_cpu_local_ms",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CPUUtilizationRate": {
+                    "name": "cpu_utilization_rate",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of CPU in use across all available cores on this server",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CasBadval": {
+                    "name": "cas_badval",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Compare and Swap bad values",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CasHits": {
+                    "name": "cas_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of operations with a CAS id per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CasMisses": {
+                    "name": "cas_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Compare and Swap misses",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CmdGet": {
+                    "name": "cmd_get",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of reads (get operations) per second from this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CmdSet": {
+                    "name": "cmd_set",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of writes (set operations) per second to this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CouchDocsActualDiskSize": {
+                    "name": "couch_docs_actual_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of all data files for this bucket, including the data itself, meta data and temporary files",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CouchDocsDataSize": {
+                    "name": "couch_docs_data_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of active data in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CouchDocsDiskSize": {
+                    "name": "couch_docs_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of all data files for this bucket, including the data itself, meta data and temporary files",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CouchDocsFragmentation": {
+                    "name": "couch_docs_fragmentation",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "How much fragmented data there is to be compacted compared to real data for the data files in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CouchTotalDiskSize": {
+                    "name": "couch_total_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The total size on disk of all data and view files for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CouchViewsActualDiskSize": {
+                    "name": "couch_views_actual_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of all active items in all the indexes for this bucket on disk",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CouchViewsDataSize": {
+                    "name": "couch_views_data_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of active data on for all the indexes in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CouchViewsFragmentation": {
+                    "name": "couch_views_fragmentation",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "How much fragmented data there is to be compacted compared to real data for the view index files in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CouchViewsOps": {
+                    "name": "couch_views_ops",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "All the view reads for all design documents including scatter gather",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CurrConnections": {
+                    "name": "curr_connections",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of connections to this server including connections from external client SDKs, proxies, DCP requests and internal statistic gathering",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CurrItems": {
+                    "name": "curr_items",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items in active vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "CurrItemsTot": {
+                    "name": "curr_items_tot",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "DecrHits": {
+                    "name": "decr_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Decrement hits",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "DecrMisses": {
+                    "name": "decr_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Decrement misses",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "DeleteHits": {
+                    "name": "delete_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of delete operations per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "DeleteMisses": {
+                    "name": "delete_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Delete misses",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "DiskCommitCount": {
+                    "name": "disk_commits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Disk commits",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "DiskUpdateCount": {
+                    "name": "disk_updates",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Disk updates",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "DiskWriteQueue": {
+                    "name": "disk_write_queue",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items waiting to be written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpActiveAheadExceptions": {
+                    "name": "ep_active_ahead_exceptions",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of ahead exceptions for  all active vBuckets",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpActiveHlcDrift": {
+                    "name": "ep_active_hlc_drift",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "_ep_active_hlc_drift",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpBgFetched": {
+                    "name": "ep_bg_fetched",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of reads per second from disk for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpCacheMissRate": {
+                    "name": "ep_cache_miss_rate",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of reads per second to this bucket from disk as opposed to RAM",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpClockCasDriftThresholdExceeded": {
+                    "name": "ep_clock_cas_drift_threshold_exceeded",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "_ep_clock_cas_drift_threshold_exceeded",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iBackoff": {
+                    "name": "ep_dcp_2i_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for indexes DCP connections",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iCount": {
+                    "name": "ep_dcp_2i_connections",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of indexes DCP connections",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iItemsRemaining": {
+                    "name": "ep_dcp_2i_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of indexes items remaining to be sent",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iItemsSent": {
+                    "name": "ep_dcp_2i_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of indexes items sent",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iProducerCount": {
+                    "name": "ep_dcp_2i_producers",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of indexes producers",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iTotalBacklogSize": {
+                    "name": "ep_dcp_2i_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "ep_dcp_2i_total_backlog_size",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iTotalBytes": {
+                    "name": "ep_dcp_2i_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number bytes per second being sent for indexes DCP connections",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherBackoff": {
+                    "name": "ep_dcp_other_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for other DCP connections",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherCount": {
+                    "name": "ep_dcp_others",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of other DCP connections in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherItemsRemaining": {
+                    "name": "ep_dcp_other_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items remaining to be sent to consumer in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherItemsSent": {
+                    "name": "ep_dcp_other_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being sent for a producer for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherProducerCount": {
+                    "name": "ep_dcp_other_producers",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of other senders for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherTotalBacklogSize": {
+                    "name": "ep_dcp_other_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "ep_dcp_other_total_backlog_size",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherTotalBytes": {
+                    "name": "ep_dcp_other_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of bytes per second being sent for other DCP connections for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaBackoff": {
+                    "name": "ep_dcp_replica_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for replication DCP connections",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaCount": {
+                    "name": "ep_dcp_replicas",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of internal replication DCP connections in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaItemsRemaining": {
+                    "name": "ep_dcp_replica_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items remaining to be sent to consumer in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaItemsSent": {
+                    "name": "ep_dcp_replica_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being sent for a producer for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaProducerCount": {
+                    "name": "ep_dcp_replica_producers",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of replication senders for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaTotalBacklogSize": {
+                    "name": "ep_dcp_replica_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "ep_dcp_replica_total_backlog_size",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaTotalBytes": {
+                    "name": "ep_dcp_replica_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of bytes per second being sent for replication DCP connections for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsBackoff": {
+                    "name": "ep_dcp_views_backoffs",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for views DCP connections",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsCount": {
+                    "name": "ep_dcp_view_connections",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of views DCP connections",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsItemsRemaining": {
+                    "name": "ep_dcp_views_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of views items remaining to be sent",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsItemsSent": {
+                    "name": "ep_dcp_views_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of views items sent",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsProducerCount": {
+                    "name": "ep_dcp_views_producers",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of views producers",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsTotalBacklogSize": {
+                    "name": "ep_dcp_views_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "ep_dcp_views_total_backlog_size",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsTotalBytes": {
+                    "name": "ep_dcp_views_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number bytes per second being sent for views DCP connections",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrBackoff": {
+                    "name": "ep_dcp_xdcr_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for XDCR DCP connections",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrCount": {
+                    "name": "ep_dcp_xdcr_connections",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of internal XDCR DCP connections in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrItemsRemaining": {
+                    "name": "ep_dcp_xdcr_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items remaining to be sent to consumer in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrItemsSent": {
+                    "name": "ep_dcp_xdcr_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being sent for a producer for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrProducerCount": {
+                    "name": "ep_dcp_xdcr_producers",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of XDCR senders for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrTotalBacklogSize": {
+                    "name": "ep_dcp_xdcr_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "ep_dcp_xdcr_total_backlog_size",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrTotalBytes": {
+                    "name": "ep_dcp_xdcr_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of bytes per second being sent for XDCR DCP connections for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDiskqueueDrain": {
+                    "name": "ep_diskqueue_drain",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items per second being written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDiskqueueFill": {
+                    "name": "ep_diskqueue_fill",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items per second being put on the disk queue in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpDiskqueueItems": {
+                    "name": "ep_diskqueue_items",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items waiting to be written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpFlusherTodo": {
+                    "name": "ep_flusher_todo",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items currently being written",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpItemCommitFailed": {
+                    "name": "ep_item_commit_failed",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of times a transaction failed to commit due to storage errors",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpKvSize": {
+                    "name": "ep_kv_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total amount of user data cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpMaxSize": {
+                    "name": "ep_max_size_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The maximum amount of memory this bucket can use",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpMemHighWat": {
+                    "name": "ep_mem_high_wat_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "High water mark for auto-evictions",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpMemLowWat": {
+                    "name": "ep_mem_low_wat_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Low water mark for auto-evictions",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpMetaDataMemory": {
+                    "name": "ep_meta_data_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total amount of item metadata consuming RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpNumNonResident": {
+                    "name": "ep_num_non_resident",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of non-resident items",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsDelMeta": {
+                    "name": "ep_num_ops_del_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of delete operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsDelRetMeta": {
+                    "name": "ep_num_ops_del_ret_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of delRetMeta operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsGetMeta": {
+                    "name": "ep_num_ops_get_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of metadata read operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsSetMeta": {
+                    "name": "ep_num_ops_set_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of set operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsSetRetMeta": {
+                    "name": "ep_num_ops_set_ret_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of setRetMeta operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpNumValueEjects": {
+                    "name": "ep_num_value_ejects",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items per second being ejected to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpOomErrors": {
+                    "name": "ep_oom_errors",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of times unrecoverable OOMs happened while processing operations",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpOpsCreate": {
+                    "name": "ep_ops_create",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of new items being inserted into this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpOpsUpdate": {
+                    "name": "ep_ops_update",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items updated on disk per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpOverhead": {
+                    "name": "ep_overhead",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Extra memory used by transient data like persistence queues or checkpoints",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpQueueSize": {
+                    "name": "ep_queue_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items queued for storage",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpReplicaAheadExceptions": {
+                    "name": "ep_replica_ahead_exceptions",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of ahead exceptions (when timestamp drift between mutations and local time has exceeded 5000000 μs) per second for all replica vBuckets.",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpReplicaHlcDrift": {
+                    "name": "ep_replica_hlc_drift",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The sum of the total Absolute Drift, which is the accumulated drift observed by the vBucket. Drift is always accumulated as an absolute value.",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpResidentItemsRate": {
+                    "name": "ep_resident_items_rate",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of all items cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpTmpOomErrors": {
+                    "name": "ep_tmp_oom_errors",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of back-offs sent per second to client SDKs due to OOM situations from this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "EpVbTotal": {
+                    "name": "ep_vbuckets",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of vBuckets for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "Evictions": {
+                    "name": "evictions",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of evictions",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "GetHits": {
+                    "name": "get_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of get hits",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "GetMisses": {
+                    "name": "get_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of get misses",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "HibernatedRequests": {
+                    "name": "hibernated_requests",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of streaming requests on port 8091 now idle",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "HibernatedWaked": {
+                    "name": "hibernated_waked",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Rate of streaming request wakeups on port 8091",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "HitRatio": {
+                    "name": "hit_ratio",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Hit ratio",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "IncrHits": {
+                    "name": "incr_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of increment hits",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "IncrMisses": {
+                    "name": "incr_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of increment misses",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "MemActualFree": {
+                    "name": "mem_actual_free",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of RAM available on this server",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "MemActualUsed": {
+                    "name": "mem_actual_used_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "_mem_actual_used",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "MemFree": {
+                    "name": "mem_free_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of Memory free",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "MemTotal": {
+                    "name": "mem_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total amount of memory available",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "MemUsed": {
+                    "name": "mem_used_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of memory used",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "MemUsedSys": {
+                    "name": "mem_used_sys_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "_mem_used_sys",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "Misses": {
+                    "name": "misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of misses",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "Ops": {
+                    "name": "ops",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total amount of operations per second to this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "RestRequests": {
+                    "name": "rest_requests",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Rate of http requests on port 8091",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "SwapTotal": {
+                    "name": "swap_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total amount of swap available",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "SwapUsed": {
+                    "name": "swap_used_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of swap space in use on this server",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveEject": {
+                    "name": "vbuckets_active_eject",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being ejected to disk from active vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveItmMemory": {
+                    "name": "vbuckets_active_itm_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of active user data cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveMetaDataMemory": {
+                    "name": "vbuckets_active_meta_data_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of active item metadata consuming RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveNum": {
+                    "name": "vbuckets_active_num",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of vBuckets in the active state for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveNumNonResident": {
+                    "name": "vbuckets_active_num_non_resident",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of non resident vBuckets in the active state for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveOpsCreate": {
+                    "name": "vbuckets_active_ops_create",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "New items per second being inserted into active vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveOpsUpdate": {
+                    "name": "vbuckets_active_ops_update",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items updated on active vBucket per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveQueueAge": {
+                    "name": "vbuckets_active_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Sum of disk queue item age in milliseconds",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveQueueDrain": {
+                    "name": "vbuckets_active_queue_drain",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of active items per second being written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveQueueFill": {
+                    "name": "vbuckets_active_queue_fill",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of active items per second being put on the active item disk queue in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveQueueSize": {
+                    "name": "vbuckets_active_queue_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of active items waiting to be written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbActiveResidentItemsRatio": {
+                    "name": "vbuckets_active_resident_items_ratio",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of active items cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbAvgActiveQueueAge": {
+                    "name": "vbuckets_avg_active_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average age in seconds of active items in the active item queue for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbAvgPendingQueueAge": {
+                    "name": "vbuckets_avg_pending_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average age in seconds of pending items in the pending item queue for this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbAvgReplicaQueueAge": {
+                    "name": "vbuckets_avg_replica_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average age in seconds of replica items in the replica item queue for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbAvgTotalQueueAge": {
+                    "name": "vbuckets_avg_total_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average age in seconds of all items in the disk write queue for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingCurrItems": {
+                    "name": "vbuckets_pending_curr_items",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items in pending vBuckets in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingEject": {
+                    "name": "vbuckets_pending_eject",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being ejected to disk from pending vBuckets in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingItmMemory": {
+                    "name": "vbuckets_pending_itm_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of pending user data cached in RAM in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingMetaDataMemory": {
+                    "name": "vbuckets_pending_meta_data_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of pending item metadata consuming RAM in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingNum": {
+                    "name": "vbuckets_pending_num",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of vBuckets in the pending state for this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingNumNonResident": {
+                    "name": "vbuckets_pending_num_non_resident",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of non resident vBuckets in the pending state for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingOpsCreate": {
+                    "name": "vbuckets_pending_ops_create",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "New items per second being instead into pending vBuckets in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingOpsUpdate": {
+                    "name": "vbuckets_pending_ops_update",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items updated on pending vBucket per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingQueueAge": {
+                    "name": "vbuckets_pending_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Sum of disk pending queue item age in milliseconds",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingQueueDrain": {
+                    "name": "vbuckets_pending_queue_drain",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of pending items per second being written to disk in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingQueueFill": {
+                    "name": "vbuckets_pending_queue_fill",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of pending items per second being put on the pending item disk queue in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingQueueSize": {
+                    "name": "vbuckets_pending_queue_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of pending items waiting to be written to disk in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbPendingResidentItemsRatio": {
+                    "name": "vbuckets_pending_resident_items_ratio",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of items in pending state vbuckets cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaCurrItems": {
+                    "name": "vbuckets_replica_curr_items",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items in replica vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaEject": {
+                    "name": "vbuckets_replica_eject",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being ejected to disk from replica vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaItmMemory": {
+                    "name": "vbuckets_replica_itm_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of replica user data cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaMetaDataMemory": {
+                    "name": "vbuckets_replica_meta_data_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of replica item metadata consuming in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaNum": {
+                    "name": "vbuckets_replica_num",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of vBuckets in the replica state for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaNumNonResident": {
+                    "name": "vbuckets_replica_num_non_resident",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "_vb_replica_num_non_resident",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaOpsCreate": {
+                    "name": "vbuckets_replica_ops_create",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "New items per second being inserted into replica vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaOpsUpdate": {
+                    "name": "vbuckets_replica_ops_update",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items updated on replica vBucket per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaQueueAge": {
+                    "name": "vbuckets_replica_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Sum of disk replica queue item age in milliseconds",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaQueueDrain": {
+                    "name": "vbuckets_replica_queue_drain",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of replica items per second being written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaQueueFill": {
+                    "name": "vbuckets_replica_queue_fill",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of replica items per second being put on the replica item disk queue in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaQueueSize": {
+                    "name": "vbuckets_replica_queue_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of replica items waiting to be written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaResidentItemsRatio": {
+                    "name": "vbuckets_replica_resident_items_ratio",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of replica items cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "VbTotalQueueAge": {
+                    "name": "vbuckets_total_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Sum of disk queue item age in milliseconds",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "XdcOps": {
+                    "name": "xdc_ops",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total XDCR operations per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                }
+            }
+        },
+        "analytics": {
+            "name": "Analytics",
+            "namespace": "cb",
+            "subsystem": "cbas",
+            "metrics": {
+                "CbasDiskUsed": {
+                    "name": "disk_used",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "The total disk size used by Analytics",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "CbasGcCount": {
+                    "name": "gc_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of JVM garbage collections for Analytics node",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "CbasGcTime": {
+                    "name": "gc_time",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "The amount of time in milliseconds spent performing JVM garbage collections for Analytics node",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "CbasHeapUsed": {
+                    "name": "heap_used",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Amount of JVM heap used by Analytics on this server",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "CbasIoReads": {
+                    "name": "io_reads",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of disk bytes read on Analytics node per second",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "CbasIoWrites": {
+                    "name": "io_writes",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of disk bytes written on Analytics node per second",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "CbasSystemLoadAverage": {
+                    "name": "system_load_avg",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "System load for Analytics node",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "CbasThreadCount": {
+                    "name": "thread_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of threads for Analytics node",
+                    "labels": [
+                        "cluster"
+                    ]
+                }
+            }
+        },
+        "eventing": {
+            "name": "Eventing",
+            "namespace": "cb",
+            "subsystem": "eventing",
+            "metrics": {
+                "eventingBucketOpExceptionCount": {
+                    "name": "bucket_op_exception_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingCheckpointFailureCount": {
+                    "name": "checkpoint_failure_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingDcpBacklog": {
+                    "name": "dcp_backlog",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Mutations yet to be processed by the function",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingFailedCount": {
+                    "name": "failed_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Mutations for which the function execution failed",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingN1QlOpExceptionCount": {
+                    "name": "n1ql_op_exception_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of disk bytes read on Analytics node per second",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingOnDeleteFailure": {
+                    "name": "on_delete_failure",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of disk bytes written on Analytics node per second",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingOnDeleteSuccess": {
+                    "name": "on_delete_success",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "System load for Analytics node",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingOnUpdateFailure": {
+                    "name": "on_update_failure",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingOnUpdateSuccess": {
+                    "name": "on_update_success",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingProcessedCount": {
+                    "name": "processed_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Mutations for which the function has finished processing",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestBucketOpExceptionCount": {
+                    "name": "test_bucket_op_exception_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestCheckpointFailureCount": {
+                    "name": "test_checkpoint_failure_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestDcpBacklog": {
+                    "name": "test_dcp_backlog",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestFailedCount": {
+                    "name": "test_failed_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestN1QlOpExceptionCount": {
+                    "name": "test_n1ql_op_exception_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestOnDeleteFailure": {
+                    "name": "test_on_delete_failure",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestOnDeleteSuccess": {
+                    "name": "test_on_delete_success",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestOnUpdateFailure": {
+                    "name": "test_on_update_failure",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestOnUpdateSuccess": {
+                    "name": "test_on_update_success",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestProcessedCount": {
+                    "name": "test_processed_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTestTimeoutCount": {
+                    "name": "test_timeout_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "eventingTimeoutCount": {
+                    "name": "timeout_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Function execution timed-out while processing",
+                    "labels": [
+                        "cluster"
+                    ]
+                }
+            }
+        },
+        "index": {
+            "name": "Index",
+            "namespace": "cb",
+            "subsystem": "index",
+            "metrics": {
+                "IndexMemoryQuota": {
+                    "name": "memory_quota",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Index Service memory quota",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "IndexMemoryUsed": {
+                    "name": "memory_used",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Index Service memory used",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "IndexRAMPercent": {
+                    "name": "ram_percent",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Percentage of Index RAM quota in use across all indexes on this server.",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "IndexRemainingRAM": {
+                    "name": "remaining_ram",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Bytes of Index RAM quota still available on this server.",
+                    "labels": [
+                        "cluster"
+                    ]
+                }
+            }
+        },
+        "node": {
+            "name": "Node",
+            "namespace": "cb",
+            "subsystem": "node",
+            "metrics": {
+                "clusterMembership": {
+                    "name": "cluster_membership",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "whether or not node is part of the CB cluster",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "ctrFailover": {
+                    "name": "failover",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "failover",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrFailoverComplete": {
+                    "name": "failover_complete",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "failover_complete",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrFailoverIncomplete": {
+                    "name": "failover_incomplete",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "failover_incomplete",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrFailoverNode": {
+                    "name": "failover_node",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "failover_node",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrGracefulFailoverFail": {
+                    "name": "graceful_failover_fail",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "graceful_failover_fail",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrGracefulFailoverStart": {
+                    "name": "graceful_failover_start",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "graceful_failover_start",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrGracefulFailoverSuccess": {
+                    "name": "graceful_failover_success",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "graceful_failover_success",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrRebalanceFail": {
+                    "name": "rebalance_failure",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "rebalance_failure",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrRebalanceStart": {
+                    "name": "rebalance_start",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "rebalance_start",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrRebalanceStop": {
+                    "name": "rebalance_stop",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "rebalance_stop",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "ctrRebalanceSuccess": {
+                    "name": "rebalance_success",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "rebalance_success",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "healthy": {
+                    "name": "healthy",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Is this node healthy",
+                    "labels": [
+                        "cluster",
+                        "node"
+                    ]
+                },
+                "interestingStatsCmdGet": {
+                    "name": "interestingstats_cmd_get",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of reads (get operations) per second from this bucket. (measured from cmd_get)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsCouchDocsActualDiskSize": {
+                    "name": "interestingstats_couch_docs_actual_disk_size",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "The size of all data service files on disk for this bucket, including the data itself, metadata, and temporary files. (measured from couch_docs_actual_disk_size)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsCouchDocsDataSize": {
+                    "name": "interestingstats_couch_docs_data_size",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Bytes of active data in this bucket. (measured from couch_docs_data_size)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsCouchSpatialDataSize": {
+                    "name": "interestingstats_couch_spatial_data_size",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "interestingstats_couch_spatial_data_size",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsCouchSpatialDiskSize": {
+                    "name": "interestingstats_couch_spatial_disk_size",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "interestingstats_couch_spatial_disk_size",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsCouchViewsActualDiskSize": {
+                    "name": "interestingstats_couch_views_actual_disk_size",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Bytes of active items in all the views for this bucket on disk (measured from couch_views_actual_disk_size)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsCouchViewsDataSize": {
+                    "name": "interestingstats_couch_views_data_size",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Bytes of active data for all the views in this bucket. (measured from couch_views_data_size)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsCurrItems": {
+                    "name": "interestingstats_curr_items",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Current number of unique items in Couchbase",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsCurrItemsTot": {
+                    "name": "interestingstats_curr_items_tot",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Current number of items in Couchbase including replicas",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsEpBgFetched": {
+                    "name": "interestingstats_ep_bg_fetched",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of reads per second from disk for this bucket. (measured from ep_bg_fetched)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsGetHits": {
+                    "name": "interestingstats_get_hits",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of get operations per second for data that this bucket contains. (measured from get_hits)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsMemUsed": {
+                    "name": "interestingstats_mem_used",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Total memory used in bytes. (as measured from mem_used)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsOps": {
+                    "name": "interestingstats_ops",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Total operations per second (including XDCR) to this bucket. (measured from cmd_get + cmd_set + incr_misses + incr_hits + decr_misses + decr_hits + delete_misses + delete_hits + ep_num_ops_del_meta + ep_num_ops_get_meta + ep_num_ops_set_meta)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsVbActiveNumNonResident": {
+                    "name": "interestingstats_vb_active_number_non_resident",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "interestingstats_vb_active_number_non_resident",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "interestingStatsVbReplicaCurrItems": {
+                    "name": "interestingstats_vb_replica_curr_items",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of items in replica vBuckets in this bucket. (measured from vb_replica_curr_items)",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "mcdMemoryAllocated": {
+                    "name": "memcached_memory_allocated",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "memcached_memory_allocated",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "mcdMemoryReserved": {
+                    "name": "memcached_memory_reserved",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "memcached_memory_reserved",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "memoryFree": {
+                    "name": "memory_free",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "memory_free",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "memoryTotal": {
+                    "name": "memory_total",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "memory_total",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "systemStatsCPUUtilizationRate": {
+                    "name": "systemstats_cpu_utilization_rate",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Percentage of CPU in use across all available cores on this server.",
+                    "labels": [
+                        "cluster",
+                        "node"
+                    ]
+                },
+                "systemStatsMemFree": {
+                    "name": "systemstats_mem_free",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Bytes of memory not in use on this server.",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "systemStatsMemTotal": {
+                    "name": "systemstats_mem_total",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Bytes of total memory available on this server.",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "systemStatsSwapTotal": {
+                    "name": "systemstats_swap_total",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Bytes of total swap space available on this server.",
+                    "labels": [
+                        "cluster",
+                        "node"
+                    ]
+                },
+                "systemStatsSwapUsed": {
+                    "name": "systemstats_swap_used",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Bytes of swap space in use on this server.",
+                    "labels": [
+                        "cluster",
+                        "node"
+                    ]
+                },
+                "uptime": {
+                    "name": "uptime",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "uptime",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                }
+            }
+        },
+        "query": {
+            "name": "QueryCollector",
+            "namespace": "cb",
+            "subsystem": "query",
+            "metrics": {
+                "QueryActiveRequests": {
+                    "name": "active_requests",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "active number of requests",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryAvgReqTime": {
+                    "name": "avg_req_time",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "average request time",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryAvgResponseSize": {
+                    "name": "avg_response_size",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "average response size",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryAvgResultCount": {
+                    "name": "avg_result_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "average result count",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryAvgSvcTime": {
+                    "name": "avg_svc_time",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "average service time",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryErrors": {
+                    "name": "errors",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of query errors",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryInvalidRequests": {
+                    "name": "invalid_requests",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of invalid requests",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryQueuedRequests": {
+                    "name": "queued_requests",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of queued requests",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryRequestTime": {
+                    "name": "request_time",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "query request time",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryRequests": {
+                    "name": "requests",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of query requests",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryRequests1000Ms": {
+                    "name": "requests_1000ms",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of requests that take longer than 1000 ms per second",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryRequests250Ms": {
+                    "name": "requests_250ms",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of requests that take longer than 250 ms per second",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryRequests5000Ms": {
+                    "name": "requests_5000ms",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of requests that take longer than 5000 ms per second",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryRequests500Ms": {
+                    "name": "requests_500ms",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of requests that take longer than 500 ms per second",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryResultCount": {
+                    "name": "result_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "query result count",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryResultSize": {
+                    "name": "result_size",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "query result size",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QuerySelects": {
+                    "name": "selects",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of queries involving SELECT",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryServiceTime": {
+                    "name": "service_time",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "query service time",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "QueryWarnings": {
+                    "name": "warnings",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "number of query warnings",
+                    "labels": [
+                        "cluster"
+                    ]
+                }
+            }
+        },
+        "search": {
+            "name": "Search",
+            "namespace": "cb",
+            "subsystem": "fts",
+            "metrics": {
+                "FtsCurrBatchesBlockedByHerder": {
+                    "name": "curr_batches_blocked_by_herder",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of DCP batches blocked by the FTS throttler due to high memory consumption",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "FtsNumBytesUsedRAM": {
+                    "name": "num_bytes_used_ram",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Amount of RAM used by FTS on this server",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "FtsTotalQueriesRejectedByHerder": {
+                    "name": "total_queries_rejected_by_herder",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of fts queries rejected by the FTS throttler due to high memory consumption",
+                    "labels": [
+                        "cluster"
+                    ]
+                }
+            }
+        },
+        "task": {
+            "name": "Search",
+            "namespace": "cb",
+            "subsystem": "task",
+            "metrics": {
+                "clusterLogsCollection": {
+                    "name": "cluster_logs_collection_progress",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Progress of a cluster logs collection task",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "compacting": {
+                    "name": "compacting_progress",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Progress of a bucket compaction task",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "progressActiveVBucketsLeft": {
+                    "name": "active_vbuckets_left",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of Active VBuckets remaining",
+                    "labels": [
+                        "bucket",
+                        "target",
+                        "cluster"
+                    ]
+                },
+                "progressDocsTotal": {
+                    "name": "docs_total",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "docs_total",
+                    "labels": [
+                        "bucket",
+                        "target",
+                        "cluster"
+                    ]
+                },
+                "progressDocsTransferred": {
+                    "name": "docs_transferred",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "docs_transferred",
+                    "labels": [
+                        "bucket",
+                        "target",
+                        "cluster"
+                    ]
+                },
+                "progressReplicateVBucketsLeft": {
+                    "name": "replica_vbuckets_left",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of Replica VBuckets remaining",
+                    "labels": [
+                        "bucket",
+                        "target",
+                        "cluster"
+                    ]
+                },
+                "rebalance": {
+                    "name": "rebalance_progress",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Progress of a rebalance task",
+                    "labels": [
+                        "cluster"
+                    ]
+                },
+                "rebalancePerNode": {
+                    "name": "node_rebalance_progress",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Progress of a rebalance task per node",
+                    "labels": [
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "xdcrChangesLeft": {
+                    "name": "xdcr_changes_left",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of updates still pending replication",
+                    "labels": [
+                        "bucket",
+                        "target",
+                        "cluster"
+                    ]
+                },
+                "xdcrDocsChecked": {
+                    "name": "xdcr_docs_checked",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of documents checked for changes",
+                    "labels": [
+                        "bucket",
+                        "target",
+                        "cluster"
+                    ]
+                },
+                "xdcrDocsWritten": {
+                    "name": "xdcr_docs_written",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of documents written to the destination cluster",
+                    "labels": [
+                        "bucket",
+                        "target",
+                        "cluster"
+                    ]
+                },
+                "xdcrErrors": {
+                    "name": "xdcr_errors",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of errors",
+                    "labels": [
+                        "bucket",
+                        "target",
+                        "cluster"
+                    ]
+                },
+                "xdcrPaused": {
+                    "name": "xdcr_paused",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Is this replication paused",
+                    "labels": [
+                        "bucket",
+                        "target",
+                        "cluster"
+                    ]
+                }
+            }
+        },
+        "perNodeBucketStats": {
+            "name": "PerNodeBucketStats",
+            "namespace": "cb",
+            "subsystem": "pernodebucket",
+            "metrics": {
+                "AvgActiveTimestampDrift": {
+                    "name": "avg_active_timestamp_drift",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average drift (in seconds) between mutation timestamps and the local time for active vBuckets. (measured from ep_active_hlc_drift and ep_active_hlc_drift_count)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "AvgBgWaitTime": {
+                    "name": "avg_bg_wait_seconds",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": " ",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "AvgDiskCommitTime": {
+                    "name": "avg_disk_commit_time",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average disk commit time in seconds as from disk_update histogram of timings",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "AvgDiskUpdateTime": {
+                    "name": "avg_disk_update_time",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average disk update time in microseconds as from disk_update histogram of timings",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "AvgReplicaTimestampDrift": {
+                    "name": "avg_replica_timestamp_drift",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average drift (in seconds) between mutation timestamps and the local time for replica vBuckets. (measured from ep_replica_hlc_drift and ep_replica_hlc_drift_count)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "BgWaitCount": {
+                    "name": "bg_wait_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "BgWaitTotal": {
+                    "name": "bg_wait_total",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "BytesRead": {
+                    "name": "bytes_read",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Bytes Read",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "BytesWritten": {
+                    "name": "bytes_written",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Bytes written",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CPUIdleMs": {
+                    "name": "cpu_idle_ms",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "CPU idle milliseconds",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CPULocalMs": {
+                    "name": "cpu_local_ms",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CPUUtilizationRate": {
+                    "name": "cpu_utilization_rate",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of CPU in use across all available cores on this server",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CasBadVal": {
+                    "name": "cas_bad_val",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Compare and Swap bad values",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CasHits": {
+                    "name": "cas_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of operations with a CAS id per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CasMisses": {
+                    "name": "cas_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Compare and Swap misses",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CmdGet": {
+                    "name": "cmd_get",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of reads (get operations) per second from this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CmdSet": {
+                    "name": "cmd_set",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of writes (set operations) per second to this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchDocsActualDiskSize": {
+                    "name": "couch_docs_actual_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of all data files for this bucket, including the data itself, meta data and temporary files",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchDocsDataSize": {
+                    "name": "couch_docs_data_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of active data in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchDocsDiskSize": {
+                    "name": "couch_docs_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of all data files for this bucket, including the data itself, meta data and temporary files",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchDocsFragmentation": {
+                    "name": "couch_docs_fragmentation",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "How much fragmented data there is to be compacted compared to real data for the data files in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchSpatialDataSize": {
+                    "name": "couch_spatial_data_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchSpatialDiskSize": {
+                    "name": "couch_spatial_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchSpatialOps": {
+                    "name": "couch_spatial_ops",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchTotalDiskSize": {
+                    "name": "couch_total_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The total size on disk of all data and view files for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchViewsActualDiskSize": {
+                    "name": "couch_views_actual_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of all active items in all the indexes for this bucket on disk",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchViewsDataSize": {
+                    "name": "couch_views_data_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The size of active data on for all the indexes in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchViewsDiskSize": {
+                    "name": "couch_views_disk_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchViewsFragmentation": {
+                    "name": "couch_views_fragmentation",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "How much fragmented data there is to be compacted compared to real data for the view index files in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CouchViewsOps": {
+                    "name": "couch_views_ops",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "All the view reads for all design documents including scatter gather",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CurrConnections": {
+                    "name": "curr_connections",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of connections to this server including connections from external client SDKs, proxies, DCP requests and internal statistic gathering",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CurrItems": {
+                    "name": "curr_items",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items in active vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "CurrItemsTot": {
+                    "name": "curr_items_tot",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "DecrHits": {
+                    "name": "decr_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Decrement hits",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "DecrMisses": {
+                    "name": "decr_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Decrement misses",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "DeleteHits": {
+                    "name": "delete_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of delete operations per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "DeleteMisses": {
+                    "name": "delete_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of delete operations per second for data that this bucket does not contain. (measured from delete_misses)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "DiskCommitCount": {
+                    "name": "disk_commit_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "DiskCommitTotal": {
+                    "name": "disk_commit_total",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "DiskUpdateCount": {
+                    "name": "disk_update_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "DiskUpdateTotal": {
+                    "name": "disk_update_total",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "DiskWriteQueue": {
+                    "name": "disk_write_queue",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items waiting to be written to disk in this bucket. (measured from ep_queue_size+ep_flusher_todo)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpActiveAheadExceptions": {
+                    "name": "ep_active_ahead_exceptions",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of ahead exceptions (when timestamp drift between mutations and local time has exceeded 5000000 μs) per second for all active vBuckets.",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpActiveHlcDrift": {
+                    "name": "ep_active_hlc_drift",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpActiveHlcDriftCount": {
+                    "name": "ep_active_hlc_drift_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpBgFetched": {
+                    "name": "ep_bg_fetched",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of reads per second from disk for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpCacheMissRate": {
+                    "name": "ep_cache_miss_rate",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of reads per second to this bucket from disk as opposed to RAM",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpClockCasDriftTheresholExceeded": {
+                    "name": "ep_clock_cas_drift_threshold_exceeded",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDataReadFailed": {
+                    "name": "ep_data_read_failed",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of disk read failures. (measured from ep_data_read_failed)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDataWriteFailed": {
+                    "name": "ep_data_write_failed",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of disk write failures. (measured from ep_data_write_failed)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iBackoff": {
+                    "name": "ep_dcp_2i_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for indexes DCP connections",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iCount": {
+                    "name": "ep_dcp_2i_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of indexes DCP connections",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iItemsRemaining": {
+                    "name": "ep_dcp_2i_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of indexes items remaining to be sent",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iItemsSent": {
+                    "name": "ep_dcp_2i_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of indexes items sent",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iProducerCount": {
+                    "name": "ep_dcp_2i_producers",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of indexes producers",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iTotalBacklogSize": {
+                    "name": "ep_dcp_2i_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcp2iTotalBytes": {
+                    "name": "ep_dcp_2i_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of bytes per second being sent for indexes DCP connections",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpCbasBackoff": {
+                    "name": "ep_dcp_cbas_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs per second for analytics DCP connections (measured from ep_dcp_cbas_backoff)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpCbasCount": {
+                    "name": "ep_dcp_cbas_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of internal analytics DCP connections in this bucket (measured from ep_dcp_cbas_count)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpCbasItemsRemaining": {
+                    "name": "ep_dcp_cbas_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items remaining to be sent to consumer in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpCbasItemsSent": {
+                    "name": "ep_dcp_cbas_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being sent for a producer for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpCbasProducerCount": {
+                    "name": "ep_dcp_cbas_producer_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of analytics senders for this bucket (measured from ep_dcp_cbas_producer_count)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpCbasTotalBacklogSize": {
+                    "name": "ep_dcp_cbas_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpCbasTotalBytes": {
+                    "name": "ep_dcp_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpFtsBackoff": {
+                    "name": "ep_dcp_fts_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpFtsCount": {
+                    "name": "ep_dcp_fts_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpFtsItemsRemaining": {
+                    "name": "ep_dcp_fts_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpFtsItemsSent": {
+                    "name": "ep_dcp_fts_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpFtsProducerCount": {
+                    "name": "ep_dcp_fts_producer_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpFtsTotalBacklogSize": {
+                    "name": "ep_dcp_fts_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpFtsTotalBytes": {
+                    "name": "ep_dcp_fts_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherBackoff": {
+                    "name": "ep_dcp_other_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for other DCP connections",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherCount": {
+                    "name": "ep_dcp_other_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of other DCP connections in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherItemsRemaining": {
+                    "name": "ep_dcp_other_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items remaining to be sent to consumer in this bucket (measured from ep_dcp_other_items_remaining)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherItemsSent": {
+                    "name": "ep_dcp_other_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being sent for a producer for this bucket (measured from ep_dcp_other_items_sent)",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherProducerCount": {
+                    "name": "ep_dcp_other_producer_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of other senders for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherTotalBacklogSize": {
+                    "name": "ep_dcp_other_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpOtherTotalBytes": {
+                    "name": "ep_dcp_other_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of bytes per second being sent for other DCP connections for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaBackoff": {
+                    "name": "ep_dcp_replica_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for replication DCP connections",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaCount": {
+                    "name": "ep_dcp_replica_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of internal replication DCP connections in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaItemsRemaining": {
+                    "name": "ep_dcp_replica_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items remaining to be sent to consumer in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaItemsSent": {
+                    "name": "ep_dcp_replica_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being sent for a producer for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaProducerCount": {
+                    "name": "ep_dcp_replica_producer_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of replication senders for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaTotalBacklogSize": {
+                    "name": "ep_dcp_replica_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpReplicaTotalBytes": {
+                    "name": "ep_dcp_replica_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of bytes per second being sent for replication DCP connections for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsBackoff": {
+                    "name": "ep_dcp_views_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for views DCP connections",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsCount": {
+                    "name": "ep_dcp_views_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of views DCP connections",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsIndexesBackoff": {
+                    "name": "ep_dcp_views_indexes_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsIndexesCount": {
+                    "name": "ep_dcp_views_indexes_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsIndexesItemsRemaining": {
+                    "name": "ep_dcp_views_indexes_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsIndexesItemsSent": {
+                    "name": "ep_dcp_views_indexes_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsIndexesProducerCount": {
+                    "name": "ep_dcp_views_indexes_producer_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsIndexesTotalBacklogSize": {
+                    "name": "ep_dcp_views_indexes_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsIndexesTotalBytes": {
+                    "name": "ep_dcp_views_indexes_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsItemsRemaining": {
+                    "name": "ep_dcp_views_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of views items remaining to be sent",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsItemsSent": {
+                    "name": "ep_dcp_views_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of views items sent",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsProducerCount": {
+                    "name": "ep_dcp_views_producer_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of views producers",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsTotalBacklogSize": {
+                    "name": "ep_dcp_views_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpViewsTotalBytes": {
+                    "name": "ep_dcp_views_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number bytes per second being sent for views DCP connections",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrBackoff": {
+                    "name": "ep_dcp_xdcr_backoff",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of backoffs for XDCR DCP connections",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrCount": {
+                    "name": "ep_dcp_xdcr_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of internal XDCR DCP connections in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrItemsRemaining": {
+                    "name": "ep_dcp_xdcr_items_remaining",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items remaining to be sent to consumer in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrItemsSent": {
+                    "name": "ep_dcp_xdcr_items_sent",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being sent for a producer for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrProducerCount": {
+                    "name": "ep_dcp_xdcr_producer_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of XDCR senders for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrTotalBacklogSize": {
+                    "name": "ep_dcp_xdcr_total_backlog_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDcpXdcrTotalBytes": {
+                    "name": "ep_dcp_xdcr_total_bytes",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of bytes per second being sent for XDCR DCP connections for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDiskqueueDrain": {
+                    "name": "ep_diskqueue_drain",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items per second being written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDiskqueueFill": {
+                    "name": "ep_diskqueue_fill",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items per second being put on the disk queue in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpDiskqueueItems": {
+                    "name": "ep_diskqueue_items",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items waiting to be written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpFlusherTodo": {
+                    "name": "ep_flusher_todo",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items currently being written",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpItemCommitFailed": {
+                    "name": "ep_item_commit_failed",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of times a transaction failed to commit due to storage errors",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpKvSize": {
+                    "name": "ep_kv_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total amount of user data cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpMaxSize": {
+                    "name": "ep_max_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The maximum amount of memory this bucket can use",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpMemHighWat": {
+                    "name": "ep_mem_high_wat",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "High water mark for auto-evictions",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpMemLowWat": {
+                    "name": "ep_mem_low_wat",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Low water mark for auto-evictions",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpMetaDataMemory": {
+                    "name": "ep_meta_data_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total amount of item metadata consuming RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpNumNonResident": {
+                    "name": "ep_num_non_resident",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of non-resident items",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsDelMeta": {
+                    "name": "ep_num_ops_del_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of delete operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsDelRetMeta": {
+                    "name": "ep_num_ops_del_ret_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of delRetMeta operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsGetMeta": {
+                    "name": "ep_num_ops_get_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of metadata read operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsSetMeta": {
+                    "name": "ep_num_ops_set_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of set operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpNumOpsSetRetMeta": {
+                    "name": "ep_num_ops_set_ret_meta",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of setRetMeta operations per second for this bucket as the target for XDCR",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpNumValueEjects": {
+                    "name": "ep_num_value_ejects",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of items per second being ejected to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpOomErrors": {
+                    "name": "ep_oom_errors",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of times unrecoverable OOMs happened while processing operations",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpOpsCreate": {
+                    "name": "ep_ops_create",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of new items being inserted into this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpOpsUpdate": {
+                    "name": "ep_ops_update",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items updated on disk per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpOverhead": {
+                    "name": "ep_overhead",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Extra memory used by transient data like persistence queues or checkpoints",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpQueueSize": {
+                    "name": "ep_queue_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items queued for storage",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpReplicaAheadExceptions": {
+                    "name": "ep_replica_ahead_exceptions",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of all items cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpReplicaHlcDrift": {
+                    "name": "ep_replica_hlc_drift",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "The sum of the total Absolute Drift, which is the accumulated drift observed by the vBucket. Drift is always accumulated as an absolute value.",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpReplicaHlcDriftCount": {
+                    "name": "ep_replica_hlc_drift_count",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpResidentItemsRate": {
+                    "name": "ep_resident_items_rate",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of all items cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpTmpOomErrors": {
+                    "name": "ep_tmp_oom_errors",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of back-offs sent per second to client SDKs due to OOM situations from this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "EpVbTotal": {
+                    "name": "ep_vb_total",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total number of vBuckets for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "Evictions": {
+                    "name": "evictions",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of evictions",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "GetHits": {
+                    "name": "get_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of get hits",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "GetMisses": {
+                    "name": "get_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of get misses",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "HibernatedRequests": {
+                    "name": "hibernated_requests",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of streaming requests on port 8091 now idle",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "HibernatedWaked": {
+                    "name": "hibernated_waked",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Rate of streaming request wakeups on port 8091",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "HitRatio": {
+                    "name": "hit_ratio",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Hit ratio",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "IncrHits": {
+                    "name": "incr_hits",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of increment hits",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "IncrMisses": {
+                    "name": "incr_misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of increment misses",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "MemActualFree": {
+                    "name": "mem_actual_free",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of RAM available on this server",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "MemActualUsed": {
+                    "name": "mem_actual_used",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "MemFree": {
+                    "name": "mem_free",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of Memory free",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "MemTotal": {
+                    "name": "mem_total",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "MemUsed": {
+                    "name": "mem_used",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of memory used",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "MemUsedSys": {
+                    "name": "mem_used_sys",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "Misses": {
+                    "name": "misses",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of misses",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "Ops": {
+                    "name": "ops",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total amount of operations per second to this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "RestRequests": {
+                    "name": "rest_requests",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Rate of http requests on port 8091",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "SwapTotal": {
+                    "name": "swap_total",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total amount of swap available",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "SwapUsed": {
+                    "name": "swap_used",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of swap space in use on this server",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveEject": {
+                    "name": "vb_active_eject",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being ejected to disk from active vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveItmMemory": {
+                    "name": "vb_active_itm_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of active user data cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveMetaDataMemory": {
+                    "name": "vb_active_meta_data_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of active item metadata consuming RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveNum": {
+                    "name": "vb_active_num",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of vBuckets in the active state for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveNumNonresident": {
+                    "name": "vb_active_num_non_resident",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of non resident vBuckets in the active state for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveOpsCreate": {
+                    "name": "vb_active_ops_create",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "New items per second being inserted into active vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveOpsUpdate": {
+                    "name": "vb_active_ops_update",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items updated on active vBucket per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveQueueAge": {
+                    "name": "vb_active_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Sum of disk queue item age in milliseconds",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveQueueDrain": {
+                    "name": "vb_active_queue_drain",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of active items per second being written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveQueueFill": {
+                    "name": "vb_active_queue_fill",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of active items per second being put on the active item disk queue in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveQueueItems": {
+                    "name": "vb_active_queue_items",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveQueueSize": {
+                    "name": "vb_active_queue_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of active items waiting to be written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbActiveResidentItemsRatio": {
+                    "name": "vb_active_resident_items_ratio",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of active items cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbAvgActiveQueueAge": {
+                    "name": "vb_avg_active_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Sum of disk queue item age in milliseconds",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbAvgPendingQueueAge": {
+                    "name": "vb_avg_pending_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average age in seconds of pending items in the pending item queue for this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbAvgReplicaQueueAge": {
+                    "name": "vb_avg_replica_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average age in seconds of replica items in the replica item queue for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbAvgTotalQueueAge": {
+                    "name": "vb_avg_total_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Average age in seconds of all items in the disk write queue for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingCurrItems": {
+                    "name": "vb_pending_curr_items",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items in pending vBuckets in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingEject": {
+                    "name": "vb_pending_eject",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being ejected to disk from pending vBuckets in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingItmMemory": {
+                    "name": "vb_pending_itm_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of pending user data cached in RAM in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingMetaDataMemory": {
+                    "name": "vb_pending_meta_data_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of pending item metadata consuming RAM in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingNum": {
+                    "name": "vb_pending_num",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of vBuckets in the pending state for this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingNumNonResident": {
+                    "name": "vb_pending_num_non_resident",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of non resident vBuckets in the pending state for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingOpsCreate": {
+                    "name": "vb_pending_ops_create",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "New items per second being instead into pending vBuckets in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingOpsUpdate": {
+                    "name": "vb_pending_ops_update",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items updated on pending vBucket per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingQueueAge": {
+                    "name": "vb_pending_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Sum of disk pending queue item age in milliseconds",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingQueueDrain": {
+                    "name": "vb_pending_queue_drain",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of pending items per second being written to disk in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingQueueFill": {
+                    "name": "vb_pending_queue_fill",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of pending items per second being put on the pending item disk queue in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingQueueSize": {
+                    "name": "vb_pending_queue_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of pending items waiting to be written to disk in this bucket and should be transient during rebalancing",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbPendingResidentItemsRatio": {
+                    "name": "vb_pending_resident_items_ratio",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of items in pending state vbuckets cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaCurrItems": {
+                    "name": "vb_replica_curr_items",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items in replica vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaEject": {
+                    "name": "vb_replica_eject",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items per second being ejected to disk from replica vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaItmMemory": {
+                    "name": "vb_replica_itm_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of replica user data cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaMetaDataMemory": {
+                    "name": "vb_replica_meta_data_memory",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Amount of replica item metadata consuming in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaNum": {
+                    "name": "vb_replica_num",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of vBuckets in the replica state for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaNumNonResident": {
+                    "name": "vb_replica_num_non_resident",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaOpsCreate": {
+                    "name": "vb_replica_ops_create",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "New items per second being inserted into replica vBuckets in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaOpsUpdate": {
+                    "name": "vb_replica_ops_update",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of items updated on replica vBucket per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaQueueAge": {
+                    "name": "vb_replica_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Sum of disk replica queue item age in milliseconds",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaQueueDrain": {
+                    "name": "vb_replica_queue_drain",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of replica items per second being written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaQueueFill": {
+                    "name": "vb_replica_queue_fill",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of replica items per second being put on the replica item disk queue in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaQueueSize": {
+                    "name": "vb_replica_queue_size",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Number of replica items waiting to be written to disk in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbReplicaResidentItemsRatio": {
+                    "name": "vb_replica_resident_items_ratio",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Percentage of active items cached in RAM in this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "VbTotalQueueAge": {
+                    "name": "vb_total_queue_age",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
+                "XdcOps": {
+                    "name": "xdc_ops",
+                    "enabled": false,
+                    "nameOverride": "",
+                    "helpText": "Total XDCR operations per second for this bucket",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                }
+            }
+        }
+    }
+}

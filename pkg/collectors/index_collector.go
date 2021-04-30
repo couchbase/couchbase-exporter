@@ -13,100 +13,92 @@ import (
 	"time"
 
 	"github.com/couchbase/couchbase-exporter/pkg/log"
+	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type indexCollector struct {
-	m MetaCollector
-
-	IndexMemoryQuota  *prometheus.Desc
-	IndexMemoryUsed   *prometheus.Desc
-	IndexRAMPercent   *prometheus.Desc
-	IndexRemainingRAM *prometheus.Desc
+	m      MetaCollector
+	config *objects.CollectorConfig
 }
 
-func NewIndexCollector(client util.Client) prometheus.Collector {
-	const subsystem = "index"
+func NewIndexCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+	if config == nil {
+		config = objects.GetIndexCollectorDefaultConfig()
+	}
+
 	return &indexCollector{
 		m: MetaCollector{
 			client: client,
 			up: prometheus.NewDesc(
-				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "up"),
-				"Couchbase cluster API is responding",
-				[]string{"cluster"},
+				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
+				objects.DefaultUptimeMetricHelp,
+				[]string{objects.ClusterLabel},
 				nil,
 			),
 			scrapeDuration: prometheus.NewDesc(
-				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "scrape_duration_seconds"),
-				"Scrape duration in seconds",
-				[]string{"cluster"},
+				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultScrapeDurationMetric),
+				objects.DefaultScrapeDurationMetricHelp,
+				[]string{objects.ClusterLabel},
 				nil,
 			),
 		},
-		IndexMemoryQuota: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "memory_quota"),
-			"Index Service memory quota",
-			[]string{"cluster"},
-			nil,
-		),
-		IndexMemoryUsed: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "memory_used"),
-			"Index Service memory used ",
-			[]string{"cluster"},
-			nil,
-		),
-		IndexRAMPercent: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "ram_percent"),
-			"Percentage of Index RAM quota in use across all indexes on this server.",
-			[]string{"cluster"},
-			nil,
-		),
-		IndexRemainingRAM: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "remaining_ram"),
-			"Bytes of Index RAM quota still available on this server.",
-			[]string{"cluster"},
-			nil,
-		),
+		config: config,
 	}
 }
 
-// Describe all metrics
+// Describe all metrics.
 func (c *indexCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.m.up
 	ch <- c.m.scrapeDuration
-	ch <- c.IndexMemoryUsed
-	ch <- c.IndexMemoryQuota
-	ch <- c.IndexRAMPercent
-	ch <- c.IndexRemainingRAM
+
+	for _, value := range c.config.Metrics {
+		if !value.Enabled {
+			continue
+		}
+
+		ch <- value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem)
+	}
 }
 
-// Collect all metrics
+// Collect all metrics.
 func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 	c.m.mutex.Lock()
 	defer c.m.mutex.Unlock()
 
 	start := time.Now()
+
 	log.Info("Collecting index metrics...")
 
 	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
 		log.Error("%s", err)
+
 		return
 	}
 
 	indexStats, err := c.m.client.Index()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
 		log.Error("failed to scrape index stats")
+
 		return
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.IndexMemoryQuota, prometheus.GaugeValue, last(indexStats.Op.Samples.IndexMemoryQuota), clusterName)
-	ch <- prometheus.MustNewConstMetric(c.IndexMemoryUsed, prometheus.GaugeValue, last(indexStats.Op.Samples.IndexMemoryUsed), clusterName)
-	ch <- prometheus.MustNewConstMetric(c.IndexRAMPercent, prometheus.GaugeValue, last(indexStats.Op.Samples.IndexRAMPercent), clusterName)
-	ch <- prometheus.MustNewConstMetric(c.IndexRemainingRAM, prometheus.GaugeValue, last(indexStats.Op.Samples.IndexRemainingRAM), clusterName)
+	for _, value := range c.config.Metrics {
+		if value.Enabled {
+			ch <- prometheus.MustNewConstMetric(
+				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+				prometheus.GaugeValue,
+				last(indexStats.Op.Samples[c.config.Subsystem+"_"+value.Name]),
+				clusterName,
+			)
+		}
+	}
 
 	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
 	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)

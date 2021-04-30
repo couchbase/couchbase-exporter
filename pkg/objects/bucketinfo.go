@@ -12,6 +12,18 @@ package objects
 // /pools/default/buckets/  to list all buckets
 // /pools/default/buckets/<bucket-name>
 
+const (
+	// Bucket Basic Stats Keys.
+	QuotaPercentUsed       = "quotaPercentUsed"
+	OpsPerSec              = "opsPerSec"
+	DiskFetches            = "diskFetches"
+	ItemCount              = "itemCount"
+	DiskUsed               = "diskUsed"
+	DataUsed               = "dataUsed"
+	MemUsed                = "memUsed"
+	VbActiveNumNonResident = "vbActiveNumNonResident"
+)
+
 type BucketInfo struct {
 	Name              string `json:"name"`
 	BucketType        string `json:"bucketType"`
@@ -55,20 +67,9 @@ type BucketInfo struct {
 		RAM    int `json:"ram"`
 		RawRAM int `json:"rawRAM"`
 	} `json:"quota"`
-	BucketBasicStats       BucketBasicStats `json:"basicStats"`
-	EvictionPolicy         string           `json:"evictionPolicy"`
-	ConflictResolutionType string           `json:"conflictResolutionType"`
-	BucketCapabilitiesVer  string           `json:"bucketCapabilitiesVer"`
-	BucketCapabilities     []string         `json:"bucketCapabilities"`
-}
-
-type BucketBasicStats struct {
-	QuotaPercentUsed       float64 `json:"quotaPercentUsed"`
-	OpsPerSec              float64 `json:"opsPerSec"`
-	DiskFetches            float64 `json:"diskFetches"`
-	ItemCount              float64 `json:"itemCount"`
-	DiskUsed               float64 `json:"diskUsed"`
-	DataUsed               float64 `json:"dataUsed"`
-	MemUsed                float64 `json:"memUsed"`
-	VbActiveNumNonResident float64 `json:"vbActiveNumNonResident"`
+	BucketBasicStats       map[string]float64 `json:"basicStats"`
+	EvictionPolicy         string             `json:"evictionPolicy"`
+	ConflictResolutionType string             `json:"conflictResolutionType"`
+	BucketCapabilitiesVer  string             `json:"bucketCapabilitiesVer"`
+	BucketCapabilities     []string           `json:"bucketCapabilities"`
 }

@@ -9,6 +9,45 @@
 
 package objects
 
+const (
+	// System Stats Keys.
+	CPUUtilizationRate = "cpu_utilization_rate"
+	SwapTotal          = "swap_total"
+	SwapUsed           = "swap_used"
+	MemTotal           = "mem_total"
+	MemFree            = "mem_free"
+
+	// Interesting Stats Keys.
+	CmdGet                                 = "cmd_get"
+	CouchDocsActualDiskSize                = "couch_docs_actual_disk_size"
+	CouchDocsDataSize                      = "couch_docs_data_size"
+	CouchSpatialDataSize                   = "couch_spatial_data_size"
+	CouchSpatialDiskSize                   = "couch_spatial_disk_size"
+	CouchViewsActualDiskSize               = "couch_views_actual_disk_size"
+	CouchViewsDataSize                     = "couch_views_data_size"
+	CurrItems                              = "curr_items"
+	CurrItemsTot                           = "curr_items_tot"
+	EpBgFetched                            = "ep_bg_fetched"
+	GetHits                                = "get_hits"
+	InterestingStatsMemUsed                = "mem_used"
+	Ops                                    = "ops"
+	InterestingStatsVbActiveNumNonResident = "vb_active_num_non_resident"
+	VbReplicaCurrItems                     = "vb_replica_curr_items"
+
+	// Counters Keys.
+	RebalanceSuccess        = "rebalance_success"
+	RebalanceStart          = "rebalance_start"
+	RebalanceFail           = "rebalance_fail"
+	RebalanceStop           = "rebalance_stop"
+	FailoverNode            = "failover_node"
+	Failover                = "failover"
+	FailoverComplete        = "failover_complete"
+	FailoverIncomplete      = "failover_incomplete"
+	GracefulFailoverStart   = "graceful_failover_start"
+	GracefulFailoverSuccess = "graceful_failover_success"
+	GracefulFailoverFail    = "graceful_failover_fail"
+)
+
 type Nodes struct {
 	Name                   string            `json:"name"`
 	Nodes                  []Node            `json:"nodes"`
@@ -23,7 +62,7 @@ type Nodes struct {
 	MaxBucketCount         int                    `json:"maxBucketCount"`
 	AutoCompactionSettings map[string]interface{} `json:"autoCompactionSettings"` //
 	Tasks                  map[string]string      `json:"tasks"`                  //
-	Counters               Counters               `json:"counters"`
+	Counters               map[string]float64     `json:"counters"`
 	IndexStatusURI         string                 `json:"indexStatusURI"`      //
 	CheckPermissionsURI    string                 `json:"checkPermissionsURI"` //
 	ServerGroupsURI        string                 `json:"serverGroupsUri"`     //
@@ -52,23 +91,6 @@ type Links struct {
 	} `json:"remoteClusters"`
 }
 
-// Counters from the cluster
-//
-// https://github.com/couchbase/ns_server/blob/master/src/ns_rebalancer.erl#L92
-type Counters struct {
-	RebalanceSuccess        float64 `json:"rebalance_success,omitempty"`
-	RebalanceStart          float64 `json:"rebalance_start,omitempty"`
-	RebalanceFail           float64 `json:"rebalance_fail,omitempty"`
-	RebalanceStop           float64 `json:"rebalance_stop,omitempty"`
-	FailoverNode            float64 `json:"failover_node,omitempty"`
-	Failover                float64 `json:"failover,omitempty"`
-	FailoverComplete        float64 `json:"failover_complete,omitempty"`
-	FailoverIncomplete      float64 `json:"failover_incomplete,omitempty"`
-	GracefulFailoverStart   float64 `json:"graceful_failover_start,omitempty"`
-	GracefulFailoverSuccess float64 `json:"graceful_failover_success,omitempty"`
-	GracefulFailoverFail    float64 `json:"graceful_failover_fail,omitempty"`
-}
-
 type StorageTotals struct {
 	RAM struct {
 		Total             float64 `json:"total"`
@@ -93,8 +115,8 @@ type StorageTotals struct {
 // @ /pools/default/buckets
 
 type Node struct {
-	SystemStats          SystemStats                 `json:"systemStats,omitempty"`
-	InterestingStats     InterestingStats            `json:"interestingStats"`
+	SystemStats          map[string]float64          `json:"systemStats,omitempty"`
+	InterestingStats     map[string]float64          `json:"interestingStats"`
 	Uptime               string                      `json:"uptime"`
 	MemoryTotal          float64                     `json:"memoryTotal"`
 	MemoryFree           float64                     `json:"memoryFree"`
@@ -117,32 +139,6 @@ type Node struct {
 	Ports                *Ports                      `json:"ports,omitempty"`
 	Services             []string                    `json:"services,omitempty"`
 	AlternateAddresses   *AlternateAddressesExternal `json:"alternateAddresses,omitempty"`
-}
-
-type SystemStats struct {
-	CPUUtilizationRate float64 `json:"cpu_utilization_rate"`
-	SwapTotal          float64 `json:"swap_total"`
-	SwapUsed           float64 `json:"swap_used"`
-	MemTotal           float64 `json:"mem_total"`
-	MemFree            float64 `json:"mem_free"`
-}
-
-type InterestingStats struct {
-	CmdGet                   float64 `json:"cmd_get"`
-	CouchDocsActualDiskSize  float64 `json:"couch_docs_actual_disk_size"`
-	CouchDocsDataSize        float64 `json:"couch_docs_data_size"`
-	CouchSpatialDataSize     float64 `json:"couch_spatial_data_size"`
-	CouchSpatialDiskSize     float64 `json:"couch_spatial_disk_size"`
-	CouchViewsActualDiskSize float64 `json:"couch_views_actual_disk_size"`
-	CouchViewsDataSize       float64 `json:"couch_views_data_size"`
-	CurrItems                float64 `json:"curr_items"`
-	CurrItemsTot             float64 `json:"curr_items_tot"`
-	EpBgFetched              float64 `json:"ep_bg_fetched"`
-	GetHits                  float64 `json:"get_hits"`
-	MemUsed                  float64 `json:"mem_used"`
-	Ops                      float64 `json:"ops"`
-	VbActiveNumNonResident   float64 `json:"vb_active_num_non_resident"`
-	VbReplicaCurrItems       float64 `json:"vb_replica_curr_items"`
 }
 
 type Ports struct {

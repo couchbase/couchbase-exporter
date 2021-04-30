@@ -9,31 +9,34 @@
 
 package objects
 
+const (
+	// Samples Keys.
+	EventingCheckpointFailureCount     = "eventing/checkpoint_failure_count"
+	EventingBucketOpExceptionCount     = "eventing/bucket_op_exception_count"
+	EventingDcpBacklog                 = "eventing/dcp_backlog"
+	EventingFailedCount                = "eventing/failed_count"
+	EventingN1QlOpExceptionCount       = "eventing/n1ql_op_exception_count"
+	EventingOnDeleteFailure            = "eventing/on_delete_failure"
+	EventingOnDeleteSuccess            = "eventing/on_delete_success"
+	EventingOnUpdateFailure            = "eventing/on_update_failure"
+	EventingOnUpdateSuccess            = "eventing/on_update_success"
+	EventingProcessedCount             = "eventing/processed_count"
+	EventingTestBucketOpExceptionCount = "eventing/test/bucket_op_exception_count"
+	EventingTestCheckpointFailureCount = "eventing/test/checkpoint_failure_count"
+	EventingTestDcpBacklog             = "eventing/test/dcp_backlog"
+	EventingTestFailedCount            = "eventing/test/failed_count"
+	EventingTestN1QlOpExceptionCount   = "eventing/test/n1ql_op_exception_count"
+	EventingTestOnDeleteFailure        = "eventing/test/on_delete_failure"
+	EventingTestOnDeleteSuccess        = "eventing/test/on_delete_success"
+	EventingTestOnUpdateFailure        = "eventing/test/on_update_failure"
+	EventingTestOnUpdateSuccess        = "eventing/test/on_update_success"
+	EventingTestProcessedCount         = "eventing/test/processed_count"
+	EventingTestTimeoutCount           = "eventing/test/timeout_count"
+	EventingTimeoutCount               = "eventing/timeout_count"
+)
+
 type Eventing struct {
 	Op struct {
-		Samples struct {
-			EventingBucketOpExceptionCount     []float64 `json:"eventing/bucket_op_exception_count"`
-			EventingCheckpointFailureCount     []float64 `json:"eventing/checkpoint_failure_count"`
-			EventingDcpBacklog                 []float64 `json:"eventing/dcp_backlog"`
-			EventingFailedCount                []float64 `json:"eventing/failed_count"`
-			EventingN1QlOpExceptionCount       []float64 `json:"eventing/n1ql_op_exception_count"`
-			EventingOnDeleteFailure            []float64 `json:"eventing/on_delete_failure"`
-			EventingOnDeleteSuccess            []float64 `json:"eventing/on_delete_success"`
-			EventingOnUpdateFailure            []float64 `json:"eventing/on_update_failure"`
-			EventingOnUpdateSuccess            []float64 `json:"eventing/on_update_success"`
-			EventingProcessedCount             []float64 `json:"eventing/processed_count"`
-			EventingTestBucketOpExceptionCount []float64 `json:"eventing/test/bucket_op_exception_count"`
-			EventingTestCheckpointFailureCount []float64 `json:"eventing/test/checkpoint_failure_count"`
-			EventingTestDcpBacklog             []float64 `json:"eventing/test/dcp_backlog"`
-			EventingTestFailedCount            []float64 `json:"eventing/test/failed_count"`
-			EventingTestN1QlOpExceptionCount   []float64 `json:"eventing/test/n1ql_op_exception_count"`
-			EventingTestOnDeleteFailure        []float64 `json:"eventing/test/on_delete_failure"`
-			EventingTestOnDeleteSuccess        []float64 `json:"eventing/test/on_delete_success"`
-			EventingTestOnUpdateFailure        []float64 `json:"eventing/test/on_update_failure"`
-			EventingTestOnUpdateSuccess        []float64 `json:"eventing/test/on_update_success"`
-			EventingTestProcessedCount         []float64 `json:"eventing/test/processed_count"`
-			EventingTestTimeoutCount           []float64 `json:"eventing/test/timeout_count"`
-			EventingTimeoutCount               []float64 `json:"eventing/timeout_count"`
-		} `json:"samples"`
+		Samples map[string][]float64 `json:"samples"`
 	} `json:"op"`
 }

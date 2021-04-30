@@ -13,91 +13,92 @@ import (
 	"time"
 
 	"github.com/couchbase/couchbase-exporter/pkg/log"
+	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type ftsCollector struct {
-	m MetaCollector
-
-	FtsCurrBatchesBlockedByHerder   *prometheus.Desc
-	FtsNumBytesUsedRAM              *prometheus.Desc
-	FtsTotalQueriesRejectedByHerder *prometheus.Desc
+	m      MetaCollector
+	config *objects.CollectorConfig
 }
 
-func NewFTSCollector(client util.Client) prometheus.Collector {
-	const subsystem = "fts"
+func NewFTSCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+	if config == nil {
+		config = objects.GetSearchCollectorDefaultConfig()
+	}
+
 	return &ftsCollector{
 		m: MetaCollector{
 			client: client,
 			up: prometheus.NewDesc(
-				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "up"),
-				"Couchbase cluster API is responding",
-				[]string{"cluster"},
+				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
+				objects.DefaultUptimeMetricHelp,
+				[]string{objects.ClusterLabel},
 				nil,
 			),
 			scrapeDuration: prometheus.NewDesc(
-				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "scrape_duration_seconds"),
-				"Scrape duration in seconds",
-				[]string{"cluster"},
+				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultScrapeDurationMetric),
+				objects.DefaultScrapeDurationMetricHelp,
+				[]string{objects.ClusterLabel},
 				nil,
 			),
 		},
-		FtsCurrBatchesBlockedByHerder: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "curr_batches_blocked_by_herder"),
-			"Number of DCP batches blocked by the FTS throttler due to high memory consumption",
-			[]string{"cluster"},
-			nil,
-		),
-		FtsNumBytesUsedRAM: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "num_bytes_used_ram"),
-			"Amount of RAM used by FTS on this server",
-			[]string{"cluster"},
-			nil,
-		),
-		FtsTotalQueriesRejectedByHerder: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "total_queries_rejected_by_herder"),
-			"Number of fts queries rejected by the FTS throttler due to high memory consumption",
-			[]string{"cluster"},
-			nil,
-		),
+		config: config,
 	}
 }
 
-// Describe all metrics
+// Describe all metrics.
 func (c *ftsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.m.up
 	ch <- c.m.scrapeDuration
-	ch <- c.FtsTotalQueriesRejectedByHerder
-	ch <- c.FtsNumBytesUsedRAM
-	ch <- c.FtsTotalQueriesRejectedByHerder
+
+	for _, value := range c.config.Metrics {
+		if !value.Enabled {
+			continue
+		}
+
+		ch <- value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem)
+	}
 }
 
-// Collect all metrics
+// Collect all metrics.
 func (c *ftsCollector) Collect(ch chan<- prometheus.Metric) {
 	c.m.mutex.Lock()
 	defer c.m.mutex.Unlock()
 
 	start := time.Now()
+
 	log.Info("Collecting fts metrics...")
 
 	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
 		log.Error("%s", err)
+
 		return
 	}
 
 	ftsStats, err := c.m.client.Fts()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
 		log.Error("failed to scrape FTS stats")
+
 		return
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.FtsCurrBatchesBlockedByHerder, prometheus.GaugeValue, last(ftsStats.Op.Samples.FtsCurrBatchesBlockedByHerder), clusterName)
-	ch <- prometheus.MustNewConstMetric(c.FtsNumBytesUsedRAM, prometheus.GaugeValue, last(ftsStats.Op.Samples.FtsNumBytesUsedRAM), clusterName)
-	ch <- prometheus.MustNewConstMetric(c.FtsTotalQueriesRejectedByHerder, prometheus.GaugeValue, last(ftsStats.Op.Samples.FtsTotalQueriesRejectedByHerder), clusterName)
+	for _, value := range c.config.Metrics {
+		if value.Enabled {
+			ch <- prometheus.MustNewConstMetric(
+				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+				prometheus.GaugeValue,
+				last(ftsStats.Op.Samples[c.config.Subsystem+"_"+value.Name]),
+				clusterName,
+			)
+		}
+	}
 
 	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
 	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)

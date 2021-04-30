@@ -11,9 +11,9 @@
 
 package objects
 
-// /pools/default/tasks
+// /pools/default/tasks.
 type Task struct {
-	StatusId      string  `json:"statusId"`
+	StatusID      string  `json:"statusId"`
 	Type          string  `json:"type"`
 	Status        string  `json:"status"`
 	RefreshPeriod float64 `json:"recommendedRefreshPeriod,omitempty"`
@@ -66,7 +66,7 @@ type Task struct {
 	Pid string `json:"pid,omitempty"`
 }
 
-// NodeProgress is the ingoing/outgoing detailed progress of a task in a node
+// NodeProgress is the ingoing/outgoing detailed progress of a task in a node.
 type NodeProgress struct {
 	DocsTotal           int64 `json:"docsTotal,omitempty"`
 	DocsTransferred     int64 `json:"docsTransferred,omitempty"`
@@ -75,9 +75,9 @@ type NodeProgress struct {
 }
 
 type StageInfo struct {
-	TotalProgress   int64         `json:totalProgress,omitempty`
-	PerNodeProgress []interface{} `json:perNodeProgress,omitempty`
-	StartTime       string        `json:startTime,omitempty`
-	CompletedTime   string        `json:completedTime,omitempty`
-	TimeTaken       int64         `json:timeTaken,omitempty`
+	TotalProgress   int64         `json:"totalProgress,omitempty"`
+	PerNodeProgress []interface{} `json:"perNodeProgress,omitempty"`
+	StartTime       string        `json:"startTime,omitempty"`
+	CompletedTime   string        `json:"completedTime,omitempty"`
+	TimeTaken       int64         `json:"timeTaken,omitempty"`
 }

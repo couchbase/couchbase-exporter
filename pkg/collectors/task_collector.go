@@ -15,141 +15,182 @@ import (
 	"time"
 
 	"github.com/couchbase/couchbase-exporter/pkg/log"
+	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
+)
+
+const (
+	taskRebalance            = "rebalance"
+	taskBucketCompaction     = "bucket_compaction"
+	taskXdcr                 = "xdcr"
+	taskClusterLogCollection = "clusterLogsCollection"
+	metricRebalancePerNode   = "rebalancePerNode"
+	metricCompacting         = "compacting"
+	metricXdcrChangesLeft    = "xdcrChangesLeft"
+	metricXdcrDocsChecked    = "xdcrDocsChecked"
+	metricXdcrDocsWritten    = "xdcrDocsWritten"
+	metricXdcrPaused         = "xdcrPaused"
+	metricXdcrErrors         = "xdcrErrors"
 )
 
 type taskCollector struct {
 	m MetaCollector
 
-	rebalance             *prometheus.Desc
-	rebalancePerNode      *prometheus.Desc
-	compacting            *prometheus.Desc
-	clusterLogsCollection *prometheus.Desc
-	xdcrChangesLeft       *prometheus.Desc
-	xdcrDocsChecked       *prometheus.Desc
-	xdcrDocsWritten       *prometheus.Desc
-	xdcrPaused            *prometheus.Desc
-	xdcrErrors            *prometheus.Desc
-
-	ProgressDocsTotal           *prometheus.Desc
-	ProgressDocsTransferred     *prometheus.Desc
-	ProgressActiveVBucketsLeft  *prometheus.Desc
-	ProgressReplicaVBucketsLeft *prometheus.Desc
+	config *objects.CollectorConfig
 }
 
-func NewTaskCollector(client util.Client) prometheus.Collector {
-	const subsystem = "task"
+func NewTaskCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+	if config == nil {
+		config = objects.GetTaskCollectorDefaultConfig()
+	}
 
 	return &taskCollector{
 		m: MetaCollector{
 			client: client,
 			up: prometheus.NewDesc(
-				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "up"),
-				"Couchbase task API is responding",
-				[]string{"cluster"},
+				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
+				objects.DefaultUptimeMetricHelp,
+				[]string{objects.ClusterLabel},
 				nil,
 			),
 			scrapeDuration: prometheus.NewDesc(
-				prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "scrape_duration_seconds"),
-				"Scrape duration in seconds",
-				[]string{"cluster"},
+				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultScrapeDurationMetric),
+				objects.DefaultScrapeDurationMetricHelp,
+				[]string{objects.ClusterLabel},
 				nil,
 			),
 		},
-		rebalance: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "rebalance_progress"),
-			"Progress of a rebalance task",
-			[]string{"cluster"},
-			nil,
-		),
-		rebalancePerNode: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "node_rebalance_progress"),
-			"Progress of a rebalance task per node",
-			[]string{"node", "cluster"},
-			nil,
-		),
-		compacting: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "compacting_progress"),
-			"Progress of a bucket compaction task",
-			[]string{"bucket", "cluster"},
-			nil,
-		),
-		clusterLogsCollection: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "cluster_logs_collection_progress"),
-			"Progress of a cluster logs collection task",
-			[]string{"cluster"},
-			nil,
-		),
-		xdcrChangesLeft: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "xdcr_changes_left"),
-			"Number of updates still pending replication",
-			[]string{"bucket", "target", "cluster"},
-			nil,
-		),
-		xdcrDocsChecked: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "xdcr_docs_checked"),
-			"Number of documents checked for changes",
-			[]string{"bucket", "target", "cluster"},
-			nil,
-		),
-		xdcrDocsWritten: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "xdcr_docs_written"),
-			"Number of documents written to the destination cluster",
-			[]string{"bucket", "target", "cluster"},
-			nil,
-		),
-		xdcrPaused: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "xdcr_paused"),
-			"Is this replication paused",
-			[]string{"bucket", "target", "cluster"},
-			nil,
-		),
-		xdcrErrors: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "xdcr_errors"),
-			"Number of errors",
-			[]string{"bucket", "target", "cluster"},
-			nil,
-		),
-		ProgressDocsTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "docs_total"),
-			"docs_total",
-			[]string{"bucket", "target", "cluster"},
-			nil,
-		),
-		ProgressDocsTransferred: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "docs_transferred"),
-			"docs_transferred",
-			[]string{"bucket", "target", "cluster"},
-			nil,
-		),
-		ProgressActiveVBucketsLeft: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "active_vbuckets_left"),
-			"Number of Active VBuckets remaining",
-			[]string{"bucket", "target", "cluster"},
-			nil,
-		),
-		ProgressReplicaVBucketsLeft: prometheus.NewDesc(
-			prometheus.BuildFQName(FQ_NAMESPACE+subsystem, "", "replica_vbuckets_left"),
-			"Number of Replica VBuckets remaining",
-			[]string{"bucket", "target", "cluster"},
-			nil,
-		),
+		config: config,
 	}
 }
 
 func (c *taskCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.m.up
 	ch <- c.m.scrapeDuration
-	ch <- c.rebalance
-	ch <- c.rebalancePerNode
-	ch <- c.compacting
-	ch <- c.clusterLogsCollection
-	ch <- c.xdcrChangesLeft
-	ch <- c.xdcrDocsChecked
-	ch <- c.xdcrDocsWritten
-	ch <- c.xdcrPaused
-	ch <- c.xdcrErrors
+
+	for _, value := range c.config.Metrics {
+		if !value.Enabled {
+			continue
+		}
+
+		ch <- value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem)
+	}
+}
+
+func (c *taskCollector) collectTasks(ch chan<- prometheus.Metric, clusterName string, tasks []objects.Task) map[string]bool {
+	var compactsReported = map[string]bool{}
+
+	for _, task := range tasks {
+		switch task.Type {
+		case taskRebalance:
+			c.addRebalance(ch, task, clusterName)
+		case taskBucketCompaction:
+			// XXX: there can be more than one compacting tasks for the same
+			// bucket for now, let's report just the first.
+			c.addBucketCompaction(ch, task, clusterName, compactsReported[task.Bucket])
+			compactsReported[task.Bucket] = true
+		case taskXdcr:
+			log.Debug("found xdcr tasks from %s to %s", task.Source, task.Target)
+			c.addXdcr(ch, task, clusterName)
+		case taskClusterLogCollection:
+			c.addClusterLogCollection(ch, task, clusterName)
+		default:
+			log.Warn("not implemented")
+		}
+	}
+
+	return compactsReported
+}
+func (c *taskCollector) addBucketCompaction(ch chan<- prometheus.Metric, task objects.Task, clusterName string, compactsReported bool) {
+	if cp, ok := c.config.Metrics[metricCompacting]; ok && cp.Enabled && !compactsReported {
+		ch <- prometheus.MustNewConstMetric(
+			cp.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+			prometheus.GaugeValue,
+			task.Progress,
+			task.Bucket,
+			clusterName)
+	}
+}
+
+func (c *taskCollector) addClusterLogCollection(ch chan<- prometheus.Metric, task objects.Task, clusterName string) {
+	if clc, ok := c.config.Metrics[taskClusterLogCollection]; ok && clc.Enabled {
+		ch <- prometheus.MustNewConstMetric(
+			clc.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+			prometheus.GaugeValue,
+			task.Progress,
+			clusterName)
+	}
+}
+
+func (c *taskCollector) addRebalance(ch chan<- prometheus.Metric, task objects.Task, clusterName string) {
+	if rb, ok := c.config.Metrics[taskRebalance]; ok && rb.Enabled {
+		ch <- prometheus.MustNewConstMetric(rb.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem), prometheus.GaugeValue, task.Progress, clusterName)
+	}
+
+	if rbPN, ok := c.config.Metrics[metricRebalancePerNode]; ok && rbPN.Enabled {
+		for node, progress := range task.PerNode {
+			ch <- prometheus.MustNewConstMetric(
+				rbPN.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+				prometheus.GaugeValue,
+				progress.Progress,
+				node,
+				clusterName)
+		}
+	}
+}
+
+// nolint: cyclop
+func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, clusterName string) {
+	if xcl, ok := c.config.Metrics[metricXdcrChangesLeft]; ok && xcl.Enabled {
+		ch <- prometheus.MustNewConstMetric(
+			xcl.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+			prometheus.GaugeValue,
+			float64(task.ChangesLeft),
+			task.Source,
+			task.Target,
+			clusterName)
+	}
+
+	if xdc, ok := c.config.Metrics[metricXdcrDocsChecked]; ok && xdc.Enabled {
+		ch <- prometheus.MustNewConstMetric(
+			xdc.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+			prometheus.GaugeValue,
+			float64(task.DocsChecked),
+			task.Source,
+			task.Target,
+			clusterName)
+	}
+
+	if xdw, ok := c.config.Metrics[metricXdcrDocsWritten]; ok && xdw.Enabled {
+		ch <- prometheus.MustNewConstMetric(
+			xdw.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+			prometheus.GaugeValue,
+			float64(task.DocsWritten),
+			task.Source,
+			task.Target,
+			clusterName)
+	}
+
+	if xp, ok := c.config.Metrics[metricXdcrPaused]; ok && xp.Enabled {
+		ch <- prometheus.MustNewConstMetric(
+			xp.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+			prometheus.GaugeValue,
+			boolToFloat64(task.PauseRequested),
+			task.Source,
+			task.Target,
+			clusterName)
+	}
+
+	if xe, ok := c.config.Metrics[metricXdcrErrors]; ok && xe.Enabled {
+		ch <- prometheus.MustNewConstMetric(
+			xe.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+			prometheus.GaugeValue,
+			float64(len(task.Errors)),
+			task.Source,
+			task.Target,
+			clusterName)
+	}
 }
 
 func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
@@ -157,65 +198,49 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	defer c.m.mutex.Unlock()
 
 	start := time.Now()
+
 	log.Info("Collecting tasks metrics...")
 
 	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
 		log.Error("%s", err)
+
 		return
 	}
 
 	tasks, err := c.m.client.Tasks()
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
 		log.Error("failed to scrape tasks")
-		return
-	}
-	buckets, err := c.m.client.Buckets()
-	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
-		log.Error("failed to scrape tasks")
+
 		return
 	}
 
-	var compactsReported = map[string]bool{}
-	// nolint: lll
-	for _, task := range tasks {
-		switch task.Type {
-		case "rebalance":
-			ch <- prometheus.MustNewConstMetric(c.rebalance, prometheus.GaugeValue, task.Progress, clusterName)
-			for node, progress := range task.PerNode {
-				ch <- prometheus.MustNewConstMetric(c.rebalancePerNode, prometheus.GaugeValue, progress.Progress, node, clusterName)
-			}
-		case "bucket_compaction":
-			// XXX: there can be more than one compacting tasks for the same
-			// bucket for now, let's report just the first.
-			if ok := compactsReported[task.Bucket]; !ok {
-				ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, task.Progress, task.Bucket, clusterName)
-			}
-			compactsReported[task.Bucket] = true
-		case "xdcr":
-			log.Debug("found xdcr tasks from %s to %s", task.Source, task.Target)
-			ch <- prometheus.MustNewConstMetric(c.xdcrChangesLeft, prometheus.GaugeValue, float64(task.ChangesLeft), task.Source, task.Target, clusterName)
-			ch <- prometheus.MustNewConstMetric(c.xdcrDocsChecked, prometheus.GaugeValue, float64(task.DocsChecked), task.Source, task.Target, clusterName)
-			ch <- prometheus.MustNewConstMetric(c.xdcrDocsWritten, prometheus.GaugeValue, float64(task.DocsWritten), task.Source, task.Target, clusterName)
-			ch <- prometheus.MustNewConstMetric(c.xdcrPaused, prometheus.GaugeValue, boolToFloat64(task.PauseRequested), task.Source, task.Target, clusterName)
-			ch <- prometheus.MustNewConstMetric(c.xdcrErrors, prometheus.GaugeValue, float64(len(task.Errors)), task.Source, task.Target, clusterName)
-		case "clusterLogsCollection":
-			ch <- prometheus.MustNewConstMetric(c.clusterLogsCollection, prometheus.GaugeValue, task.Progress, clusterName)
-		default:
-			log.Warn("not implemented")
-		}
+	buckets, err := c.m.client.Buckets()
+	if err != nil {
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
+		log.Error("failed to scrape tasks")
+
+		return
 	}
+
+	// nolint: lll
+	compactsReported := c.collectTasks(ch, clusterName, tasks)
 	// always report the compacting task, even if it is not happening
 	// this is to not break dashboards and make it easier to test alert rule
 	// and etc.
+	compact := c.config.Metrics[metricCompacting]
+
 	for _, bucket := range buckets {
-		if ok := compactsReported[bucket.Name]; !ok {
+		if _, ok := compactsReported[bucket.Name]; !ok {
 			// nolint: lll
-			ch <- prometheus.MustNewConstMetric(c.compacting, prometheus.GaugeValue, 0, bucket.Name, clusterName)
+			ch <- prometheus.MustNewConstMetric(compact.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem), prometheus.GaugeValue, 0, bucket.Name, clusterName)
 		}
+
 		compactsReported[bucket.Name] = true
 	}
 

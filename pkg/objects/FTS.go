@@ -9,12 +9,15 @@
 
 package objects
 
+const (
+	// Sample Keys.
+	FtsCurrBatchesBlockedByHerder   = "fts_curr_batches_blocked_by_herder"
+	FtsNumBytesUsedRAM              = "fts_num_bytes_used_ram"
+	FtsTotalQueriesRejectedByHerder = "fts_total_queries_rejected_by_herder"
+)
+
 type FTS struct {
 	Op struct {
-		Samples struct {
-			FtsCurrBatchesBlockedByHerder   []float64 `json:"fts_curr_batches_blocked_by_herder"`
-			FtsNumBytesUsedRAM              []float64 `json:"fts_num_bytes_used_ram"`
-			FtsTotalQueriesRejectedByHerder []float64 `json:"fts_total_queries_rejected_by_herder"`
-		} `json:"samples"`
+		Samples map[string][]float64 `json:"samples"`
 	} `json:"op"`
 }

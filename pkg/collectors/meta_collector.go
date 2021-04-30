@@ -10,9 +10,10 @@
 package collectors
 
 import (
+	"sync"
+
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
-	"sync"
 )
 
 type MetaCollector struct {

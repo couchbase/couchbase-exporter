@@ -9,21 +9,24 @@
 
 package objects
 
+const (
+	// Keys for samples structures.
+	CbasDiskUsed          = "cbas_disk_used"
+	CbasGcCount           = "cbas_gc_count"
+	CbasGcTime            = "cbas_gc_time"
+	CbasHeapUsed          = "cbas_heap_used"
+	CbasIoReads           = "cbas_io_reads"
+	CbasIoWrites          = "cbas_io_writes"
+	CbasSystemLoadAverage = "cbas_system_load_average"
+	CbasThreadCount       = "cbas_thread_count"
+)
+
 type Analytics struct {
 	Op struct {
-		Samples struct {
-			CbasDiskUsed          []float64 `json:"cbas_disk_used"`
-			CbasGcCount           []float64 `json:"cbas_gc_count"`
-			CbasGcTime            []float64 `json:"cbas_gc_time"`
-			CbasHeapUsed          []float64 `json:"cbas_heap_used"`
-			CbasIoReads           []float64 `json:"cbas_io_reads"`
-			CbasIoWrites          []float64 `json:"cbas_io_writes"`
-			CbasSystemLoadAverage []float64 `json:"cbas_system_load_average"`
-			CbasThreadCount       []float64 `json:"cbas_thread_count"`
-		} `json:"samples"`
-		SamplesCount int   `json:"samplesCount"`
-		IsPersistent bool  `json:"isPersistent"`
-		LastTStamp   int64 `json:"lastTStamp"`
-		Interval     int   `json:"interval"`
+		Samples      map[string][]float64 `json:"samples"`
+		SamplesCount int                  `json:"samplesCount"`
+		IsPersistent bool                 `json:"isPersistent"`
+		LastTStamp   int64                `json:"lastTStamp"`
+		Interval     int                  `json:"interval"`
 	} `json:"op"`
 }

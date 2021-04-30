@@ -12,142 +12,159 @@ package main
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/couchbase/couchbase-exporter/pkg/collectors"
+	"github.com/couchbase/couchbase-exporter/pkg/config"
 	"github.com/couchbase/couchbase-exporter/pkg/log"
+	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const (
-	operatorUser = "COUCHBASE_OPERATOR_USER"
-	operatorPass = "COUCHBASE_OPERATOR_PASS"
-
-	envUser = "COUCHBASE_USER"
-	envPass = "COUCHBASE_PASS"
-
-	bearerToken = "AUTH_BEARER_TOKEN"
+	certAndKeyError = "please specify both cert and key arguments"
+	caAppendError   = "failed to append CA"
+	x509Error       = "failed to create X509 KeyPair"
 )
 
 var (
-	couchAddr = flag.String("couchbase-address", "localhost", "The address where Couchbase Server is running")
-	couchPort = flag.String("couchbase-port", "", "The port where Couchbase Server is running.")
-	userFlag  = flag.String("couchbase-username", "Administrator", "Couchbase Server Username. Overridden by env-var COUCHBASE_USER if set.")
-	passFlag  = flag.String("couchbase-password", "password", "Plaintext Couchbase Server Password. Recommended to pass value via env-ver COUCHBASE_PASS. Overridden by aforementioned env-var.")
-
-	svrAddr     = flag.String("server-address", "", "The address to host the server on, default all interfaces")
-	svrPort     = flag.String("server-port", "9091", "The port to host the server on")
-	refreshTime = flag.String("per-node-refresh", "5", "How frequently to collect per_node_bucket_stats collector in seconds")
-
-	tokenFlag  = flag.String("token", "", "bearer token that allows access to /metrics")
-	cert       = flag.String("cert", "", "certificate file for exporter in order to serve metrics over TLS")
-	key        = flag.String("key", "", "private key file for exporter in order to serve metrics over TLS")
-	ca         = flag.String("ca", "", "PKI certificate authority file")
-	clientCert = flag.String("client-cert", "", "client certificate file to authenticate this client with couchbase-server")
-	clientKey  = flag.String("client-key", "", "client private key file to authenticate this client with couchbase-server")
-	logLevel   = flag.String("log-level", "info", "log level (debug/info/warn/error)")
-	logJson    = flag.Bool("log-json", true, "if set to true, logs will be JSON formatted")
-
-	backOffLimit = flag.String("backofflimit", "5", "number of retries after panicking before exiting")
-	panics = 0
-	panicLimit = 0
+	exporterConfig = new(objects.ExporterConfig)
+	couchAddr      *string
+	couchPort      *string
+	userFlag       *string
+	passFlag       *string
+	svrAddr        *string
+	svrPort        *string
+	refreshTime    *string
+	tokenFlag      *string
+	cert           *string
+	key            *string
+	ca             *string
+	clientCert     *string
+	clientKey      *string
+	logLevel       *string
+	logJSON        *bool
+	backOffLimit   *string
+	configFile     *string
+	defaultConfig  *bool
+	panics         = 0
+	errCertAndKey  = fmt.Errorf(certAndKeyError)
+	errCaAppend    = fmt.Errorf(caAppendError)
+	errX509        = fmt.Errorf(x509Error)
 )
+
+func init() {
+	couchAddr = flag.String("couchbase-address", "", "The address where Couchbase Server is running")
+	couchPort = flag.String("couchbase-port", "", "The port where Couchbase Server is running.")
+	userFlag = flag.String("couchbase-username", "", "Couchbase Server Username. Overridden by env-var COUCHBASE_USER if set.")
+	passFlag = flag.String("couchbase-password", "", "Plaintext Couchbase Server Password. Recommended to pass value via env-ver COUCHBASE_PASS. Overridden by aforementioned env-var.")
+
+	svrAddr = flag.String("server-address", "", "The address to host the server on, default all interfaces")
+	svrPort = flag.String("server-port", "", "The port to host the server on")
+	refreshTime = flag.String("per-node-refresh", "", "How frequently to collect per_node_bucket_stats collector in seconds")
+
+	tokenFlag = flag.String("token", "", "bearer token that allows access to /metrics")
+	cert = flag.String("cert", "", "certificate file for exporter in order to serve metrics over TLS")
+	key = flag.String("key", "", "private key file for exporter in order to serve metrics over TLS")
+	ca = flag.String("ca", "", "PKI certificate authority file")
+	clientCert = flag.String("client-cert", "", "client certificate file to authenticate this client with couchbase-server")
+	clientKey = flag.String("client-key", "", "client private key file to authenticate this client with couchbase-server")
+	logLevel = flag.String("log-level", "", "log level (debug/info/warn/error)")
+	logJSON = flag.Bool("log-json", true, "if set to true, logs will be JSON formatted")
+
+	backOffLimit = flag.String("backofflimit", "", "number of retries after panicking before exiting")
+	configFile = flag.String("config", "", "The location of the PE configuration. Overridden by env-var COUCHBASE_CONFIG_FILE if set.")
+	defaultConfig = flag.Bool("print-config", false, "Outputs the config file with CLI and ENV var override to stdout")
+}
 
 func main() {
 	flag.Parse()
 
-	if *logLevel != "" {
-		log.SetLevel(*logLevel)
+	// Load config from file, or load up defaults.
+	exporterConfig, err := config.New(*configFile)
+	if err != nil {
+		log.Error("Error loading config file.")
+		os.Exit(1)
 	}
-	if *logJson {
+
+	// Get Logging settings and initialize log level.
+	exporterConfig.SetOrDefaultLogJSON(*logJSON)
+	exporterConfig.SetOrDefaultLogLevel(*logLevel)
+
+	if exporterConfig.LogLevel != "" {
+		log.SetLevel(exporterConfig.LogLevel)
+	}
+
+	if exporterConfig.LogJSON {
 		log.SetFormat("json")
 	}
 
+	// Override defaults with values from CLI.
+	exporterConfig.SetOrDefaultCouchAddress(*couchAddr)
+	exporterConfig.SetOrDefaultCouchPort(*couchPort)
+	exporterConfig.SetOrDefaultCouchUser(*userFlag)
+	exporterConfig.SetOrDefaultCouchPassword(*passFlag)
+	exporterConfig.SetOrDefaultServerAddress(*svrAddr)
+	exporterConfig.SetOrDefaultServerPort(*svrPort)
+	exporterConfig.SetOrDefaultRefreshRate(*refreshTime)
+	exporterConfig.SetOrDefaultBackoffLimit(*backOffLimit)
+	exporterConfig.SetOrDefaultToken(*tokenFlag)
+	exporterConfig.SetOrDefaultCa(*ca)
+	exporterConfig.SetOrDefaultCertificate(*cert)
+	exporterConfig.SetOrDefaultKey(*key)
+	exporterConfig.SetOrDefaultClientCertificate(*clientCert)
+	exporterConfig.SetOrDefaultClientKey(*clientKey)
+
+	// This is if we want to dump the config to stdout to generate a configuration file.
+	if *defaultConfig {
+		c, err := json.MarshalIndent(exporterConfig, "", "    ")
+		if err != nil {
+			log.Error("Error generating Json config file.  Exiting")
+			writeToTerminationLog(err)
+			os.Exit(1)
+		}
+
+		os.Stdout.WriteString(string(c))
+		os.Exit(0)
+	}
 
 	log.Info("Starting metrics collection...")
 
-	err := validateInt(*svrPort, "server-port")
+	client, err := createClient(exporterConfig)
 	if err != nil {
 		log.Error("%s", err)
 		writeToTerminationLog(err)
 		os.Exit(1)
 	}
 
-	err = validateInt(*refreshTime, "per-node-refresh")
-	if err != nil {
-		log.Error("%s", err)
-		writeToTerminationLog(err)
-		os.Exit(1)
-	}
+	prometheus.MustRegister(collectors.NewNodesCollector(client, exporterConfig.Collectors.Node))
+	prometheus.MustRegister(collectors.NewBucketInfoCollector(client, exporterConfig.Collectors.BucketInfo))
+	prometheus.MustRegister(collectors.NewBucketStatsCollector(client, exporterConfig.Collectors.BucketStats))
+	prometheus.MustRegister(collectors.NewTaskCollector(client, exporterConfig.Collectors.Task))
 
-	// by default take credentials from flags (standalone)
-	username := *userFlag
-	password := *passFlag
+	prometheus.MustRegister(collectors.NewQueryCollector(client, exporterConfig.Collectors.Query))
+	prometheus.MustRegister(collectors.NewIndexCollector(client, exporterConfig.Collectors.Index))
+	prometheus.MustRegister(collectors.NewFTSCollector(client, exporterConfig.Collectors.Search))
+	prometheus.MustRegister(collectors.NewCbasCollector(client, exporterConfig.Collectors.Analytics))
+	prometheus.MustRegister(collectors.NewEventingCollector(client, exporterConfig.Collectors.Eventing))
 
-	// override flags if env vars exist.
-	// get couchbase server credentials
-	if os.Getenv(envUser) != "" {
-		username = os.Getenv(envUser)
-	}
-	if os.Getenv(envPass) != "" {
-		password = os.Getenv(envPass)
-	}
-
-	// for operator only, override both plain-text CLI flags and other env-vars.
-	// get couchbase server credentials
-	if os.Getenv(operatorUser) != "" {
-		username = os.Getenv(operatorUser)
-	}
-	if os.Getenv(operatorPass) != "" {
-		password = os.Getenv(operatorPass)
-	}
-
-	client, err := createClient(username, password)
-	if err != nil {
-		log.Error("%s", err)
-		writeToTerminationLog(err)
-		os.Exit(1)
-	}
-
-	prometheus.MustRegister(collectors.NewNodesCollector(client))
-	prometheus.MustRegister(collectors.NewBucketInfoCollector(client))
-	prometheus.MustRegister(collectors.NewBucketStatsCollector(client))
-	prometheus.MustRegister(collectors.NewTaskCollector(client))
-
-	prometheus.MustRegister(collectors.NewQueryCollector(client))
-	prometheus.MustRegister(collectors.NewIndexCollector(client))
-	prometheus.MustRegister(collectors.NewFTSCollector(client))
-	prometheus.MustRegister(collectors.NewCbasCollector(client))
-	prometheus.MustRegister(collectors.NewEventingCollector(client))
-
-	i, err := strconv.Atoi(*refreshTime)
-	if err != nil {
-		log.Error("%s", err)
-		writeToTerminationLog(err)
-		os.Exit(1)
-	}
-	collectors.RunPerNodeBucketStatsCollection(client, i)
+	collectors.RunPerNodeBucketStatsCollection(client, exporterConfig.RefreshRate, exporterConfig.Collectors.PerNodeBucketStats)
 
 	for {
-		serveMetrics()
+		serveMetrics(exporterConfig)
 	}
 }
 
 func writeToTerminationLog(mainErr error) {
 	if mainErr != nil {
-		i, err := strconv.Atoi(*backOffLimit)
-		if err != nil {
-			log.Error("%s", err)
-		}
-
-		if panics <= i {
+		if panics <= exporterConfig.BackoffLimit {
 			f, err := os.OpenFile("/dev/termination-log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 			if err != nil {
 				panic(err)
@@ -161,7 +178,7 @@ func writeToTerminationLog(mainErr error) {
 			panics++
 		} else {
 			log.Error("backoffLimit reached")
-			os.Exit(1)
+			defer os.Exit(1)
 		}
 	}
 }
@@ -175,112 +192,110 @@ func check(mainErr error) {
 	}
 }
 
-
-// serve the actual metrics
-func serveMetrics() {
+// serve the actual metrics.
+func serveMetrics(exporterConfig *objects.ExporterConfig) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Warn("Recovered in serveMetrics(): %s", r)
 		}
 	}()
 
-	token := *tokenFlag
-	if os.Getenv(bearerToken) != "" {
-		token = os.Getenv(bearerToken)
-	}
-
 	handler := util.AuthHandler{
 		ServeMux: http.NewServeMux(),
 	}
-	if len(token) != 0 {
-		handler.TokenLocation = token
+
+	if len(exporterConfig.Token) != 0 {
+		handler.TokenLocation = exporterConfig.Token
 	}
+
 	handler.ServeMux.Handle("/metrics", promhttp.Handler())
 
-	metricsServer := *svrAddr + ":" + *svrPort
-	if len(*cert) == 0 && len(*key) == 0 {
+	metricsServer := fmt.Sprintf("%v:%v", exporterConfig.ServerAddress, exporterConfig.ServerPort)
+	if len(exporterConfig.Certificate) == 0 && len(exporterConfig.Key) == 0 {
 		if err := http.ListenAndServe(metricsServer, &handler); err != nil {
-			check(fmt.Errorf("failed to start server: %v", err))
+			check(fmt.Errorf("failed to start server: %w", err))
 		}
-		log.Info("server started listening on", "server", metricsServer)
+
+		log.Info("server started listening on %s", metricsServer)
 	} else {
-		if len(*cert) != 0 && len(*key) != 0 {
-			if err := http.ListenAndServeTLS(metricsServer, *cert, *key, &handler); err != nil {
-				log.Error("failed to start server: %v", err)
+		if len(exporterConfig.Certificate) != 0 && len(exporterConfig.Key) != 0 {
+			if err := http.ListenAndServeTLS(metricsServer, exporterConfig.Certificate, exporterConfig.Key, &handler); err != nil {
+				log.Error("failed to start server: %s", err)
 				check(err)
 			}
-			log.Info("server started listening on", "server", metricsServer)
+			log.Info("server started listening on %s", metricsServer)
 		} else {
-			err := fmt.Errorf("please specify both cert and key arguments")
+			err := errCertAndKey
 			log.Error("%s", err)
 			writeToTerminationLog(err)
-			os.Exit(1)
+			defer os.Exit(1)
 		}
 	}
 }
 
-// create and config client connection to Couchbase Server
-func createClient(username, password string) (util.Client, error) {
-	// Default to nil
-	var tlsClientConfig tls.Config
+func setTLSClientConfig(exporterConfig objects.ExporterConfig, tlsConfig *tls.Config) error {
+	caContents, err := ioutil.ReadFile(exporterConfig.Ca)
+	if err != nil {
+		return fmt.Errorf("could not read CA: %w", err)
+	}
+
+	if ok := tlsConfig.RootCAs.AppendCertsFromPEM(caContents); !ok {
+		return errCaAppend
+	}
+
+	certContents, err := ioutil.ReadFile(exporterConfig.ClientCertificate)
+	if err != nil {
+		return fmt.Errorf("could not read client cert %w", err)
+	}
+
+	key, err := ioutil.ReadFile(exporterConfig.ClientKey)
+	if err != nil {
+		log.Error("could not read client key")
+		os.Exit(1)
+	}
+
+	cert, err := tls.X509KeyPair(certContents, key)
+	if err != nil {
+		var keypairError = errX509
+		return fmt.Errorf("%w", keypairError)
+	}
+
+	tlsConfig.Certificates = append(tlsConfig.Certificates, cert)
+
+	return nil
+}
+
+// create and config client connection to Couchbase Server.
+func createClient(exporterConfig *objects.ExporterConfig) (util.Client, error) {
+	// Default to nil.
+	var tlsClientConfig = tls.Config{
+		RootCAs: x509.NewCertPool(),
+	}
+
 	var client util.Client
 
-	// Default to insecure
+	// Default to insecure.
 	scheme := "http"
-	port := "8091"
 
-	// Update the TLS, scheme and port
-	if len(*ca) != 0 && len(*clientCert) != 0 && len(*clientKey) != 0 {
+	// Update the TLS, scheme and port.
+	if len(exporterConfig.Ca) != 0 && len(exporterConfig.ClientCertificate) != 0 && len(exporterConfig.ClientKey) != 0 {
 		scheme = "https"
-		port = "18091"
+		exporterConfig.CouchbasePort = 18091
 
-		tlsClientConfig = tls.Config{
-			RootCAs: x509.NewCertPool(),
-		}
-
-		caContents, err := ioutil.ReadFile(*ca)
+		err := setTLSClientConfig(*exporterConfig, &tlsClientConfig)
 		if err != nil {
-			return client, fmt.Errorf("could not read CA")
+			return client, err
 		}
-		if ok := tlsClientConfig.RootCAs.AppendCertsFromPEM(caContents); !ok {
-			return client, fmt.Errorf("failed to append CA")
-		}
-
-		certContents, err := ioutil.ReadFile(*clientCert)
-		if err != nil {
-			return client, fmt.Errorf("could not read client cert %s", err)
-		}
-		key, err := ioutil.ReadFile(*clientKey)
-		if err != nil {
-			fmt.Printf("could not read client key")
-			os.Exit(1)
-		}
-		cert, err := tls.X509KeyPair(certContents, key)
-		if err != nil {
-			return client, fmt.Errorf("failed to create X509 KeyPair")
-		}
-		tlsClientConfig.Certificates = append(tlsClientConfig.Certificates, cert)
-	} else {
-		if len(*clientCert) != 0 || len(*clientKey) != 0 {
-			fmt.Printf("please specify both clientCert and clientKey")
-			return client, fmt.Errorf("please specify both clientCert and clientKey")
-		}
+	} else if len(exporterConfig.ClientCertificate) != 0 || len(exporterConfig.ClientKey) != 0 {
+		log.Error("please specify both clientCert and clientKey")
+		var certError = errCertAndKey
+		return client, certError
 	}
 
-	if len(*couchPort) != 0 {
-		port = *couchPort
-	}
+	couchFullAddress := fmt.Sprintf("%v://%v:%v", scheme, exporterConfig.CouchbaseAddress, exporterConfig.CouchbasePort)
+	log.Info("dial CB Server at: %v", couchFullAddress)
 
-	log.Info("dial CB Server at: " + scheme + "://" + *couchAddr + ":" + port)
+	client = util.NewClient(couchFullAddress, exporterConfig.CouchbaseUser, exporterConfig.CouchbasePassword, &tlsClientConfig)
 
-	client = util.NewClient(scheme+"://"+*couchAddr+":"+port, username, password, &tlsClientConfig)
 	return client, nil
-}
-
-func validateInt(str, param string) error {
-	if _, err := strconv.Atoi(str); err != nil {
-		log.Error("%q is not a valid integer, parameter: %s.", str, param)
-		return fmt.Errorf("%q is not a valid integer, parameter: %s.", str, param)
-	}
-	return nil
 }
