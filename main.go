@@ -135,6 +135,8 @@ func main() {
 		os.Exit(0)
 	}
 
+	log.Info("Couchbase Address:  %s:%v", exporterConfig.CouchbaseAddress, exporterConfig.CouchbasePort)
+
 	log.Info("Starting metrics collection...")
 
 	client, err := createClient(exporterConfig)
@@ -143,6 +145,8 @@ func main() {
 		writeToTerminationLog(err)
 		os.Exit(1)
 	}
+
+	log.Info("Registering Collectors...")
 
 	prometheus.MustRegister(collectors.NewNodesCollector(client, exporterConfig.Collectors.Node))
 	prometheus.MustRegister(collectors.NewBucketInfoCollector(client, exporterConfig.Collectors.BucketInfo))
@@ -156,6 +160,8 @@ func main() {
 	prometheus.MustRegister(collectors.NewEventingCollector(client, exporterConfig.Collectors.Eventing))
 
 	collectors.RunPerNodeBucketStatsCollection(client, exporterConfig.RefreshRate, exporterConfig.Collectors.PerNodeBucketStats)
+
+	log.Info("Serving Metrics")
 
 	for {
 		serveMetrics(exporterConfig)
@@ -211,6 +217,8 @@ func serveMetrics(exporterConfig *objects.ExporterConfig) {
 	handler.ServeMux.Handle("/metrics", promhttp.Handler())
 
 	metricsServer := fmt.Sprintf("%v:%v", exporterConfig.ServerAddress, exporterConfig.ServerPort)
+	log.Info("starting server on %s", metricsServer)
+
 	if len(exporterConfig.Certificate) == 0 && len(exporterConfig.Key) == 0 {
 		if err := http.ListenAndServe(metricsServer, &handler); err != nil {
 			check(fmt.Errorf("failed to start server: %w", err))

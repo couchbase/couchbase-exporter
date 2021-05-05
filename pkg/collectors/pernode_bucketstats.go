@@ -108,7 +108,7 @@ func getSpecificNodeBucketStatsURL(client util.Client, bucket, node string) stri
 }
 
 func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime int, config *objects.CollectorConfig) {
-	ctx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	clusterName, err := client.ClusterName()
@@ -117,7 +117,7 @@ func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime in
 		return
 	}
 
-	outerErr := util.Retry(ctx, 20*time.Second, 10, func() (bool, error) {
+	outerErr := util.Retry(ctx, 10*time.Second, 10, func() (bool, error) {
 		rebalanced, err := getClusterBalancedStatus(client)
 		if err != nil {
 			log.Error("Unable to get rebalance status %s", err)
@@ -159,14 +159,19 @@ func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime in
 }
 
 func RunPerNodeBucketStatsCollection(client util.Client, refreshTime int, config *objects.CollectorConfig) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	log.Info("Initial Collection of Node Stats")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
-	outerErr := util.Retry(ctx, 20*time.Second, 8, func() (bool, error) {
+	outerErr := util.Retry(ctx, 10*time.Second, 10, func() (bool, error) {
 		currNode, err := getCurrentNode(client)
 		if err != nil {
 			log.Error("could not get current node, will retry. %s", err)
-			return false, err
+			return false, &util.RetryError{
+				N: 0,
+				E: err,
+			}
 		}
 
 		collectPerNodeBucketMetrics(client, currNode, refreshTime, config)

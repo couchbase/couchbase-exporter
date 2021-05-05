@@ -21,8 +21,8 @@ const (
 )
 
 type RetryError struct {
-	n int
-	e error
+	N int
+	E error
 }
 
 type RetryOkError error
@@ -30,7 +30,7 @@ type RetryOkError error
 var ErrMaxRetry = fmt.Errorf(retryErrorValue)
 
 func (e *RetryError) Error() string {
-	return fmt.Sprintf("still failing after %d retries: %v", e.n, e.e)
+	return fmt.Sprintf("still failing after %d retries: %v", e.N, e.E)
 }
 
 func IsRetryFailure(err error) bool {
@@ -87,5 +87,5 @@ func Retry(ctx context.Context, interval time.Duration, maxRetries int, f RetryF
 		}
 	}
 
-	return &RetryError{n: maxRetries, e: err}
+	return &RetryError{N: maxRetries, E: err}
 }

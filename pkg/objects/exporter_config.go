@@ -14,6 +14,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
+
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 )
 
 const (
@@ -113,7 +115,7 @@ func (e *ExporterConfig) SetDefaults() {
 	e.LogJSON = true
 	e.LogLevel = "info"
 	e.RefreshRate = 5
-	e.ServerAddress = "localhost"
+	e.ServerAddress = "0.0.0.0"
 	e.ServerPort = 9091
 	e.Token = ""
 }
@@ -144,36 +146,48 @@ func (e *ExporterConfig) SetOrDefaultCouchPort(couchPort string) {
 
 func (e *ExporterConfig) SetOrDefaultCouchUser(couchUser string) {
 	if couchUser != "" {
+		log.Info("Using cli username")
+
 		e.CouchbaseUser = couchUser
 	}
 
 	// override defaults and CLI parameters with ENV Vars.
 	// get couchbase server credentials.
 	if os.Getenv(envUser) != "" {
+		log.Info("using env var user")
+
 		e.CouchbaseUser = os.Getenv(envUser)
 	}
 
 	// for operator only, override both plain-text CLI flags and other env-vars.
 	// get couchbase server credentials
 	if os.Getenv(operatorUser) != "" {
+		log.Info("using operator env var user")
+
 		e.CouchbaseUser = os.Getenv(operatorUser)
 	}
 }
 
 func (e *ExporterConfig) SetOrDefaultCouchPassword(couchPass string) {
 	if couchPass != "" {
+		log.Info("using cli password")
+
 		e.CouchbasePassword = couchPass
 	}
 
 	// override defaults and CLI parameters with ENV Vars.
 	// get couchbase server credentials.
 	if os.Getenv(envPass) != "" {
+		log.Info("using env var password")
+
 		e.CouchbasePassword = os.Getenv(envPass)
 	}
 
 	// for operator only, override both plain-text CLI flags and other env-vars.
 	// get couchbase server credentials
 	if os.Getenv(operatorPass) != "" {
+		log.Info("using operator env var password")
+
 		e.CouchbasePassword = os.Getenv(operatorPass)
 	}
 }
