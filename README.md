@@ -14,7 +14,7 @@ What we do not run a collector for is for the specific “per-server” statisti
 
 Most of the useful statistics will be found in bucketStats, nodes and perNodeBucketStats.
 
-##Limitations
+## Limitations
 
 This exporter is supported to Couchbase Enterprise subscribers only in conjunction with the Couchbase Autonomous (Kubernetes) Operator.
 It is available as an Open Source project and documented to be useful as either a container or a built-from-source binary.
