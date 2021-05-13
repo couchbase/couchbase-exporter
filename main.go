@@ -159,7 +159,10 @@ func main() {
 	prometheus.MustRegister(collectors.NewCbasCollector(client, exporterConfig.Collectors.Analytics))
 	prometheus.MustRegister(collectors.NewEventingCollector(client, exporterConfig.Collectors.Eventing))
 
-	collectors.RunPerNodeBucketStatsCollection(client, exporterConfig.RefreshRate, exporterConfig.Collectors.PerNodeBucketStats)
+	// moved to a goroutine to improve startup time.  
+	go func() {
+		collectors.RunPerNodeBucketStatsCollection(client, exporterConfig.RefreshRate, exporterConfig.Collectors.PerNodeBucketStats)
+	}()
 
 	log.Info("Serving Metrics")
 
@@ -189,15 +192,6 @@ func writeToTerminationLog(mainErr error) {
 	}
 }
 
-func check(mainErr error) {
-	if mainErr != nil {
-		writeToTerminationLog(mainErr)
-
-		log.Error("panicking %s", mainErr)
-		panic(fmt.Sprintf("%s", mainErr))
-	}
-}
-
 // serve the actual metrics.
 func serveMetrics(exporterConfig *objects.ExporterConfig) {
 	defer func() {
@@ -219,26 +213,7 @@ func serveMetrics(exporterConfig *objects.ExporterConfig) {
 	metricsServer := fmt.Sprintf("%v:%v", exporterConfig.ServerAddress, exporterConfig.ServerPort)
 	log.Info("starting server on %s", metricsServer)
 
-	if len(exporterConfig.Certificate) == 0 && len(exporterConfig.Key) == 0 {
-		if err := http.ListenAndServe(metricsServer, &handler); err != nil {
-			check(fmt.Errorf("failed to start server: %w", err))
-		}
-
-		log.Info("server started listening on %s", metricsServer)
-	} else {
-		if len(exporterConfig.Certificate) != 0 && len(exporterConfig.Key) != 0 {
-			if err := http.ListenAndServeTLS(metricsServer, exporterConfig.Certificate, exporterConfig.Key, &handler); err != nil {
-				log.Error("failed to start server: %s", err)
-				check(err)
-			}
-			log.Info("server started listening on %s", metricsServer)
-		} else {
-			err := errCertAndKey
-			log.Error("%s", err)
-			writeToTerminationLog(err)
-			defer os.Exit(1)
-		}
-	}
+	util.Serve(metricsServer, handler, exporterConfig.Certificate, exporterConfig.Key)
 }
 
 func setTLSClientConfig(exporterConfig objects.ExporterConfig, tlsConfig *tls.Config) error {

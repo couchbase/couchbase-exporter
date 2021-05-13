@@ -284,7 +284,7 @@ type AuthHandler struct {
 	TokenLocation string
 }
 
-func (authHandler *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if len(authHandler.TokenLocation) != 0 {
 		tokenAccepted := false
 

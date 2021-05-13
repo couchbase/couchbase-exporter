@@ -128,6 +128,7 @@ func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime in
 			return false, err
 		}
 		go func() {
+			metrics := make(map[string]*prometheus.GaugeVec)
 			for {
 				buckets, err := client.Buckets()
 				if err != nil {
@@ -143,8 +144,14 @@ func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime in
 						if !value.Enabled {
 							continue
 						}
+						if mt, ok := metrics[value.Name]; ok {
+							setGaugeVec(*mt, strToFloatArr(fmt.Sprint(samples[value.Name])), bucket.Name, node, clusterName)
+						} else {
+							mt := value.GetPrometheusGaugeVec(config.Namespace, config.Subsystem)
+							metrics[value.Name] = mt
+							setGaugeVec(*mt, strToFloatArr(fmt.Sprint(samples[value.Name])), bucket.Name, node, clusterName)
+						}
 
-						setGaugeVec(*value.GetPrometheusGaugeVec(config.Namespace, config.Subsystem), strToFloatArr(fmt.Sprint(samples[value.Name])), bucket.Name, node, clusterName)
 					}
 				}
 				time.Sleep(time.Second * time.Duration(refreshTime))

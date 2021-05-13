@@ -135,7 +135,7 @@ type Node struct {
 	ClusterCompatibility int                         `json:"clusterCompatibility"`
 	Version              string                      `json:"version"`
 	Os                   string                      `json:"os"`
-	CPUCount             int                         `json:"cpuCount,omitempty"`
+	CPUCount             interface{}                 `json:"cpuCount,omitempty"`
 	Ports                *Ports                      `json:"ports,omitempty"`
 	Services             []string                    `json:"services,omitempty"`
 	AlternateAddresses   *AlternateAddressesExternal `json:"alternateAddresses,omitempty"`

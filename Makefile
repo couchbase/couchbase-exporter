@@ -3,8 +3,8 @@ bldNum = $(if $(BLD_NUM),$(BLD_NUM),9999)
 version = $(if $(VERSION),$(VERSION),1.0.0)
 productVersion = $(version)-$(bldNum)
 ARTIFACTS = build/artifacts/couchbase-exporter
-DOCKER_TAG = "v1"
-DOCKER_USER = "couchbase"
+DOCKER_TAG = v1
+DOCKER_USER = couchbase
 
 build: $(SOURCE) go.mod
 	for platform in linux darwin ; do \
