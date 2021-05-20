@@ -64,14 +64,14 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, bucket := range buckets {
 		log.Debug("Collecting %s bucket metrics...", bucket.Name)
 
-		for _, value := range c.config.Metrics {
+		for key, value := range c.config.Metrics {
 			log.Debug("Collecting for metric %s.", value.Name)
 
 			if value.Enabled {
 				ch <- prometheus.MustNewConstMetric(
 					value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 					prometheus.GaugeValue,
-					bucket.BucketBasicStats[value.Name],
+					bucket.BucketBasicStats[key],
 					bucket.Name,
 					clusterName,
 				)
@@ -83,7 +83,7 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
 }
 
-func NewBucketInfoCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+func NewBucketInfoCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
 	if config == nil {
 		config = objects.GetBucketInfoCollectorDefaultConfig()
 	}

@@ -94,13 +94,15 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 
 		for key, value := range c.config.Metrics {
+			log.Debug("Collecting bucket stats: %s", value.Name)
+
 			if value.Enabled {
 				switch key {
 				case "AvgBgWaitTime":
 					ch <- prometheus.MustNewConstMetric(
 						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 						prometheus.GaugeValue,
-						last(stats.Op.Samples[value.Name])/1000000, // this comes as microseconds from cb
+						last(stats.Op.Samples[objects.AvgBgWaitTime])/1000000, // this comes as microseconds from cb
 						bucket.Name,
 						clusterName,
 					)
@@ -129,7 +131,7 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
 }
 
-func NewBucketStatsCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+func NewBucketStatsCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
 	if config == nil {
 		config = objects.GetBucketStatsCollectorDefaultConfig()
 	}

@@ -25,7 +25,7 @@ type eventingCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewEventingCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+func NewEventingCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
 	if config == nil {
 		config = objects.GetEventingCollectorDefaultConfig()
 	}
@@ -93,7 +93,7 @@ func (c *eventingCollector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, value := range c.config.Metrics {
 		if value.Enabled {
-			sampleName := c.config.Subsystem + "/"
+			sampleName := objects.EventingMetricPrefix
 			if strings.HasPrefix(value.Name, "test_") {
 				sampleName += strings.ReplaceAll(value.Name, "test_", "test/")
 			} else {

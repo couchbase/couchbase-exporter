@@ -30,6 +30,28 @@ const (
 	CaError string = "failed to append CA certificate"
 )
 
+type CbClient interface {
+	URL(string) string
+	Get(string, interface{}) error
+	Buckets() ([]objects.BucketInfo, error)
+	BucketStats(string) (objects.BucketStats, error)
+	BucketPerNodeStats(string, string) (objects.BucketStats, error)
+	Nodes() (objects.Nodes, error)
+	ClusterName() (string, error)
+	NodesNodes() (objects.Nodes, error)
+	BucketNodes(string) ([]interface{}, error)
+	Tasks() ([]objects.Task, error)
+	Servers(string) (objects.Servers, error)
+	Query() (objects.Query, error)
+	Index() (objects.Index, error)
+	Fts() (objects.FTS, error)
+	Cbas() (objects.Analytics, error)
+	Eventing() (objects.Eventing, error)
+	QueryNode(string) (objects.Query, error)
+	IndexNode(string) (objects.Index, error)
+	GetCurrentNode() (string, error)
+}
+
 // Client is the couchbase client.
 type Client struct {
 	domain string

@@ -159,7 +159,7 @@ func main() {
 	prometheus.MustRegister(collectors.NewCbasCollector(client, exporterConfig.Collectors.Analytics))
 	prometheus.MustRegister(collectors.NewEventingCollector(client, exporterConfig.Collectors.Eventing))
 
-	// moved to a goroutine to improve startup time.  
+	// moved to a goroutine to improve startup time.
 	go func() {
 		collectors.RunPerNodeBucketStatsCollection(client, exporterConfig.RefreshRate, exporterConfig.Collectors.PerNodeBucketStats)
 	}()

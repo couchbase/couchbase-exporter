@@ -23,7 +23,7 @@ type cbasCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewCbasCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+func NewCbasCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
 	if config == nil {
 		config = objects.GetAnalyticsCollectorDefaultConfig()
 	}
@@ -93,7 +93,7 @@ func (c *cbasCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
-				last(cbas.Op.Samples[c.config.Subsystem+"_"+value.Name]),
+				last(cbas.Op.Samples[objects.AnalyticsMetricPrefix+value.Name]),
 				clusterName,
 			)
 		}

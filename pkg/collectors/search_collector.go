@@ -23,7 +23,7 @@ type ftsCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewFTSCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+func NewFTSCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
 	if config == nil {
 		config = objects.GetSearchCollectorDefaultConfig()
 	}
@@ -94,7 +94,7 @@ func (c *ftsCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
-				last(ftsStats.Op.Samples[c.config.Subsystem+"_"+value.Name]),
+				last(ftsStats.Op.Samples[objects.SearchMetricPrefix+value.Name]),
 				clusterName,
 			)
 		}

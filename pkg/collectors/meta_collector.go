@@ -18,7 +18,7 @@ import (
 
 type MetaCollector struct {
 	mutex  sync.Mutex
-	client util.Client
+	client util.CbClient
 
 	up             *prometheus.Desc
 	scrapeDuration *prometheus.Desc

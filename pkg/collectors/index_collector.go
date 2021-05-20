@@ -23,7 +23,7 @@ type indexCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewIndexCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+func NewIndexCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
 	if config == nil {
 		config = objects.GetIndexCollectorDefaultConfig()
 	}
@@ -94,7 +94,7 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
-				last(indexStats.Op.Samples[c.config.Subsystem+"_"+value.Name]),
+				last(indexStats.Op.Samples[objects.IndexMetricPrefix+value.Name]),
 				clusterName,
 			)
 		}

@@ -109,9 +109,9 @@
                     ]
                 },
                 "AvgBgWaitTime": {
-                    "name": "avg_bg_wait_seconds",
+                    "name": "avg_bg_wait_time",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "avg_bg_wait_seconds",
                     "helpText": "Average background fetch time in seconds",
                     "labels": [
                         "bucket",
@@ -148,10 +148,60 @@
                         "cluster"
                     ]
                 },
-                "BytesRead": {
-                    "name": "read_bytes",
+                "BucketStatsMemFree": {
+                    "name": "mem_free",
+                    "enabled": true,
+                    "nameOverride": "mem_free_bytes",
+                    "helpText": "Amount of Memory free",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "BucketStatsMemTotal": {
+                    "name": "mem_total",
+                    "enabled": true,
+                    "nameOverride": "mem_bytes",
+                    "helpText": "Total amount of memory available",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "BucketStatsMemUsed": {
+                    "name": "mem_used",
+                    "enabled": true,
+                    "nameOverride": "mem_used_bytes",
+                    "helpText": "Amount of memory used",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "BucketStatsSwapTotal": {
+                    "name": "swap_total",
+                    "enabled": true,
+                    "nameOverride": "swap_bytes",
+                    "helpText": "Total amount of swap available",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "BucketStatsSwapUsed": {
+                    "name": "swap_used",
                     "enabled": true,
                     "nameOverride": "",
+                    "helpText": "Amount of swap space in use on this server",
+                    "labels": [
+                        "bucket",
+                        "cluster"
+                    ]
+                },
+                "BytesRead": {
+                    "name": "bytes_read",
+                    "enabled": true,
+                    "nameOverride": "read_bytes",
                     "helpText": "Bytes read",
                     "labels": [
                         "bucket",
@@ -159,9 +209,9 @@
                     ]
                 },
                 "BytesWritten": {
-                    "name": "written_bytes",
+                    "name": "bytes_written",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "written_bytes",
                     "helpText": "Bytes written",
                     "labels": [
                         "bucket",
@@ -409,9 +459,9 @@
                     ]
                 },
                 "DiskCommitCount": {
-                    "name": "disk_commits",
+                    "name": "disk_commit_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "disk_commits",
                     "helpText": "Disk commits",
                     "labels": [
                         "bucket",
@@ -419,9 +469,9 @@
                     ]
                 },
                 "DiskUpdateCount": {
-                    "name": "disk_updates",
+                    "name": "disk_update_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "disk_updates",
                     "helpText": "Disk updates",
                     "labels": [
                         "bucket",
@@ -488,7 +538,7 @@
                         "cluster"
                     ]
                 },
-                "EpDcp2iBackoff": {
+                "EpDcp2IBackoff": {
                     "name": "ep_dcp_2i_backoff",
                     "enabled": true,
                     "nameOverride": "",
@@ -498,17 +548,17 @@
                         "cluster"
                     ]
                 },
-                "EpDcp2iCount": {
-                    "name": "ep_dcp_2i_connections",
+                "EpDcp2ICount": {
+                    "name": "ep_dcp_2i_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_2i_connections",
                     "helpText": "Number of indexes DCP connections",
                     "labels": [
                         "bucket",
                         "cluster"
                     ]
                 },
-                "EpDcp2iItemsRemaining": {
+                "EpDcp2IItemsRemaining": {
                     "name": "ep_dcp_2i_items_remaining",
                     "enabled": true,
                     "nameOverride": "",
@@ -518,7 +568,7 @@
                         "cluster"
                     ]
                 },
-                "EpDcp2iItemsSent": {
+                "EpDcp2IItemsSent": {
                     "name": "ep_dcp_2i_items_sent",
                     "enabled": true,
                     "nameOverride": "",
@@ -528,17 +578,17 @@
                         "cluster"
                     ]
                 },
-                "EpDcp2iProducerCount": {
-                    "name": "ep_dcp_2i_producers",
+                "EpDcp2IProducerCount": {
+                    "name": "ep_dcp_2i_producer_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_2i_producers",
                     "helpText": "Number of indexes producers",
                     "labels": [
                         "bucket",
                         "cluster"
                     ]
                 },
-                "EpDcp2iTotalBacklogSize": {
+                "EpDcp2ITotalBacklogSize": {
                     "name": "ep_dcp_2i_total_backlog_size",
                     "enabled": true,
                     "nameOverride": "",
@@ -548,7 +598,7 @@
                         "cluster"
                     ]
                 },
-                "EpDcp2iTotalBytes": {
+                "EpDcp2ITotalBytes": {
                     "name": "ep_dcp_2i_total_bytes",
                     "enabled": true,
                     "nameOverride": "",
@@ -569,9 +619,9 @@
                     ]
                 },
                 "EpDcpOtherCount": {
-                    "name": "ep_dcp_others",
+                    "name": "ep_dcp_other_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_others",
                     "helpText": "Number of other DCP connections in this bucket",
                     "labels": [
                         "bucket",
@@ -599,9 +649,9 @@
                     ]
                 },
                 "EpDcpOtherProducerCount": {
-                    "name": "ep_dcp_other_producers",
+                    "name": "ep_dcp_other_producer_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_other_producers",
                     "helpText": "Number of other senders for this bucket",
                     "labels": [
                         "bucket",
@@ -639,9 +689,9 @@
                     ]
                 },
                 "EpDcpReplicaCount": {
-                    "name": "ep_dcp_replicas",
+                    "name": "ep_dcp_replica_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_replicas",
                     "helpText": "Number of internal replication DCP connections in this bucket",
                     "labels": [
                         "bucket",
@@ -669,9 +719,9 @@
                     ]
                 },
                 "EpDcpReplicaProducerCount": {
-                    "name": "ep_dcp_replica_producers",
+                    "name": "ep_dcp_replica_producer_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_replica_producers",
                     "helpText": "Number of replication senders for this bucket",
                     "labels": [
                         "bucket",
@@ -699,9 +749,9 @@
                     ]
                 },
                 "EpDcpViewsBackoff": {
-                    "name": "ep_dcp_views_backoffs",
+                    "name": "ep_dcp_views_backoff",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_backoffs",
                     "helpText": "Number of backoffs for views DCP connections",
                     "labels": [
                         "bucket",
@@ -709,9 +759,9 @@
                     ]
                 },
                 "EpDcpViewsCount": {
-                    "name": "ep_dcp_view_connections",
+                    "name": "ep_dcp_views_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_connections",
                     "helpText": "Number of views DCP connections",
                     "labels": [
                         "bucket",
@@ -739,9 +789,9 @@
                     ]
                 },
                 "EpDcpViewsProducerCount": {
-                    "name": "ep_dcp_views_producers",
+                    "name": "ep_dcp_views_producer_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_producers",
                     "helpText": "Number of views producers",
                     "labels": [
                         "bucket",
@@ -779,9 +829,9 @@
                     ]
                 },
                 "EpDcpXdcrCount": {
-                    "name": "ep_dcp_xdcr_connections",
+                    "name": "ep_dcp_xdcr_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_xdcr_connections",
                     "helpText": "Number of internal XDCR DCP connections in this bucket",
                     "labels": [
                         "bucket",
@@ -809,9 +859,9 @@
                     ]
                 },
                 "EpDcpXdcrProducerCount": {
-                    "name": "ep_dcp_xdcr_producers",
+                    "name": "ep_dcp_xdcr_producer_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_xdcr_producers",
                     "helpText": "Number of XDCR senders for this bucket",
                     "labels": [
                         "bucket",
@@ -899,9 +949,9 @@
                     ]
                 },
                 "EpMaxSize": {
-                    "name": "ep_max_size_bytes",
+                    "name": "ep_max_size",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_max_size_bytes",
                     "helpText": "The maximum amount of memory this bucket can use",
                     "labels": [
                         "bucket",
@@ -909,9 +959,9 @@
                     ]
                 },
                 "EpMemHighWat": {
-                    "name": "ep_mem_high_wat_bytes",
+                    "name": "ep_mem_high_wat",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_mem_high_wat_bytes",
                     "helpText": "High water mark for auto-evictions",
                     "labels": [
                         "bucket",
@@ -919,9 +969,9 @@
                     ]
                 },
                 "EpMemLowWat": {
-                    "name": "ep_mem_low_wat_bytes",
+                    "name": "ep_mem_low_wat",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_mem_low_wat_bytes",
                     "helpText": "Low water mark for auto-evictions",
                     "labels": [
                         "bucket",
@@ -1099,9 +1149,9 @@
                     ]
                 },
                 "EpVbTotal": {
-                    "name": "ep_vbuckets",
+                    "name": "ep_vb_total",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_vbuckets",
                     "helpText": "Total number of vBuckets for this bucket",
                     "labels": [
                         "bucket",
@@ -1199,50 +1249,20 @@
                     ]
                 },
                 "MemActualUsed": {
-                    "name": "mem_actual_used_bytes",
+                    "name": "mem_actual_used",
                     "enabled": true,
-                    "nameOverride": "",
-                    "helpText": "_mem_actual_used",
-                    "labels": [
-                        "bucket",
-                        "cluster"
-                    ]
-                },
-                "MemFree": {
-                    "name": "mem_free_bytes",
-                    "enabled": true,
-                    "nameOverride": "",
-                    "helpText": "Amount of Memory free",
-                    "labels": [
-                        "bucket",
-                        "cluster"
-                    ]
-                },
-                "MemTotal": {
-                    "name": "mem_bytes",
-                    "enabled": true,
-                    "nameOverride": "",
-                    "helpText": "Total amount of memory available",
-                    "labels": [
-                        "bucket",
-                        "cluster"
-                    ]
-                },
-                "MemUsed": {
-                    "name": "mem_used_bytes",
-                    "enabled": true,
-                    "nameOverride": "",
-                    "helpText": "Amount of memory used",
+                    "nameOverride": "mem_actual_used_bytes",
+                    "helpText": "Memory actually used in bytes",
                     "labels": [
                         "bucket",
                         "cluster"
                     ]
                 },
                 "MemUsedSys": {
-                    "name": "mem_used_sys_bytes",
+                    "name": "mem_used_sys",
                     "enabled": true,
-                    "nameOverride": "",
-                    "helpText": "_mem_used_sys",
+                    "nameOverride": "mem_used_sys_bytes",
+                    "helpText": "System memory in use",
                     "labels": [
                         "bucket",
                         "cluster"
@@ -1278,30 +1298,10 @@
                         "cluster"
                     ]
                 },
-                "SwapTotal": {
-                    "name": "swap_bytes",
-                    "enabled": true,
-                    "nameOverride": "",
-                    "helpText": "Total amount of swap available",
-                    "labels": [
-                        "bucket",
-                        "cluster"
-                    ]
-                },
-                "SwapUsed": {
-                    "name": "swap_used_bytes",
-                    "enabled": true,
-                    "nameOverride": "",
-                    "helpText": "Amount of swap space in use on this server",
-                    "labels": [
-                        "bucket",
-                        "cluster"
-                    ]
-                },
                 "VbActiveEject": {
-                    "name": "vbuckets_active_eject",
+                    "name": "vb_active_eject",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_eject",
                     "helpText": "Number of items per second being ejected to disk from active vBuckets in this bucket",
                     "labels": [
                         "bucket",
@@ -1309,9 +1309,9 @@
                     ]
                 },
                 "VbActiveItmMemory": {
-                    "name": "vbuckets_active_itm_memory",
+                    "name": "vb_active_itm_memory",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_itm_memory",
                     "helpText": "Amount of active user data cached in RAM in this bucket",
                     "labels": [
                         "bucket",
@@ -1319,9 +1319,9 @@
                     ]
                 },
                 "VbActiveMetaDataMemory": {
-                    "name": "vbuckets_active_meta_data_memory",
+                    "name": "vb_active_meta_data_memory",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_meta_data_memory",
                     "helpText": "Amount of active item metadata consuming RAM in this bucket",
                     "labels": [
                         "bucket",
@@ -1329,9 +1329,9 @@
                     ]
                 },
                 "VbActiveNum": {
-                    "name": "vbuckets_active_num",
+                    "name": "vb_active_num",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_num",
                     "helpText": "Number of vBuckets in the active state for this bucket",
                     "labels": [
                         "bucket",
@@ -1339,9 +1339,9 @@
                     ]
                 },
                 "VbActiveNumNonResident": {
-                    "name": "vbuckets_active_num_non_resident",
+                    "name": "vb_active_num_non_resident",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_num_non_resident",
                     "helpText": "Number of non resident vBuckets in the active state for this bucket",
                     "labels": [
                         "bucket",
@@ -1349,9 +1349,9 @@
                     ]
                 },
                 "VbActiveOpsCreate": {
-                    "name": "vbuckets_active_ops_create",
+                    "name": "vb_active_ops_create",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_ops_create",
                     "helpText": "New items per second being inserted into active vBuckets in this bucket",
                     "labels": [
                         "bucket",
@@ -1359,9 +1359,9 @@
                     ]
                 },
                 "VbActiveOpsUpdate": {
-                    "name": "vbuckets_active_ops_update",
+                    "name": "vb_active_ops_update",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_ops_update",
                     "helpText": "Number of items updated on active vBucket per second for this bucket",
                     "labels": [
                         "bucket",
@@ -1369,9 +1369,9 @@
                     ]
                 },
                 "VbActiveQueueAge": {
-                    "name": "vbuckets_active_queue_age",
+                    "name": "vb_active_queue_age",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_queue_age",
                     "helpText": "Sum of disk queue item age in milliseconds",
                     "labels": [
                         "bucket",
@@ -1379,9 +1379,9 @@
                     ]
                 },
                 "VbActiveQueueDrain": {
-                    "name": "vbuckets_active_queue_drain",
+                    "name": "vb_active_queue_drain",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_queue_drain",
                     "helpText": "Number of active items per second being written to disk in this bucket",
                     "labels": [
                         "bucket",
@@ -1389,9 +1389,9 @@
                     ]
                 },
                 "VbActiveQueueFill": {
-                    "name": "vbuckets_active_queue_fill",
+                    "name": "vb_active_queue_fill",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_queue_fill",
                     "helpText": "Number of active items per second being put on the active item disk queue in this bucket",
                     "labels": [
                         "bucket",
@@ -1399,9 +1399,9 @@
                     ]
                 },
                 "VbActiveQueueSize": {
-                    "name": "vbuckets_active_queue_size",
+                    "name": "vb_active_queue_size",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_queue_size",
                     "helpText": "Number of active items waiting to be written to disk in this bucket",
                     "labels": [
                         "bucket",
@@ -1409,9 +1409,9 @@
                     ]
                 },
                 "VbActiveResidentItemsRatio": {
-                    "name": "vbuckets_active_resident_items_ratio",
+                    "name": "vb_active_resident_items_ratio",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_active_resident_items_ratio",
                     "helpText": "Percentage of active items cached in RAM in this bucket",
                     "labels": [
                         "bucket",
@@ -1419,9 +1419,9 @@
                     ]
                 },
                 "VbAvgActiveQueueAge": {
-                    "name": "vbuckets_avg_active_queue_age",
+                    "name": "vb_avg_active_queue_age",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_avg_active_queue_age",
                     "helpText": "Average age in seconds of active items in the active item queue for this bucket",
                     "labels": [
                         "bucket",
@@ -1429,9 +1429,9 @@
                     ]
                 },
                 "VbAvgPendingQueueAge": {
-                    "name": "vbuckets_avg_pending_queue_age",
+                    "name": "vb_avg_pending_queue_age",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_avg_pending_queue_age",
                     "helpText": "Average age in seconds of pending items in the pending item queue for this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1439,9 +1439,9 @@
                     ]
                 },
                 "VbAvgReplicaQueueAge": {
-                    "name": "vbuckets_avg_replica_queue_age",
+                    "name": "vb_avg_replica_queue_age",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_avg_replica_queue_age",
                     "helpText": "Average age in seconds of replica items in the replica item queue for this bucket",
                     "labels": [
                         "bucket",
@@ -1449,9 +1449,9 @@
                     ]
                 },
                 "VbAvgTotalQueueAge": {
-                    "name": "vbuckets_avg_total_queue_age",
+                    "name": "vb_avg_total_queue_age",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_avg_total_queue_age",
                     "helpText": "Average age in seconds of all items in the disk write queue for this bucket",
                     "labels": [
                         "bucket",
@@ -1459,9 +1459,9 @@
                     ]
                 },
                 "VbPendingCurrItems": {
-                    "name": "vbuckets_pending_curr_items",
+                    "name": "vb_pending_curr_items",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_curr_items",
                     "helpText": "Number of items in pending vBuckets in this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1469,9 +1469,9 @@
                     ]
                 },
                 "VbPendingEject": {
-                    "name": "vbuckets_pending_eject",
+                    "name": "vb_pending_eject",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_eject",
                     "helpText": "Number of items per second being ejected to disk from pending vBuckets in this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1479,9 +1479,9 @@
                     ]
                 },
                 "VbPendingItmMemory": {
-                    "name": "vbuckets_pending_itm_memory",
+                    "name": "vb_pending_itm_memory",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_itm_memory",
                     "helpText": "Amount of pending user data cached in RAM in this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1489,9 +1489,9 @@
                     ]
                 },
                 "VbPendingMetaDataMemory": {
-                    "name": "vbuckets_pending_meta_data_memory",
+                    "name": "vb_pending_meta_data_memory",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_meta_data_memory",
                     "helpText": "Amount of pending item metadata consuming RAM in this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1499,9 +1499,9 @@
                     ]
                 },
                 "VbPendingNum": {
-                    "name": "vbuckets_pending_num",
+                    "name": "vb_pending_num",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_num",
                     "helpText": "Number of vBuckets in the pending state for this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1509,9 +1509,9 @@
                     ]
                 },
                 "VbPendingNumNonResident": {
-                    "name": "vbuckets_pending_num_non_resident",
+                    "name": "vb_pending_num_non_resident",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_num_non_resident",
                     "helpText": "Number of non resident vBuckets in the pending state for this bucket",
                     "labels": [
                         "bucket",
@@ -1519,9 +1519,9 @@
                     ]
                 },
                 "VbPendingOpsCreate": {
-                    "name": "vbuckets_pending_ops_create",
+                    "name": "vb_pending_ops_create",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_ops_create",
                     "helpText": "New items per second being instead into pending vBuckets in this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1529,9 +1529,9 @@
                     ]
                 },
                 "VbPendingOpsUpdate": {
-                    "name": "vbuckets_pending_ops_update",
+                    "name": "vb_pending_ops_update",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_ops_update",
                     "helpText": "Number of items updated on pending vBucket per second for this bucket",
                     "labels": [
                         "bucket",
@@ -1539,9 +1539,9 @@
                     ]
                 },
                 "VbPendingQueueAge": {
-                    "name": "vbuckets_pending_queue_age",
+                    "name": "vb_pending_queue_age",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_queue_age",
                     "helpText": "Sum of disk pending queue item age in milliseconds",
                     "labels": [
                         "bucket",
@@ -1549,9 +1549,9 @@
                     ]
                 },
                 "VbPendingQueueDrain": {
-                    "name": "vbuckets_pending_queue_drain",
+                    "name": "vb_pending_queue_drain",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_queue_drain",
                     "helpText": "Number of pending items per second being written to disk in this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1559,9 +1559,9 @@
                     ]
                 },
                 "VbPendingQueueFill": {
-                    "name": "vbuckets_pending_queue_fill",
+                    "name": "vb_pending_queue_fill",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_queue_fill",
                     "helpText": "Number of pending items per second being put on the pending item disk queue in this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1569,9 +1569,9 @@
                     ]
                 },
                 "VbPendingQueueSize": {
-                    "name": "vbuckets_pending_queue_size",
+                    "name": "vb_pending_queue_size",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_pending_queue_size",
                     "helpText": "Number of pending items waiting to be written to disk in this bucket and should be transient during rebalancing",
                     "labels": [
                         "bucket",
@@ -1579,19 +1579,19 @@
                     ]
                 },
                 "VbPendingResidentItemsRatio": {
-                    "name": "vbuckets_pending_resident_items_ratio",
+                    "name": "vb_pending_resident_items_ratio",
                     "enabled": true,
-                    "nameOverride": "",
-                    "helpText": "Percentage of items in pending state vbuckets cached in RAM in this bucket",
+                    "nameOverride": "vbuckets_pending_resident_items_ratio",
+                    "helpText": "Percentage of items in pending state vb cached in RAM in this bucket",
                     "labels": [
                         "bucket",
                         "cluster"
                     ]
                 },
                 "VbReplicaCurrItems": {
-                    "name": "vbuckets_replica_curr_items",
+                    "name": "vb_replica_curr_items",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_curr_items",
                     "helpText": "Number of items in replica vBuckets in this bucket",
                     "labels": [
                         "bucket",
@@ -1599,9 +1599,9 @@
                     ]
                 },
                 "VbReplicaEject": {
-                    "name": "vbuckets_replica_eject",
+                    "name": "vb_replica_eject",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_eject",
                     "helpText": "Number of items per second being ejected to disk from replica vBuckets in this bucket",
                     "labels": [
                         "bucket",
@@ -1609,9 +1609,9 @@
                     ]
                 },
                 "VbReplicaItmMemory": {
-                    "name": "vbuckets_replica_itm_memory",
+                    "name": "vb_replica_itm_memory",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_itm_memory",
                     "helpText": "Amount of replica user data cached in RAM in this bucket",
                     "labels": [
                         "bucket",
@@ -1619,9 +1619,9 @@
                     ]
                 },
                 "VbReplicaMetaDataMemory": {
-                    "name": "vbuckets_replica_meta_data_memory",
+                    "name": "vb_replica_meta_data_memory",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_meta_data_memory",
                     "helpText": "Amount of replica item metadata consuming in RAM in this bucket",
                     "labels": [
                         "bucket",
@@ -1629,9 +1629,9 @@
                     ]
                 },
                 "VbReplicaNum": {
-                    "name": "vbuckets_replica_num",
+                    "name": "vb_replica_num",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_num",
                     "helpText": "Number of vBuckets in the replica state for this bucket",
                     "labels": [
                         "bucket",
@@ -1639,9 +1639,9 @@
                     ]
                 },
                 "VbReplicaNumNonResident": {
-                    "name": "vbuckets_replica_num_non_resident",
+                    "name": "vb_replica_num_non_resident",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_num_non_resident",
                     "helpText": "_vb_replica_num_non_resident",
                     "labels": [
                         "bucket",
@@ -1649,9 +1649,9 @@
                     ]
                 },
                 "VbReplicaOpsCreate": {
-                    "name": "vbuckets_replica_ops_create",
+                    "name": "vb_replica_ops_create",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_ops_create",
                     "helpText": "New items per second being inserted into replica vBuckets in this bucket",
                     "labels": [
                         "bucket",
@@ -1659,9 +1659,9 @@
                     ]
                 },
                 "VbReplicaOpsUpdate": {
-                    "name": "vbuckets_replica_ops_update",
+                    "name": "vb_replica_ops_update",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_ops_update",
                     "helpText": "Number of items updated on replica vBucket per second for this bucket",
                     "labels": [
                         "bucket",
@@ -1669,9 +1669,9 @@
                     ]
                 },
                 "VbReplicaQueueAge": {
-                    "name": "vbuckets_replica_queue_age",
+                    "name": "vb_replica_queue_age",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_queue_age",
                     "helpText": "Sum of disk replica queue item age in milliseconds",
                     "labels": [
                         "bucket",
@@ -1679,9 +1679,9 @@
                     ]
                 },
                 "VbReplicaQueueDrain": {
-                    "name": "vbuckets_replica_queue_drain",
+                    "name": "vb_replica_queue_drain",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_queue_drain",
                     "helpText": "Number of replica items per second being written to disk in this bucket",
                     "labels": [
                         "bucket",
@@ -1689,9 +1689,9 @@
                     ]
                 },
                 "VbReplicaQueueFill": {
-                    "name": "vbuckets_replica_queue_fill",
+                    "name": "vb_replica_queue_fill",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_queue_fill",
                     "helpText": "Number of replica items per second being put on the replica item disk queue in this bucket",
                     "labels": [
                         "bucket",
@@ -1699,9 +1699,9 @@
                     ]
                 },
                 "VbReplicaQueueSize": {
-                    "name": "vbuckets_replica_queue_size",
+                    "name": "vb_replica_queue_size",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_queue_size",
                     "helpText": "Number of replica items waiting to be written to disk in this bucket",
                     "labels": [
                         "bucket",
@@ -1709,9 +1709,9 @@
                     ]
                 },
                 "VbReplicaResidentItemsRatio": {
-                    "name": "vbuckets_replica_resident_items_ratio",
+                    "name": "vb_replica_resident_items_ratio",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_replica_resident_items_ratio",
                     "helpText": "Percentage of replica items cached in RAM in this bucket",
                     "labels": [
                         "bucket",
@@ -1719,9 +1719,9 @@
                     ]
                 },
                 "VbTotalQueueAge": {
-                    "name": "vbuckets_total_queue_age",
+                    "name": "vb_total_queue_age",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "vbuckets_total_queue_age",
                     "helpText": "Sum of disk queue item age in milliseconds",
                     "labels": [
                         "bucket",
@@ -1800,9 +1800,9 @@
                     ]
                 },
                 "CbasSystemLoadAverage": {
-                    "name": "system_load_avg",
+                    "name": "system_load_average",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "system_load_avg",
                     "helpText": "System load for Analytics node",
                     "labels": [
                         "cluster"
@@ -2146,9 +2146,9 @@
                     ]
                 },
                 "ctrRebalanceFail": {
-                    "name": "rebalance_failure",
+                    "name": "rebalance_fail",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "rebalance_failure",
                     "helpText": "rebalance_failure",
                     "labels": [
                         "cluster"
@@ -2322,9 +2322,9 @@
                     ]
                 },
                 "interestingStatsVbActiveNumNonResident": {
-                    "name": "interestingstats_vb_active_number_non_resident",
+                    "name": "interestingstats_vb_active_num_non_resident",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "interestingstats_vb_active_number_non_resident",
                     "helpText": "interestingstats_vb_active_number_non_resident",
                     "labels": [
                         "node",
@@ -2686,6 +2686,7 @@
                     "helpText": "Number of Active VBuckets remaining",
                     "labels": [
                         "bucket",
+                        "source",
                         "target",
                         "cluster"
                     ]
@@ -2697,6 +2698,7 @@
                     "helpText": "docs_total",
                     "labels": [
                         "bucket",
+                        "source",
                         "target",
                         "cluster"
                     ]
@@ -2708,17 +2710,19 @@
                     "helpText": "docs_transferred",
                     "labels": [
                         "bucket",
+                        "source",
                         "target",
                         "cluster"
                     ]
                 },
-                "progressReplicateVBucketsLeft": {
+                "progressReplicaVBucketsLeft": {
                     "name": "replica_vbuckets_left",
                     "enabled": true,
                     "nameOverride": "",
                     "helpText": "Number of Replica VBuckets remaining",
                     "labels": [
                         "bucket",
+                        "source",
                         "target",
                         "cluster"
                     ]
@@ -2816,9 +2820,9 @@
                     ]
                 },
                 "AvgBgWaitTime": {
-                    "name": "avg_bg_wait_seconds",
+                    "name": "avg_bg_wait_time",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "avg_bg_wait_seconds",
                     "helpText": " ",
                     "labels": [
                         "bucket",
@@ -3354,6 +3358,17 @@
                         "cluster"
                     ]
                 },
+                "EpDcp2IProducerCount": {
+                    "name": "ep_dcp_2i_producer_count",
+                    "enabled": true,
+                    "nameOverride": "ep_dcp_2i_producers",
+                    "helpText": "Number of indexes producers",
+                    "labels": [
+                        "bucket",
+                        "node",
+                        "cluster"
+                    ]
+                },
                 "EpDcp2iBackoff": {
                     "name": "ep_dcp_2i_backoff",
                     "enabled": true,
@@ -3392,17 +3407,6 @@
                     "enabled": true,
                     "nameOverride": "",
                     "helpText": "Number of indexes items sent",
-                    "labels": [
-                        "bucket",
-                        "node",
-                        "cluster"
-                    ]
-                },
-                "EpDcp2iProducerCount": {
-                    "name": "ep_dcp_2i_producers",
-                    "enabled": true,
-                    "nameOverride": "",
-                    "helpText": "Number of indexes producers",
                     "labels": [
                         "bucket",
                         "node",

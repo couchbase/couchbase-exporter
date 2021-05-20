@@ -42,7 +42,7 @@ type nodesCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewNodesCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+func NewNodesCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
 	if config == nil {
 		config = objects.GetNodeCollectorDefaultConfig()
 	}

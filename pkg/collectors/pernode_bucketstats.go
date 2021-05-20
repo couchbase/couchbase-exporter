@@ -52,7 +52,7 @@ func setGaugeVec(vec prometheus.GaugeVec, stats []float64, labelValues ...string
 	}
 }
 
-func getClusterBalancedStatus(c util.Client) (bool, error) {
+func getClusterBalancedStatus(c util.CbClient) (bool, error) {
 	node, err := c.Nodes()
 	if err != nil {
 		return false, fmt.Errorf("unable to retrieve nodes, %w", err)
@@ -61,7 +61,7 @@ func getClusterBalancedStatus(c util.Client) (bool, error) {
 	return node.Counters[rebalanceSuccess] > 0 || (node.Balanced && node.RebalanceStatus == "none"), nil
 }
 
-func getCurrentNode(c util.Client) (string, error) {
+func getCurrentNode(c util.CbClient) (string, error) {
 	nodes, err := c.Nodes()
 	if err != nil {
 		return "", fmt.Errorf("unable to retrieve nodes: %w", err)
@@ -76,7 +76,7 @@ func getCurrentNode(c util.Client) (string, error) {
 	return "", ErrNotFound
 }
 
-func getPerNodeBucketStats(client util.Client, bucketName, nodeName string) map[string]interface{} {
+func getPerNodeBucketStats(client util.CbClient, bucketName, nodeName string) map[string]interface{} {
 	url := getSpecificNodeBucketStatsURL(client, bucketName, nodeName)
 
 	var bucketStats objects.PerNodeBucketStats
@@ -90,7 +90,7 @@ func getPerNodeBucketStats(client util.Client, bucketName, nodeName string) map[
 }
 
 // /pools/default/buckets/<bucket-name>/nodes/<node-name>/stats.
-func getSpecificNodeBucketStatsURL(client util.Client, bucket, node string) string {
+func getSpecificNodeBucketStatsURL(client util.CbClient, bucket, node string) string {
 	servers, err := client.Servers(bucket)
 	if err != nil {
 		log.Error("unable to retrieve Servers %s", err)
@@ -107,7 +107,7 @@ func getSpecificNodeBucketStatsURL(client util.Client, bucket, node string) stri
 	return correctURI
 }
 
-func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime int, config *objects.CollectorConfig) {
+func collectPerNodeBucketMetrics(client util.CbClient, node string, refreshTime int, config *objects.CollectorConfig) {
 	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
@@ -151,7 +151,6 @@ func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime in
 							metrics[value.Name] = mt
 							setGaugeVec(*mt, strToFloatArr(fmt.Sprint(samples[value.Name])), bucket.Name, node, clusterName)
 						}
-
 					}
 				}
 				time.Sleep(time.Second * time.Duration(refreshTime))
@@ -165,7 +164,7 @@ func collectPerNodeBucketMetrics(client util.Client, node string, refreshTime in
 	}
 }
 
-func RunPerNodeBucketStatsCollection(client util.Client, refreshTime int, config *objects.CollectorConfig) {
+func RunPerNodeBucketStatsCollection(client util.CbClient, refreshTime int, config *objects.CollectorConfig) {
 	log.Info("Initial Collection of Node Stats")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)

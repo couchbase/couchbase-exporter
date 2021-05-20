@@ -33,3 +33,10 @@ func New(configFile string) (*objects.ExporterConfig, error) {
 
 	return exporterConfig, nil
 }
+
+func GetDefaultConfig() *objects.ExporterConfig {
+	exporterConfig := new(objects.ExporterConfig)
+	exporterConfig.SetDefaults()
+
+	return exporterConfig
+}

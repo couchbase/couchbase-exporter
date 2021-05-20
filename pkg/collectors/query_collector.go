@@ -23,7 +23,7 @@ type queryCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewQueryCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+func NewQueryCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
 	if config == nil {
 		config = objects.GetQueryCollectorDefaultConfig()
 	}
@@ -92,7 +92,7 @@ func (c *queryCollector) Collect(ch chan<- prometheus.Metric) {
 		if value.Enabled {
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-				prometheus.GaugeValue, last(queryStats.Op.Samples[c.config.Subsystem+"_"+value.Name]),
+				prometheus.GaugeValue, last(queryStats.Op.Samples[objects.QueryMetricPrefix+value.Name]),
 				clusterName,
 			)
 		}

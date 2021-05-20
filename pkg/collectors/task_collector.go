@@ -21,17 +21,21 @@ import (
 )
 
 const (
-	taskRebalance            = "rebalance"
-	taskBucketCompaction     = "bucket_compaction"
-	taskXdcr                 = "xdcr"
-	taskClusterLogCollection = "clusterLogsCollection"
-	metricRebalancePerNode   = "rebalancePerNode"
-	metricCompacting         = "compacting"
-	metricXdcrChangesLeft    = "xdcrChangesLeft"
-	metricXdcrDocsChecked    = "xdcrDocsChecked"
-	metricXdcrDocsWritten    = "xdcrDocsWritten"
-	metricXdcrPaused         = "xdcrPaused"
-	metricXdcrErrors         = "xdcrErrors"
+	taskRebalance                      = "rebalance"
+	taskBucketCompaction               = "bucket_compaction"
+	taskXdcr                           = "xdcr"
+	taskClusterLogCollection           = "clusterLogsCollection"
+	metricRebalancePerNode             = "rebalancePerNode"
+	metricCompacting                   = "compacting"
+	metricXdcrChangesLeft              = "xdcrChangesLeft"
+	metricXdcrDocsChecked              = "xdcrDocsChecked"
+	metricXdcrDocsWritten              = "xdcrDocsWritten"
+	metricXdcrPaused                   = "xdcrPaused"
+	metricXdcrErrors                   = "xdcrErrors"
+	metricDocsTotal                    = "progressDocsTotal"
+	metricDocsTransferred              = "progressDocsTransferred"
+	metricDocsActiveVbucketsLeft       = "progressActiveVBucketsLeft"
+	metricDocsTotalReplicaVBucketsLeft = "progressReplicaVBucketsLeft"
 )
 
 type taskCollector struct {
@@ -40,7 +44,7 @@ type taskCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewTaskCollector(client util.Client, config *objects.CollectorConfig) prometheus.Collector {
+func NewTaskCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
 	if config == nil {
 		config = objects.GetTaskCollectorDefaultConfig()
 	}
@@ -190,6 +194,54 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 			task.Source,
 			task.Target,
 			clusterName)
+	}
+
+	for _, data := range task.DetailedProgress.PerNode {
+		// for each node grab these specific metrics from the config (if they exist)
+		// then grab their data from the request and dump it into prometheus.
+		if dt, ok := c.config.Metrics[metricDocsTotal]; ok && dt.Enabled {
+			ch <- prometheus.MustNewConstMetric(
+				dt.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+				prometheus.GaugeValue,
+				float64(data.Ingoing.DocsTotal),
+				task.DetailedProgress.Bucket,
+				task.Source,
+				task.Target,
+				clusterName)
+		}
+
+		if dtrans, ok := c.config.Metrics[metricDocsTransferred]; ok && dtrans.Enabled {
+			ch <- prometheus.MustNewConstMetric(
+				dtrans.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+				prometheus.GaugeValue,
+				float64(data.Ingoing.DocsTransferred),
+				task.DetailedProgress.Bucket,
+				task.Source,
+				task.Target,
+				clusterName)
+		}
+
+		if avbl, ok := c.config.Metrics[metricDocsActiveVbucketsLeft]; ok && avbl.Enabled {
+			ch <- prometheus.MustNewConstMetric(
+				avbl.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+				prometheus.GaugeValue,
+				float64(data.Ingoing.ActiveVBucketsLeft),
+				task.DetailedProgress.Bucket,
+				task.Source,
+				task.Target,
+				clusterName)
+		}
+
+		if rvbl, ok := c.config.Metrics[metricDocsTotalReplicaVBucketsLeft]; ok && rvbl.Enabled {
+			ch <- prometheus.MustNewConstMetric(
+				rvbl.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+				prometheus.GaugeValue,
+				float64(data.Ingoing.ReplicaVBucketsLeft),
+				task.DetailedProgress.Bucket,
+				task.Source,
+				task.Target,
+				clusterName)
+		}
 	}
 }
 
