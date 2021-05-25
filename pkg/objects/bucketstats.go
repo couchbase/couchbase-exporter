@@ -210,6 +210,18 @@ const (
 	RestRequests                        = "rest_requests"
 	BucketStatsSwapTotal                = "swap_total"
 	BucketStatsSwapUsed                 = "swap_used"
+
+	// these keys are not present in 6.6.2 and I believe they have been deprecated.
+	DEPRECATEDEpDcpCbasBackoff          = "ep_dcp_cbas_backoff"
+	DEPRECATEDEpDcpCbasItemsRemaining   = "ep_dcp_cbas_items_remaining"
+	DEPRECATEDEpDcpTotalBytes           = "ep_dcp_total_bytes"
+	DEPRECATEDEpDcpCbasTotalBacklogSize = "ep_dcp_cbas_total_backlog_size"
+	DEPRECATEDEpDataWriteFailed         = "ep_data_write_failed"
+	DEPRECATEDEpDataReadFailed          = "ep_data_read_failed"
+	DEPRECATEDEpDcpCbasProducerCount    = "ep_dcp_cbas_producer_count"
+	DEPRECATEDEpDcpCbasCount            = "ep_dcp_cbas_count"
+	DEPRECATEDEpDcpCbasItemsSent        = "ep_dcp_cbas_items_sent"
+	DEPRECATEDVbActiveQuueItems         = "vb_active_queue_items"
 )
 
 // /pools/default/buckets/<bucket-name>/nodes/<node-name>/stats

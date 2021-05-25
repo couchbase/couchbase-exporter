@@ -2941,9 +2941,9 @@
                     ]
                 },
                 "CasBadVal": {
-                    "name": "cas_bad_val",
+                    "name": "cas_badval",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "cas_bad_val",
                     "helpText": "Compare and Swap bad values",
                     "labels": [
                         "bucket",
@@ -3568,9 +3568,9 @@
                     ]
                 },
                 "EpDcpFtsTotalBacklogSize": {
-                    "name": "ep_dcp_fts_backlog_size",
+                    "name": "ep_dcp_fts_total_backlog_size",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_fts_backlog_size",
                     "helpText": "",
                     "labels": [
                         "bucket",
@@ -3766,9 +3766,9 @@
                     ]
                 },
                 "EpDcpViewsIndexesBackoff": {
-                    "name": "ep_dcp_views_indexes_backoff",
+                    "name": "ep_dcp_views+indexes_backoff",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_indexes_backoff",
                     "helpText": "",
                     "labels": [
                         "bucket",
@@ -3777,9 +3777,9 @@
                     ]
                 },
                 "EpDcpViewsIndexesCount": {
-                    "name": "ep_dcp_views_indexes_count",
+                    "name": "ep_dcp_views+indexes_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_indexes_count",
                     "helpText": "",
                     "labels": [
                         "bucket",
@@ -3788,9 +3788,9 @@
                     ]
                 },
                 "EpDcpViewsIndexesItemsRemaining": {
-                    "name": "ep_dcp_views_indexes_items_remaining",
+                    "name": "ep_dcp_views+indexes_items_remaining",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_indexes_items_remaining",
                     "helpText": "",
                     "labels": [
                         "bucket",
@@ -3799,9 +3799,9 @@
                     ]
                 },
                 "EpDcpViewsIndexesItemsSent": {
-                    "name": "ep_dcp_views_indexes_items_sent",
+                    "name": "ep_dcp_views+indexes_items_sent",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_indexes_items_sent",
                     "helpText": "",
                     "labels": [
                         "bucket",
@@ -3810,9 +3810,9 @@
                     ]
                 },
                 "EpDcpViewsIndexesProducerCount": {
-                    "name": "ep_dcp_views_indexes_producer_count",
+                    "name": "ep_dcp_views+indexes_producer_count",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_indexes_producer_count",
                     "helpText": "",
                     "labels": [
                         "bucket",
@@ -3821,9 +3821,9 @@
                     ]
                 },
                 "EpDcpViewsIndexesTotalBacklogSize": {
-                    "name": "ep_dcp_views_indexes_total_backlog_size",
+                    "name": "ep_dcp_views+indexes_total_backlog_size",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_indexes_total_backlog_size",
                     "helpText": "",
                     "labels": [
                         "bucket",
@@ -3832,9 +3832,9 @@
                     ]
                 },
                 "EpDcpViewsIndexesTotalBytes": {
-                    "name": "ep_dcp_views_indexes_total_bytes",
+                    "name": "ep_dcp_views+indexes_total_bytes",
                     "enabled": true,
-                    "nameOverride": "",
+                    "nameOverride": "ep_dcp_views_indexes_total_bytes",
                     "helpText": "",
                     "labels": [
                         "bucket",

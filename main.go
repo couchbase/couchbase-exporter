@@ -160,9 +160,12 @@ func main() {
 	prometheus.MustRegister(collectors.NewEventingCollector(client, exporterConfig.Collectors.Eventing))
 
 	// moved to a goroutine to improve startup time.
-	go func() {
-		collectors.RunPerNodeBucketStatsCollection(client, exporterConfig.RefreshRate, exporterConfig.Collectors.PerNodeBucketStats)
-	}()
+	// Create my cycle controller with refreshrate (seconds) in milliseconds
+	cycle := util.NewCycleController(exporterConfig.RefreshRate * 1000)
+	perNodeBucketStatCollector := collectors.NewPerNodeBucketStatsCollector(client, exporterConfig.Collectors.PerNodeBucketStats)
+
+	cycle.Subscribe(&perNodeBucketStatCollector)
+	cycle.Start()
 
 	log.Info("Serving Metrics")
 

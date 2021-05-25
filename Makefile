@@ -5,6 +5,7 @@ productVersion = $(version)-$(bldNum)
 ARTIFACTS = build/artifacts/couchbase-exporter
 DOCKER_TAG = v1
 DOCKER_USER = couchbase
+.PHONY: all test clean
 
 build: $(SOURCE) go.mod
 	for platform in linux darwin ; do \
@@ -27,3 +28,6 @@ container:
 
 config-container:
 	docker build -f ./example/Dockerfile -t ${DOCKER_USER}/couchbase-exporter:${DOCKER_TAG}-config ./example/
+
+test:
+	go test ./test --timeout 60s -v

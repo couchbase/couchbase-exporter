@@ -16,22 +16,26 @@ func GetDescString(namespace string, subsystem string, name string, help string,
 	return fmt.Sprintf("Desc{fqName: \"%s%s_%s\", help: \"%s\", constLabels: {}, variableLabels: %+v}", namespace, subsystem, name, help, labels)
 }
 
+func GetMetricValue(metric io_prometheus_client.Metric) float64 {
+	var gauge float64
+
+	if metric.Gauge != nil {
+		gauge = metric.Gauge.GetValue()
+	}
+
+	if metric.Counter != nil {
+		gauge = metric.Counter.GetValue()
+	}
+
+	return gauge
+}
+
 func GetGaugeValue(m prometheus.Metric) (float64, error) {
 	obj := new(io_prometheus_client.Metric)
 
 	err := m.Write(obj)
 
-	var gauge float64
-
-	if obj.Gauge != nil {
-		gauge = obj.Gauge.GetValue()
-	}
-
-	if obj.Counter != nil {
-		gauge = obj.Counter.GetValue()
-	}
-
-	return gauge, err
+	return GetMetricValue(*obj), err
 }
 
 func GetBucketIfPresent(m prometheus.Metric) (string, error) {
@@ -210,6 +214,20 @@ func GetNodeTestValue(key string, name string, config objects.CollectorConfig, n
 		}
 	} else {
 		return nodes.Counters[name]
+	}
+}
+
+func GenerateServers() objects.Servers {
+	server := objects.Server{
+		Hostname: "localhost",
+		URI:      "/pools/default/buckets/wawa-bucket/nodes/%5B%3A%3A1%5D%3A8091",
+		Stats: map[string]string{
+			"uri": "/pools/default/buckets/wawa-bucket/nodes/%5B%3A%3A1%5D%3A8091/stats",
+		},
+	}
+
+	return objects.Servers{
+		Servers: []objects.Server{server},
 	}
 }
 
@@ -551,6 +569,18 @@ func GenerateAnalytics() objects.Analytics {
 	return anal
 }
 
+func GenerateBucketStatSamples() map[string]interface{} {
+	samples := GenerateBucketStats().Op.Samples
+
+	realSamples := make(map[string]interface{}, len(samples))
+
+	for k, v := range samples {
+		realSamples[k] = v
+	}
+
+	return realSamples
+}
+
 func GenerateBucketStats() objects.BucketStats {
 	stats := objects.BucketStats{
 		Op: struct {
@@ -749,6 +779,16 @@ func GenerateBucketStats() objects.BucketStats {
 				objects.RestRequests:                        GetRandomFloatSlice(0, 1000, 10),
 				objects.BucketStatsSwapTotal:                GetRandomFloatSlice(0, 1000, 10),
 				objects.BucketStatsSwapUsed:                 GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasBackoff:                    GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasItemsRemaining:             GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpTotalBytes:                     GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasTotalBacklogSize:           GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDataWriteFailed:                   GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDataReadFailed:                    GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasProducerCount:              GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasCount:                      GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasItemsSent:                  GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDVbActiveQuueItems:                   GetRandomFloatSlice(0, 1000, 10),
 			},
 		},
 	}
