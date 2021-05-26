@@ -11,9 +11,9 @@ package collectors
 
 import (
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,6 +32,7 @@ func NewEventingCollector(client util.CbClient, config *objects.CollectorConfig)
 
 	return &eventingCollector{
 		m: MetaCollector{
+			mutex:  sync.Mutex{},
 			client: client,
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
@@ -77,7 +78,7 @@ func (c *eventingCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error("%s", err)
+		log.Error(err, "error retrieving clustername")
 
 		return
 	}
@@ -86,7 +87,7 @@ func (c *eventingCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error("failed to scrape eventing stats")
+		log.Error(err, "failed to scrape eventing stats")
 
 		return
 	}

@@ -115,6 +115,9 @@ func GetPerNodeBucketStatsCollectorDefaultConfig() *CollectorConfig {
 	return perNodeBucketStatsCollectorDefaultConfig()
 }
 
+// disabling fun len as this is a config method and the only way to make
+// it shorter would require breaking it up and making it less readable.
+//nolint:funlen
 func perNodeBucketStatsCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      "PerNodeBucketStats",
@@ -1515,6 +1518,9 @@ func perNodeBucketStatsCollectorDefaultConfig() *CollectorConfig {
 	return newConfig
 }
 
+// disabling fun len as this is a config method and the only way to make
+// it shorter would require breaking it up and making it less readable.
+//nolint:funlen
 func bucketStatsCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      "BucketStats",
@@ -2675,6 +2681,9 @@ func bucketStatsCollectorDefaultConfig() *CollectorConfig {
 	return newConfig
 }
 
+// disabling fun len as this is a config method and the only way to make
+// it shorter would require breaking it up and making it less readable.
+//nolint:funlen
 func nodeCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      NodeLabel,
@@ -2953,6 +2962,9 @@ func nodeCollectorDefaultConfig() *CollectorConfig {
 	return newConfig
 }
 
+// disabling fun len as this is a config method and the only way to make
+// it shorter would require breaking it up and making it less readable.
+//nolint:funlen
 func eventingCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      "Eventing",
@@ -3119,6 +3131,9 @@ func eventingCollectorDefaultConfig() *CollectorConfig {
 	return newConfig
 }
 
+// disabling fun len as this is a config method and the only way to make
+// it shorter would require breaking it up and making it less readable.
+//nolint:funlen
 func taskCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      "Task",
@@ -3221,7 +3236,6 @@ func taskCollectorDefaultConfig() *CollectorConfig {
 
 	return newConfig
 }
-
 func searchCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      "Search",
@@ -3254,7 +3268,6 @@ func searchCollectorDefaultConfig() *CollectorConfig {
 
 	return newConfig
 }
-
 func indexCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      "Index",
@@ -3295,6 +3308,9 @@ func indexCollectorDefaultConfig() *CollectorConfig {
 	return newConfig
 }
 
+// disabling fun len as this is a config method and the only way to make
+// it shorter would require breaking it up and making it less readable.
+//nolint:funlen
 func analyticsCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      "Analytics",
@@ -3362,7 +3378,6 @@ func analyticsCollectorDefaultConfig() *CollectorConfig {
 
 	return newConfig
 }
-
 func bucketInfoCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      "BucketInfoCollector",
@@ -3424,6 +3439,9 @@ func bucketInfoCollectorDefaultConfig() *CollectorConfig {
 	return newConfig
 }
 
+// disabling fun len as this is a config method and the only way to make
+// it shorter would require breaking it up and making it less readable.
+//nolint:funlen
 func queryCollectorDefaultConfig() *CollectorConfig {
 	newConfig := &CollectorConfig{
 		Name:      "QueryCollector",

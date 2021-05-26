@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4
 
 # ubi-minimal updates frequently and has very few packages installed,
 # so no need for a "security-only" update.
@@ -19,8 +19,8 @@ COPY bin/linux/couchbase-exporter /usr/local/bin/couchbase-exporter
 LABEL name="couchbase/exporter" \
       vendor="Couchbase" \
       version="${PROD_VERSION}" \
-      openshift_build="${OS_BUILD}" \
-      exporter_build="${PROD_BUILD}" \
+      openshift-build="${OS_BUILD}" \
+      exporter-build="${PROD_BUILD}" \
       release="Latest" \
       summary="Couchbase Exporter ${PROD_VERSION}" \
       description="Couchbase Exporter ${PROD_VERSION}" \

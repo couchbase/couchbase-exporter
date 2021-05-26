@@ -5,7 +5,7 @@ productVersion = $(version)-$(bldNum)
 ARTIFACTS = build/artifacts/couchbase-exporter
 DOCKER_TAG = v1
 DOCKER_USER = couchbase
-.PHONY: all test clean
+.PHONY: all test clean lint
 
 build: $(SOURCE) go.mod
 	for platform in linux darwin ; do \
@@ -31,3 +31,9 @@ config-container:
 
 test:
 	go test ./test --timeout 60s -v
+
+lint:
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./pkg/...
+	docker run --rm -i hadolint/hadolint < Dockerfile
+	docker run --rm -i hadolint/hadolint < Dockerfile.rhel
+	docker run --rm -i hadolint/hadolint < ./example/Dockerfile

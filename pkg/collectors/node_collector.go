@@ -14,9 +14,9 @@ package collectors
 import (
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
@@ -50,6 +50,7 @@ func NewNodesCollector(client util.CbClient, config *objects.CollectorConfig) pr
 	// nolint: lll
 	return &nodesCollector{
 		m: MetaCollector{
+			mutex:  sync.Mutex{},
 			client: client,
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
@@ -104,6 +105,7 @@ func contains(haystack []string, needle string) bool {
 	for _, i := range haystack {
 		if i == needle {
 			contained = true
+
 			break
 		}
 	}
@@ -124,7 +126,7 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error("%s", err)
+		log.Error(err, "error retrieving clustername")
 
 		return
 	}
@@ -133,7 +135,7 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error("failed to scrape nodes")
+		log.Error(err, "failed to scrape nodes")
 
 		return
 	}
@@ -166,7 +168,7 @@ func getUptimeValue(uptime string, bitSize int) float64 {
 
 func (c *nodesCollector) addNodeStats(ch chan<- prometheus.Metric, key string, value objects.MetricInfo, clusterName string, nodes *objects.Nodes) {
 	for _, node := range nodes.Nodes {
-		log.Debug("Collecting %s-%s node metrics for metric %s", node.Hostname, clusterName, key)
+		log.Info("Collecting node metrics for metric ", "host", node.Hostname, "cluster", clusterName, "metric", key)
 
 		switch key {
 		case healthyState:

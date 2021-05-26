@@ -12,22 +12,35 @@
 package util
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/pkg/errors"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 const (
-	CaError string = "failed to append CA certificate"
+	// CaError Error appending CA cert.
+	CaError         = "failed to append CA certificate"
+	certAndKeyError = "please specify both cert and key arguments"
+	caAppendError   = "failed to append CA"
+	x509Error       = "failed to create X509 KeyPair"
+)
+
+var (
+	errCertAndKey = fmt.Errorf(certAndKeyError)
+	errCaAppend   = fmt.Errorf(caAppendError)
+	errX509       = fmt.Errorf(x509Error)
+	log           = logf.Log.WithName("util")
 )
 
 type CbClient interface {
@@ -59,39 +72,110 @@ type Client struct {
 }
 
 // NewClient creates a new couchbase client.
-func NewClient(domain, user, password string, config *tls.Config) Client {
+func NewClient(exporterConfig *objects.ExporterConfig) (Client, error) {
 	var client = Client{
-		domain: domain,
+		domain: "",
 		Client: http.Client{
 			Transport: &AuthTransport{
-				Username: user,
-				Password: password,
-				config:   config,
+				Username:  exporterConfig.CouchbaseUser,
+				Password:  exporterConfig.CouchbasePassword,
+				config:    nil,
+				Transport: nil,
 			},
 		},
 	}
 
-	return client
+	// Default to nil.
+	var tlsClientConfig = tls.Config{ //nolint:gosec
+		RootCAs: x509.NewCertPool(),
+	}
+
+	// Default to insecure.
+	scheme := "http"
+
+	// Update the TLS, scheme and port.
+	if len(exporterConfig.Ca) != 0 && len(exporterConfig.ClientCertificate) != 0 && len(exporterConfig.ClientKey) != 0 {
+		scheme = "https"
+		exporterConfig.CouchbasePort = 18091
+
+		err := setTLSClientConfig(*exporterConfig, &tlsClientConfig)
+		if err != nil {
+			return client, err
+		}
+	} else if len(exporterConfig.ClientCertificate) != 0 || len(exporterConfig.ClientKey) != 0 {
+		log.Error(errCertAndKey, "please specify both clientCert and clientKey")
+		var certError = errCertAndKey
+
+		return client, certError
+	}
+
+	couchFullAddress := fmt.Sprintf("%v://%v:%v", scheme, exporterConfig.CouchbaseAddress, exporterConfig.CouchbasePort)
+	log.Info("dial CB Server", "couchAddress", couchFullAddress)
+
+	client.domain = couchFullAddress
+	client.Client = http.Client{
+		Transport: &AuthTransport{
+			Username:  exporterConfig.CouchbaseUser,
+			Password:  exporterConfig.CouchbasePassword,
+			config:    &tlsClientConfig,
+			Transport: nil,
+		},
+	}
+
+	return client, nil
+}
+
+func setTLSClientConfig(exporterConfig objects.ExporterConfig, tlsConfig *tls.Config) error {
+	caContents, err := ioutil.ReadFile(exporterConfig.Ca)
+	if err != nil {
+		return fmt.Errorf("could not read CA: %w", err)
+	}
+
+	if ok := tlsConfig.RootCAs.AppendCertsFromPEM(caContents); !ok {
+		return errCaAppend
+	}
+
+	certContents, err := ioutil.ReadFile(exporterConfig.ClientCertificate)
+	if err != nil {
+		return fmt.Errorf("could not read client cert %w", err)
+	}
+
+	key, err := ioutil.ReadFile(exporterConfig.ClientKey)
+	if err != nil {
+		log.Error(errX509, "could not read client key")
+		os.Exit(1)
+	}
+
+	cert, err := tls.X509KeyPair(certContents, key)
+	if err != nil {
+		var keypairError = errX509
+
+		return fmt.Errorf("%w", keypairError)
+	}
+
+	tlsConfig.Certificates = append(tlsConfig.Certificates, cert)
+
+	return nil
 }
 
 // configTLS examines the configuration and creates a TLS configuration.
 func ConfigClientTLS(cacert, chain, key string) *tls.Config {
-	tlsClientConfig := &tls.Config{
+	tlsClientConfig := &tls.Config{ //nolint:gosec
 		RootCAs: x509.NewCertPool(),
 	}
 
 	caCert, err := ioutil.ReadFile(cacert)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err, "error reading cert file")
 	}
 
 	if ok := tlsClientConfig.RootCAs.AppendCertsFromPEM(caCert); !ok {
-		log.Fatal(errors.New(CaError))
+		log.Error(errors.New(CaError), "error appending cert")
 	}
 
 	cert, err := tls.LoadX509KeyPair(chain, key)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err, "error loading x509 keypair")
 	}
 
 	tlsClientConfig.Certificates = []tls.Certificate{cert}
@@ -103,24 +187,41 @@ func (c Client) URL(path string) string {
 	return c.domain + "/" + path
 }
 
+const statusOk = 200
+
 func (c Client) Get(path string, v interface{}) error {
-	resp, err := c.Client.Get(c.URL(path))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, c.URL(path), nil)
 	if err != nil {
-		return errors.Wrapf(err, "failed to Get %s", path)
+		newErr := errors.Wrapf(err, "failed to create request for %s", path)
+
+		return newErr
+	}
+
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		newErr := errors.Wrapf(err, "failed to Get %s", path)
+
+		return newErr
 	}
 
 	bts, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return errors.Wrapf(err, "failed to read response body from %s", path)
+		newErr := errors.Wrapf(err, "failed to read response body from %s", path)
+
+		return newErr
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		return errors.Wrapf(err, "%s failed to Get metrics: %s %d", path, string(bts), resp.StatusCode)
+	if resp.StatusCode != statusOk {
+		newErr := errors.Wrapf(err, "%s failed to Get metrics: %s %d", path, string(bts), resp.StatusCode)
+
+		return newErr
 	}
 
 	if err := json.Unmarshal(bts, v); err != nil {
-		return errors.Wrapf(err, "failed to unmarshall %s output: %s", path, string(bts))
+		newErr := errors.Wrapf(err, "failed to unmarshall %s output: %s", path, string(bts))
+
+		return newErr
 	}
 
 	return nil
@@ -135,6 +236,10 @@ type AuthTransport struct {
 	Transport http.RoundTripper
 }
 
+const tlsHandshakeTimeout = 10
+const maxIdleConnections = 100
+const idleConnectionTimeout = 90
+
 func (t *AuthTransport) transport() http.RoundTripper {
 	if t.Transport != nil {
 		return t.Transport
@@ -143,10 +248,10 @@ func (t *AuthTransport) transport() http.RoundTripper {
 	return &http.Transport{
 		Proxy:                 http.ProxyFromEnvironment,
 		TLSClientConfig:       t.config,
-		TLSHandshakeTimeout:   10 * time.Second,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
+		TLSHandshakeTimeout:   tlsHandshakeTimeout * time.Second,
+		MaxIdleConns:          maxIdleConnections,
+		IdleConnTimeout:       idleConnectionTimeout * time.Second,
+		ExpectContinueTimeout: time.Second,
 	}
 }
 
@@ -162,7 +267,12 @@ func (t *AuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	req2.SetBasicAuth(t.Username, t.Password)
 
-	return t.transport().RoundTrip(req2)
+	tripper, err := t.transport().RoundTrip(req2)
+	if err != nil {
+		return tripper, fmt.Errorf("error setting round trip %w", err)
+	}
+
+	return tripper, nil
 }
 
 // Buckets returns the results of /pools/default/buckets.
@@ -277,7 +387,6 @@ func (c Client) QueryNode(node string) (objects.Query, error) {
 	return query, errors.Wrap(err, "failed to Get query stats")
 }
 
-//
 func (c Client) IndexNode(node string) (objects.Index, error) {
 	var index objects.Index
 	err := c.Get("pools/default/buckets/@index/stats", &index)
@@ -306,56 +415,67 @@ type AuthHandler struct {
 	TokenLocation string
 }
 
+var (
+	errorHeader        = fmt.Errorf("error reading headers")
+	errorNoRead        = fmt.Errorf("500 Internal Server Error, unable to read bearer token")
+	errorTokenInvalid  = fmt.Errorf("401 Unauthorized, bearer token found but incorrect")
+	errorFailWrite     = fmt.Errorf("failed to write response body")
+	errorTokenNotFound = fmt.Errorf("401 Unauthorized please supply a bearer token")
+)
+
 func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if len(authHandler.TokenLocation) != 0 {
-		tokenAccepted := false
+	if len(authHandler.TokenLocation) == 0 {
+		authHandler.ServeMux.ServeHTTP(w, r)
 
-		for name := range r.Header {
-			if strings.EqualFold(name, "Authorization") {
-				if len(r.Header[name]) != 1 {
-					w.WriteHeader(http.StatusBadRequest)
-					log.Println("400 bad request")
+		return
+	}
 
-					return
-				}
+	tokenAccepted := false
 
-				token, err := ioutil.ReadFile(authHandler.TokenLocation)
+	for name := range r.Header {
+		if strings.EqualFold(name, "Authorization") {
+			if len(r.Header[name]) != 1 {
+				w.WriteHeader(http.StatusBadRequest)
+				log.Error(errorHeader, "400 bad request")
 
-				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					log.Println("500 Internal Server Error, unable to read bearer token")
-
-					return
-				}
-
-				tokenString := string(token)
-				tokenString = strings.TrimSpace(tokenString)
-
-				if !strings.EqualFold(r.Header[name][0], "Bearer "+tokenString) {
-					w.WriteHeader(http.StatusUnauthorized)
-					log.Println("401 Unauthorized, bearer token found but incorrect")
-
-					return
-				}
-
-				tokenAccepted = true
-			}
-		}
-
-		if !tokenAccepted {
-			w.WriteHeader(http.StatusUnauthorized)
-			_, err := w.Write([]byte("401 Unauthorized please supply a bearer token"))
-
-			if err != nil {
-				log.Println("failed to write response body")
 				return
 			}
 
-			log.Println("401 Unauthorized please supply a bearer token")
+			token, err := ioutil.ReadFile(authHandler.TokenLocation)
 
-			return
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				log.Error(errorNoRead, "error reading token")
+
+				return
+			}
+
+			tokenString := string(token)
+			tokenString = strings.TrimSpace(tokenString)
+
+			if !strings.EqualFold(r.Header[name][0], "Bearer "+tokenString) {
+				w.WriteHeader(http.StatusUnauthorized)
+				log.Error(errorTokenInvalid, "Invalid bearer token")
+
+				return
+			}
+
+			tokenAccepted = true
 		}
 	}
 
-	authHandler.ServeMux.ServeHTTP(w, r)
+	if !tokenAccepted {
+		w.WriteHeader(http.StatusUnauthorized)
+		_, err := w.Write([]byte("401 Unauthorized please supply a bearer token"))
+
+		if err != nil {
+			log.Error(errorFailWrite, "Failed to write response")
+
+			return
+		}
+
+		log.Error(errorTokenNotFound, "Unauthorized")
+
+		return
+	}
 }

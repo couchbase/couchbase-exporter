@@ -10,9 +10,9 @@
 package collectors
 
 import (
+	"sync"
 	"time"
 
-	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,6 +31,7 @@ func NewFTSCollector(client util.CbClient, config *objects.CollectorConfig) prom
 	return &ftsCollector{
 		m: MetaCollector{
 			client: client,
+			mutex:  sync.Mutex{},
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
 				objects.DefaultUptimeMetricHelp,
@@ -75,7 +76,7 @@ func (c *ftsCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error("%s", err)
+		log.Error(err, "error retrieving clustername")
 
 		return
 	}
@@ -84,7 +85,7 @@ func (c *ftsCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error("failed to scrape FTS stats")
+		log.Error(err, "failed to scrape FTS stats")
 
 		return
 	}

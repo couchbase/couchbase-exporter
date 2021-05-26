@@ -10,13 +10,16 @@
 package collectors
 
 import (
+	"sync"
 	"time"
 
-	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
+
+var log = logf.Log.WithName("collectors")
 
 type bucketInfoCollector struct {
 	m      MetaCollector
@@ -47,7 +50,7 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error("%s", err)
+		log.Error(err, "Error getting Clustername")
 
 		return
 	}
@@ -56,16 +59,14 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error("failed to scrape buckets")
+		log.Error(err, "failed to scrape buckets")
 
 		return
 	}
 
 	for _, bucket := range buckets {
-		log.Debug("Collecting %s bucket metrics...", bucket.Name)
-
 		for key, value := range c.config.Metrics {
-			log.Debug("Collecting for metric %s.", value.Name)
+			log.Info("Collecting for metric", "bucket", bucket.Name, "metric", value.Name, "value", bucket.BucketBasicStats[key])
 
 			if value.Enabled {
 				ch <- prometheus.MustNewConstMetric(
@@ -90,6 +91,7 @@ func NewBucketInfoCollector(client util.CbClient, config *objects.CollectorConfi
 
 	return &bucketInfoCollector{
 		m: MetaCollector{
+			mutex:  sync.Mutex{},
 			client: client,
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),

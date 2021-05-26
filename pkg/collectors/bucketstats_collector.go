@@ -12,12 +12,16 @@
 package collectors
 
 import (
+	"sync"
 	"time"
 
-	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
+)
+
+const (
+	microsecondsInSecond = 1000000
 )
 
 type bucketStatsCollector struct {
@@ -55,6 +59,12 @@ func (c *bucketStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 	}
 }
 
+func (c *bucketStatsCollector) recordError(ch chan<- prometheus.Metric, err error, message string, clusterName string) {
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
+	log.Error(err, message)
+}
+
 func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 	c.m.mutex.Lock()
 	defer c.m.mutex.Unlock()
@@ -65,62 +75,49 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 
 	clusterName, err := c.m.client.ClusterName()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
-
-		log.Error("%s", err)
+		c.recordError(ch, err, "Error retrieving Clustername", clusterName)
 
 		return
 	}
 
 	buckets, err := c.m.client.Buckets()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
-
-		log.Error("failed to scrape buckets")
+		c.recordError(ch, err, "failed to scrape buckets", clusterName)
 
 		return
 	}
 
 	for _, bucket := range buckets {
-		log.Debug("Collecting %s bucket stats metrics...", bucket.Name)
+		log.Info("Collecting bucket stats metrics...", "bucket", bucket.Name)
 		stats, err := c.m.client.BucketStats(bucket.Name)
 
 		if err != nil {
-			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
-
-			log.Error("failed to scrape bucket stats")
+			c.recordError(ch, err, "failed to scrape bucket stats", clusterName)
 
 			return
 		}
 
 		for key, value := range c.config.Metrics {
-			log.Debug("Collecting bucket stats: %s", value.Name)
+			log.Info("Collecting bucket metrics", "bucket", bucket.Name, "metric", value.Name, "value", last(stats.Op.Samples[value.Name]))
 
 			if value.Enabled {
 				switch key {
 				case "AvgBgWaitTime":
 					ch <- prometheus.MustNewConstMetric(
 						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-						prometheus.GaugeValue,
-						last(stats.Op.Samples[objects.AvgBgWaitTime])/1000000, // this comes as microseconds from cb
-						bucket.Name,
-						clusterName,
+						prometheus.GaugeValue, last(stats.Op.Samples[objects.AvgBgWaitTime])/microsecondsInSecond, // this comes as microseconds from cb
+						bucket.Name, clusterName,
 					)
 				case "EpCacheMissRate":
 					ch <- prometheus.MustNewConstMetric(
 						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-						prometheus.GaugeValue,
-						min(last(stats.Op.Samples[value.Name]), 100), // percentage can exceed 100 due to code within CB, so needs limiting to 100
-						bucket.Name,
-						clusterName,
+						prometheus.GaugeValue, min(last(stats.Op.Samples[value.Name]), 100), // percentage can exceed 100 due to code within CB, so needs limiting to 100
+						bucket.Name, clusterName,
 					)
 				default:
 					ch <- prometheus.MustNewConstMetric(
 						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-						prometheus.GaugeValue,
-						last(stats.Op.Samples[value.Name]),
-						bucket.Name,
-						clusterName,
+						prometheus.GaugeValue, last(stats.Op.Samples[value.Name]), bucket.Name, clusterName,
 					)
 				}
 			}
@@ -138,6 +135,7 @@ func NewBucketStatsCollector(client util.CbClient, config *objects.CollectorConf
 	// nolint: lll
 	return &bucketStatsCollector{
 		m: MetaCollector{
+			mutex:  sync.Mutex{},
 			client: client,
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
