@@ -10,9 +10,9 @@
 package collectors
 
 import (
-	"sync"
 	"time"
 
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
@@ -30,7 +30,6 @@ func NewIndexCollector(client util.CbClient, config *objects.CollectorConfig) pr
 
 	return &indexCollector{
 		m: MetaCollector{
-			mutex:  sync.Mutex{},
 			client: client,
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
@@ -76,7 +75,7 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error(err, "error retrieving clustername")
+		log.Error("%s", err)
 
 		return
 	}
@@ -85,7 +84,7 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error(err, "failed to scrape index stats")
+		log.Error("failed to scrape index stats")
 
 		return
 	}

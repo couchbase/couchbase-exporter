@@ -11,25 +11,22 @@ package objects
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
 
-	"github.com/pkg/errors"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 )
 
 const (
 	operatorUser = "COUCHBASE_OPERATOR_USER"
 	operatorPass = "COUCHBASE_OPERATOR_PASS"
 
-	envUser           = "COUCHBASE_USER"
-	envPass           = "COUCHBASE_PASS"
-	bearerTokenEnvVar = "AUTH_BEARER_TOKEN" //nolint:gosec
-)
+	envUser = "COUCHBASE_USER"
+	envPass = "COUCHBASE_PASS"
 
-var log = logf.Log.WithName("exporter-config")
+	bearerToken = "AUTH_BEARER_TOKEN"
+)
 
 type ExporterConfig struct {
 	CouchbaseAddress  string             `json:"couchbaseAddress"`
@@ -40,6 +37,8 @@ type ExporterConfig struct {
 	ServerPort        int                `json:"serverPort"`
 	RefreshRate       int                `json:"refreshRate"`
 	BackoffLimit      int                `json:"backoffLimit"`
+	LogLevel          string             `json:"logLevel"`
+	LogJSON           bool               `json:"logJson"`
 	Token             string             `json:"token"`
 	Certificate       string             `json:"certificate"`
 	Key               string             `json:"key"`
@@ -64,34 +63,28 @@ type ExporterCollectors struct {
 
 func (e *ExporterConfig) ParseConfigFile(configFilePath string) error {
 	if _, err := os.Stat(configFilePath); err != nil {
-		return fmt.Errorf("%w: file not found", err)
+		return err
 	}
 
 	jsonFile, err := os.Open(configFilePath)
-
 	if err != nil {
-		newErr := errors.Wrapf(err, "error opening configuration file")
-
 		defer jsonFile.Close()
-
-		return newErr
+		return err
 	}
-
-	defer jsonFile.Close()
 
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
-		newErr := errors.Wrapf(err, "error reading io from json")
-
-		return newErr
+		defer jsonFile.Close()
+		return err
 	}
 
 	err = json.Unmarshal(byteValue, &e)
 	if err != nil {
-		newErr := errors.Wrapf(err, "error parsing json")
-
-		return newErr
+		defer jsonFile.Close()
+		return err
 	}
+
+	defer jsonFile.Close()
 
 	return nil
 }
@@ -119,28 +112,24 @@ func (e *ExporterConfig) SetDefaults() {
 	e.CouchbaseUser = "Administrator"
 	e.CouchbasePassword = "password"
 	e.Key = ""
+	e.LogJSON = true
+	e.LogLevel = "info"
 	e.RefreshRate = 5
 	e.ServerAddress = "0.0.0.0"
 	e.ServerPort = 9091
 	e.Token = ""
 }
 
-func (e *ExporterConfig) SetValues(couchAddr string, couchPort string, couchUser string, couchPass string, svrAddr string, svrPort string, refreshRate string, backoffLimit string,
-	token string, ca string, certificate string, key string, clientCert string, clientKey string) {
-	e.SetOrDefaultCouchAddress(couchAddr)
-	e.SetOrDefaultCouchPort(couchPort)
-	e.SetOrDefaultCouchUser(couchUser)
-	e.SetOrDefaultCouchPassword(couchPass)
-	e.SetOrDefaultServerAddress(svrAddr)
-	e.SetOrDefaultServerPort(svrPort)
-	e.SetOrDefaultRefreshRate(refreshRate)
-	e.SetOrDefaultBackoffLimit(backoffLimit)
-	e.SetOrDefaultToken(token)
-	e.SetOrDefaultCa(ca)
-	e.SetOrDefaultCertificate(certificate)
-	e.SetOrDefaultKey(key)
-	e.SetOrDefaultClientCertificate(clientCert)
-	e.SetOrDefaultClientKey(clientKey)
+func (e *ExporterConfig) SetOrDefaultLogJSON(logJSON bool) {
+	if !logJSON {
+		e.LogJSON = logJSON
+	}
+}
+
+func (e *ExporterConfig) SetOrDefaultLogLevel(logLevel string) {
+	if logLevel != "" {
+		e.LogLevel = logLevel
+	}
 }
 
 func (e *ExporterConfig) SetOrDefaultCouchAddress(couchAddr string) {
@@ -233,8 +222,8 @@ func (e *ExporterConfig) SetOrDefaultToken(token string) {
 	}
 
 	// override passed value with ENV var value if it has one.
-	if os.Getenv(bearerTokenEnvVar) != "" {
-		e.Token = os.Getenv(bearerTokenEnvVar)
+	if os.Getenv(bearerToken) != "" {
+		e.Token = os.Getenv(bearerToken)
 	}
 }
 
@@ -278,24 +267,4 @@ func isInt(str string) bool {
 	}
 
 	return false
-}
-
-func (e *ExporterConfig) PrintJSON(configFile string) {
-	c, err := json.MarshalIndent(e, "", "    ")
-	checkError(err)
-
-	f, err := os.Create(configFile)
-	checkError(err)
-
-	defer f.Close()
-
-	_, err = f.WriteString(string(c))
-	checkError(err)
-}
-
-func checkError(err error) {
-	if err != nil {
-		log.Error(err, "Error generating Json config file.  Exiting")
-		os.Exit(1)
-	}
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/couchbase/couchbase-exporter/pkg/collectors"
 	"github.com/couchbase/couchbase-exporter/pkg/config"
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/test/mocks"
 	test "github.com/couchbase/couchbase-exporter/test/utils"
@@ -278,6 +279,7 @@ func TestSearchCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 
 				assert.Equal(t, testValue, gauge)
 				assert.Nil(t, err)
+				log.Debug("%s: %v", name, gauge)
 			}
 			count++
 		case <-time.After(1 * time.Second):

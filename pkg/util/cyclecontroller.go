@@ -60,7 +60,6 @@ func (c *cycleController) Unsubscribe(worker Worker) {
 	for i, existing := range workers {
 		if *existing == worker {
 			index = i
-
 			break
 		}
 	}

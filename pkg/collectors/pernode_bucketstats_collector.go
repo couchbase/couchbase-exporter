@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
@@ -60,39 +61,20 @@ type PerNodeBucketStatsCollector struct {
 
 func NewPerNodeBucketStatsCollector(client util.CbClient, config *objects.CollectorConfig) PerNodeBucketStatsCollector {
 	collector := &PerNodeBucketStatsCollector{
-		config:         config,
-		metrics:        map[string]*prometheus.GaugeVec{},
 		client:         client,
-		nodeCache:      "",
+		metrics:        map[string]*prometheus.GaugeVec{},
+		config:         config,
 		up:             upVec,
 		scrapeDuration: scrapeVec,
-		Setter:         nil,
 	}
 	collector.Setter = collector
 
 	return *collector
 }
 
-// DoWork Implements Worker interface for CycleController.
+// Implements Worker interface for CycleController.
 func (c *PerNodeBucketStatsCollector) DoWork() {
 	c.CollectMetrics()
-}
-
-func (c *PerNodeBucketStatsCollector) recordError(currNode string, message string, err error) {
-	c.Setter.SetGaugeVec(*c.up, 0, currNode)
-	log.Error(err, message)
-}
-
-func (c *PerNodeBucketStatsCollector) getNodeCache() error {
-	if c.nodeCache == "" {
-		currNode, err := getCurrentNode(c.client)
-		log.Info("Current node", "current_node", currNode)
-		c.nodeCache = currNode
-
-		return err
-	}
-
-	return nil
 }
 
 func (c *PerNodeBucketStatsCollector) CollectMetrics() {
@@ -100,48 +82,61 @@ func (c *PerNodeBucketStatsCollector) CollectMetrics() {
 
 	log.Info("Begin collection of Node Stats")
 	// get current node hostname and cache it as we'll need it later when we re-execute
-	err := c.getNodeCache()
-	if err != nil {
-		c.recordError(c.nodeCache, "Could not retrieve current node information.", err)
+	if c.nodeCache == "" {
+		log.Info("Current Node Cache empty. Retrieving")
 
-		return
+		currNode, err := getCurrentNode(c.client)
+
+		if err != nil {
+			c.Setter.SetGaugeVec(*c.up, 0, currNode)
+			log.Error("Could not retrieve current node information. %s", err)
+
+			return
+		}
+
+		log.Debug("Current node is: %s", currNode)
+
+		c.nodeCache = currNode
 	}
 
 	clusterName, err := c.client.ClusterName()
 	if err != nil {
-		c.recordError(c.nodeCache, "error retrieving clustername", err)
+		c.Setter.SetGaugeVec(*c.up, 0, c.nodeCache)
+		log.Error("%s", err)
 
 		return
 	}
 
-	log.Info("Cluster name", "clusterName", clusterName)
+	log.Info("Cluster name is: %s", clusterName)
 
 	rebalanced, err := getClusterBalancedStatus(c.client)
 	if err != nil {
-		c.recordError(c.nodeCache, "Unable to get rebalance status", err)
+		c.Setter.SetGaugeVec(*c.up, 0, c.nodeCache)
+		log.Error("Unable to get rebalance status %s", err)
 
 		return
 	}
 
 	if !rebalanced {
 		log.Info("Waiting for Rebalance... retrying...")
-
 		return
 	}
 
 	buckets, err := c.client.Buckets()
 	if err != nil {
-		c.recordError(c.nodeCache, "Unable to get buckets", err)
+		c.Setter.SetGaugeVec(*c.up, 0, c.nodeCache)
+		log.Error("Unable to get buckets %s", err)
 
 		return
 	}
 
 	for _, bucket := range buckets {
-		log.Info("Collecting per-node bucket stats", "node", c.nodeCache, "bucket", bucket.Name)
+		log.Debug("Collecting per-node bucket stats, node=%s, bucket=%s", c.nodeCache, bucket.Name)
 
 		samples, err := getPerNodeBucketStats(c.client, bucket.Name, c.nodeCache)
+
 		if err != nil {
-			c.recordError(c.nodeCache, "Unable to get samples for "+bucket.Name, err)
+			c.Setter.SetGaugeVec(*c.up, 0, c.nodeCache)
 
 			return
 		}
@@ -153,7 +148,7 @@ func (c *PerNodeBucketStatsCollector) CollectMetrics() {
 
 	c.Setter.SetGaugeVec(*c.up, 1, c.nodeCache)
 	c.Setter.SetGaugeVec(*c.scrapeDuration, time.Since(start).Seconds(), c.nodeCache)
-	log.Info("Per node bucket stats is complete.", "duration", time.Since(start).String())
+	log.Info("Per node bucket stats is complete Duration: %v", time.Since(start))
 }
 
 func (c *PerNodeBucketStatsCollector) setMetric(metric objects.MetricInfo, samples map[string]interface{}, bucketName string, clusterName string) {
@@ -225,7 +220,7 @@ func strToFloatArr(floatsStr string) []float64 {
 		if err == nil {
 			floatsArr = append(floatsArr, i)
 		} else {
-			log.Error(err, "Error parsing %v", f)
+			log.Error("Error parsing %v", f)
 		}
 	}
 
@@ -236,8 +231,7 @@ func getPerNodeBucketStats(client util.CbClient, bucketName, nodeName string) (m
 	url, err := getSpecificNodeBucketStatsURL(client, bucketName, nodeName)
 
 	if err != nil {
-		log.Error(err, "unable to GET PerNodeBucketStats")
-
+		log.Error("unable to GET PerNodeBucketStats %s", err)
 		return nil, err
 	}
 
@@ -245,9 +239,8 @@ func getPerNodeBucketStats(client util.CbClient, bucketName, nodeName string) (m
 	err = client.Get(url, &bucketStats)
 
 	if err != nil {
-		log.Error(err, "unable to GET PerNodeBucketStats")
-
-		return nil, fmt.Errorf("unable to GET PerNodeBucketStats: %w", err)
+		log.Error("unable to GET PerNodeBucketStats %s", err)
+		return nil, err
 	}
 
 	return bucketStats.Op.Samples, nil
@@ -256,9 +249,8 @@ func getPerNodeBucketStats(client util.CbClient, bucketName, nodeName string) (m
 func getSpecificNodeBucketStatsURL(client util.CbClient, bucket, node string) (string, error) {
 	servers, err := client.Servers(bucket)
 	if err != nil {
-		log.Error(err, "unable to retrieve Servers %s")
-
-		return "", fmt.Errorf("uanble to retrieve Servers: %w", err)
+		log.Error("unable to retrieve Servers %s", err)
+		return "", err
 	}
 
 	correctURI := ""
@@ -266,7 +258,6 @@ func getSpecificNodeBucketStatsURL(client util.CbClient, bucket, node string) (s
 	for _, server := range servers.Servers {
 		if server.Hostname == node {
 			correctURI = server.Stats["uri"]
-
 			break
 		}
 	}

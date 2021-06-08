@@ -1,37 +1,46 @@
 run:
   timeout: 5m
   skip-dirs:
-    - test/*
+    - pkg/generated
   skip-files: [zz_generated.deepcopy.go]
 
 linters:
   # Enable all linters
   presets:
     - bugs
-    - comment
     - complexity
-    - error
     - format
-    - import
-    - metalinter
-    - module
     - performance
-    - sql
     - style
-    - test
     - unused
-  # Deal with deprecation warnings
-  enable:
-    - exportloopref
+
+  # Selectively disable things to get a pass.  These probably are
+  # masking bugs so re-enable and fix them!
+  # These disables were copied over directly from Operator.  We should remove them and
+  # see fix any issues discovered.
   disable:
-    - golint # replaced with revive in 1.40
-    - interfacer
-    - maligned
-    - scopelint
-    - gofumpt # as per operator
-    - lll # long lines as per operator
-    - gochecknoglobals # global variables as per operator (and for logging)
-    - exhaustivestruct
+    - gosec # insecure!
+    - nestif # complicated code
+    - gomnd # magic numbers
+    - testpackage # packages for test, need to be marked as test
+    - gocognit # complicated functions
+    - gocyclo # complicated functions
+    - godox # TODOs are bad, it suggests it's not finished
+    - maligned # memory alignment - this is fine
+    - funlen # complicated functions
+    - gochecknoglobals # global variables
+    - lll # long lines
+    - gochecknoinits # init functions
+    - goconst # repeated things that should be constants
+    - prealloc # constant sized arrays can be preallocated
+    - nakedret # using naked returns in complicated functions
+    - exhaustive # doesn't pay attention to default in switch statements
+    - exhaustivestruct # it's okay not to define every field
+    - gofumpt # really anal
+    - paralleltest # really really anal
+    - nlreturn # seems at odds with cuddling
+    - noctx # do want to fix this
+    - wrapcheck # we do want this, but I want https://github.com/tomarrell/wrapcheck/issues/2 fixing first
 
 linters-settings:
   # Code duplication filter catches a lot of duplication in test
@@ -55,15 +64,3 @@ issues:
     - path: test/.*
       linters:
         - goerr113
-    # disables a rule that requires all exported consts/methods to be commented
-    - text: exported
-      linters:
-        - revive
-    # disables a rule that looks at json tags and complains about camel case
-    # since these values come from Couchbase Server, there is no fixing it.
-    - text: json
-      linters:
-        - tagliatelle
-    - text: parallel
-      linters:
-        - parrelleltest

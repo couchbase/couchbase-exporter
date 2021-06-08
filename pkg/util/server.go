@@ -9,8 +9,15 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/couchbase/couchbase-exporter/pkg/objects"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/couchbase/couchbase-exporter/pkg/log"
+)
+
+const (
+	certAndKeyError = "please specify both cert and key arguments"
+)
+
+var (
+	errCertAndKey = fmt.Errorf(certAndKeyError)
 )
 
 type Server struct {
@@ -48,7 +55,7 @@ func (s *Server) Restart() {
 	log.Info("Restarting server")
 
 	if err := s.server.Shutdown(context.TODO()); err != nil {
-		log.Error(err, "Server shutdown failed")
+		log.Error("Server shutdown failed")
 	} else {
 		<-s.err
 		s.Start(s.server.Addr, s.server.Handler)
@@ -59,7 +66,7 @@ func (s *Server) RestartWithTLS(cert string, key string) {
 	log.Info("Restarting server with TLS")
 
 	if err := s.server.Shutdown(context.TODO()); err != nil {
-		log.Error(err, "Server shutdown failed")
+		log.Error("Server shutdown failed")
 	} else {
 		<-s.err
 		s.StartWithTLS(s.server.Addr, s.server.Handler, cert, key)
@@ -82,7 +89,7 @@ func (s *Server) pickStart(address string, handler http.Handler, cert string, ke
 	useTLS, err := useTLS(cert, key)
 
 	if err != nil {
-		log.Error(err, "error setting TLS certificates")
+		log.Error("%s", err)
 		os.Exit(1)
 	}
 
@@ -99,8 +106,7 @@ func (s *Server) restartWithTLSIfNecessary(cert string, key string) {
 		newConfig, err := createTLSConfig(cert, key)
 
 		if err != nil {
-			log.Error(err, "Error when attempting to retrieve cert or key files")
-
+			log.Error("Error when attempting to retrieve cert or key files: %s", err)
 			return
 		}
 
@@ -115,52 +121,33 @@ func (s *Server) restartWithTLSIfNecessary(cert string, key string) {
 func createTLSConfig(cert string, key string) (*tls.Config, error) {
 	keypair, err := tls.LoadX509KeyPair(cert, key)
 	if err != nil {
-		log.Error(err, "TLS Load failed")
+		log.Error("TLS Load failed %s", err)
 
-		blankConfig := &tls.Config{} // nolint:gosec
+		blankConfig := &tls.Config{}
 
-		return blankConfig, fmt.Errorf("TLS Load Failed: %w", err)
+		return blankConfig, err
 	}
 
-	return &tls.Config{ //nolint:gosec
+	return &tls.Config{
 		Certificates: []tls.Certificate{keypair},
 	}, nil
 }
 
-const waitTimeForTLSCheck = 10
+func Serve(address string, handler http.Handler, cert string, key string) {
+	server := &Server{}
 
-func Serve(exporterConfig *objects.ExporterConfig) {
-	handler := AuthHandler{
-		ServeMux:      http.NewServeMux(),
-		TokenLocation: "",
-	}
-
-	if len(exporterConfig.Token) != 0 {
-		handler.TokenLocation = exporterConfig.Token
-	}
-
-	handler.ServeMux.Handle("/metrics", promhttp.Handler())
-
-	metricsServer := fmt.Sprintf("%v:%v", exporterConfig.ServerAddress, exporterConfig.ServerPort)
-	log.Info("starting server", "listeningOn", metricsServer)
-
-	server := &Server{
-		server: nil,
-		err:    make(chan error),
-	}
-
-	server.pickStart(metricsServer, handler, exporterConfig.Certificate, exporterConfig.Key)
+	server.pickStart(address, handler, cert, key)
 
 	for {
 		select {
 		case err := <-server.err:
-			log.Error(err, "Server failed unexpectedly")
-			server.pickStart(metricsServer, handler, exporterConfig.Certificate, exporterConfig.Key)
-		case <-time.After(waitTimeForTLSCheck * time.Second):
+			log.Error("Server failed unexpectedly %s", err)
+			server.pickStart(address, handler, cert, key)
+		case <-time.After(10 * time.Second):
 		}
 
-		log.Info("Restarting to pick up TLS config if necessary.")
+		log.Debug("Restarting to pick up TLS config if necessary.")
 
-		server.restartWithTLSIfNecessary(exporterConfig.Certificate, exporterConfig.Key)
+		server.restartWithTLSIfNecessary(cert, key)
 	}
 }

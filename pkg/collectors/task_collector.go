@@ -12,9 +12,9 @@
 package collectors
 
 import (
-	"sync"
 	"time"
 
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
@@ -52,7 +52,6 @@ func NewTaskCollector(client util.CbClient, config *objects.CollectorConfig) pro
 	return &taskCollector{
 		m: MetaCollector{
 			client: client,
-			mutex:  sync.Mutex{},
 			up: prometheus.NewDesc(
 				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
 				objects.DefaultUptimeMetricHelp,
@@ -96,12 +95,12 @@ func (c *taskCollector) collectTasks(ch chan<- prometheus.Metric, clusterName st
 			c.addBucketCompaction(ch, task, clusterName, compactsReported[task.Bucket])
 			compactsReported[task.Bucket] = true
 		case taskXdcr:
-			log.Info("found xdcr tasks", "source", task.Source, "target", task.Target)
+			log.Debug("found xdcr tasks from %s to %s", task.Source, task.Target)
 			c.addXdcr(ch, task, clusterName)
 		case taskClusterLogCollection:
 			c.addClusterLogCollection(ch, task, clusterName)
 		default:
-			log.Info("not implemented")
+			log.Warn("not implemented")
 		}
 	}
 
@@ -150,31 +149,51 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 	if xcl, ok := c.config.Metrics[metricXdcrChangesLeft]; ok && xcl.Enabled {
 		ch <- prometheus.MustNewConstMetric(
 			xcl.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-			prometheus.GaugeValue, float64(task.ChangesLeft), task.Source, task.Target, clusterName)
+			prometheus.GaugeValue,
+			float64(task.ChangesLeft),
+			task.Source,
+			task.Target,
+			clusterName)
 	}
 
 	if xdc, ok := c.config.Metrics[metricXdcrDocsChecked]; ok && xdc.Enabled {
 		ch <- prometheus.MustNewConstMetric(
 			xdc.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-			prometheus.GaugeValue, float64(task.DocsChecked), task.Source, task.Target, clusterName)
+			prometheus.GaugeValue,
+			float64(task.DocsChecked),
+			task.Source,
+			task.Target,
+			clusterName)
 	}
 
 	if xdw, ok := c.config.Metrics[metricXdcrDocsWritten]; ok && xdw.Enabled {
 		ch <- prometheus.MustNewConstMetric(
 			xdw.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-			prometheus.GaugeValue, float64(task.DocsWritten), task.Source, task.Target, clusterName)
+			prometheus.GaugeValue,
+			float64(task.DocsWritten),
+			task.Source,
+			task.Target,
+			clusterName)
 	}
 
 	if xp, ok := c.config.Metrics[metricXdcrPaused]; ok && xp.Enabled {
 		ch <- prometheus.MustNewConstMetric(
 			xp.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-			prometheus.GaugeValue, boolToFloat64(task.PauseRequested), task.Source, task.Target, clusterName)
+			prometheus.GaugeValue,
+			boolToFloat64(task.PauseRequested),
+			task.Source,
+			task.Target,
+			clusterName)
 	}
 
 	if xe, ok := c.config.Metrics[metricXdcrErrors]; ok && xe.Enabled {
 		ch <- prometheus.MustNewConstMetric(
 			xe.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-			prometheus.GaugeValue, float64(len(task.Errors)), task.Source, task.Target, clusterName)
+			prometheus.GaugeValue,
+			float64(len(task.Errors)),
+			task.Source,
+			task.Target,
+			clusterName)
 	}
 
 	for _, data := range task.DetailedProgress.PerNode {
@@ -183,25 +202,45 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 		if dt, ok := c.config.Metrics[metricDocsTotal]; ok && dt.Enabled {
 			ch <- prometheus.MustNewConstMetric(
 				dt.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-				prometheus.GaugeValue, float64(data.Ingoing.DocsTotal), task.DetailedProgress.Bucket, task.Source, task.Target, clusterName)
+				prometheus.GaugeValue,
+				float64(data.Ingoing.DocsTotal),
+				task.DetailedProgress.Bucket,
+				task.Source,
+				task.Target,
+				clusterName)
 		}
 
 		if dtrans, ok := c.config.Metrics[metricDocsTransferred]; ok && dtrans.Enabled {
 			ch <- prometheus.MustNewConstMetric(
 				dtrans.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-				prometheus.GaugeValue, float64(data.Ingoing.DocsTransferred), task.DetailedProgress.Bucket, task.Source, task.Target, clusterName)
+				prometheus.GaugeValue,
+				float64(data.Ingoing.DocsTransferred),
+				task.DetailedProgress.Bucket,
+				task.Source,
+				task.Target,
+				clusterName)
 		}
 
 		if avbl, ok := c.config.Metrics[metricDocsActiveVbucketsLeft]; ok && avbl.Enabled {
 			ch <- prometheus.MustNewConstMetric(
 				avbl.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-				prometheus.GaugeValue, float64(data.Ingoing.ActiveVBucketsLeft), task.DetailedProgress.Bucket, task.Source, task.Target, clusterName)
+				prometheus.GaugeValue,
+				float64(data.Ingoing.ActiveVBucketsLeft),
+				task.DetailedProgress.Bucket,
+				task.Source,
+				task.Target,
+				clusterName)
 		}
 
 		if rvbl, ok := c.config.Metrics[metricDocsTotalReplicaVBucketsLeft]; ok && rvbl.Enabled {
 			ch <- prometheus.MustNewConstMetric(
 				rvbl.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-				prometheus.GaugeValue, float64(data.Ingoing.ReplicaVBucketsLeft), task.DetailedProgress.Bucket, task.Source, task.Target, clusterName)
+				prometheus.GaugeValue,
+				float64(data.Ingoing.ReplicaVBucketsLeft),
+				task.DetailedProgress.Bucket,
+				task.Source,
+				task.Target,
+				clusterName)
 		}
 	}
 }
@@ -218,7 +257,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error(err, "error retrieving clustername")
+		log.Error("%s", err)
 
 		return
 	}
@@ -227,7 +266,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error(err, "failed to scrape tasks")
+		log.Error("failed to scrape tasks")
 
 		return
 	}
@@ -236,7 +275,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
 
-		log.Error(err, "failed to scrape tasks")
+		log.Error("failed to scrape tasks")
 
 		return
 	}

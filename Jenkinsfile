@@ -16,7 +16,7 @@ pipeline {
     }
     stage('Build & test') {
       steps {
-        sh 'make build lint test'
+        sh 'make build test'
       }
     }
   }

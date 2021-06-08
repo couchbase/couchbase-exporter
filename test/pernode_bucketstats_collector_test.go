@@ -5,6 +5,7 @@ import (
 
 	"github.com/couchbase/couchbase-exporter/pkg/collectors"
 	"github.com/couchbase/couchbase-exporter/pkg/config"
+	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/test/mocks"
 	test "github.com/couchbase/couchbase-exporter/test/utils"
@@ -232,6 +233,7 @@ func TestPerNodeBucketStatsReturnsCorrectValues(t *testing.T) {
 	for _, value := range defaultConfig.Collectors.PerNodeBucketStats.Metrics {
 		sample, ok := stats.Op.Samples[value.Name].([]float64)
 		if sample == nil || !ok {
+			log.Info("%s does not have a matching sample.", value.Name)
 			continue
 		}
 
