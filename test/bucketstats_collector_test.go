@@ -351,6 +351,169 @@ func TestBucketStatsCollectReturnsOneOfEachMetricForASingleBucketWithCorrectValu
 	}
 }
 
+func TestBucketStatsCollectReturnsOneOfEachMetricForASingleBucketWithAutoCompactionBoolean(t *testing.T) {
+	defaultConfig := config.GetDefaultConfig()
+	mockCtrl := gomock.NewController(t)
+
+	defer mockCtrl.Finish()
+
+	mockClient := mocks.NewMockCbClient(mockCtrl)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
+
+	buckets := make([]objects.BucketInfo, 0)
+	singleBucket := test.GenerateBucket("wawa-bucket")
+	singleBucket.AutoCompactionSettings = false
+	buckets = append(buckets, singleBucket)
+	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
+
+	stats := test.GenerateBucketStats()
+
+	mockClient.EXPECT().BucketStats(singleBucket.Name).Times(1).Return(stats, nil)
+
+	Node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
+	lblManager := util.NewLabelManager(mockClient, 600*time.Second)
+
+	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, lblManager)
+	c := make(chan prometheus.Metric, 9)
+	count := 0
+
+	defer close(c)
+
+	go testCollector.Collect(c)
+
+	for {
+		select {
+		case m := <-c:
+			fqName := test.GetFQNameFromDesc(m.Desc())
+			switch fqName {
+			case "cbbucketstat_up":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.Equal(t, 1.0, gauge, fqName)
+			case "cbbucketstat_scrape_duration_seconds":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.True(t, gauge > 0, fqName)
+			default:
+				key := test.GetKeyFromFQName(defaultConfig.Collectors.BucketStats, fqName)
+				name := defaultConfig.Collectors.BucketStats.Metrics[key].Name
+				bucketName, err := test.GetBucketIfPresent(m)
+
+				assert.Nil(t, err)
+				assert.Equal(t, singleBucket.Name, bucketName)
+
+				gauge, err := test.GetGaugeValue(m)
+
+				testValue := test.Last(stats.Op.Samples[name])
+
+				if key == "AvgBgWaitTime" {
+					testValue /= 1000000
+				}
+
+				if key == "EpCacheMissRate" {
+					testValue = test.Min(testValue, 100)
+				}
+
+				assert.Nil(t, err)
+				assert.Equal(t, testValue, gauge, fqName, name, key, stats.Op.Samples[name])
+			}
+			count++
+		case <-time.After(1 * time.Second):
+			if count >= len(defaultConfig.Collectors.BucketStats.Metrics)+2 {
+				return
+			}
+		}
+	}
+}
+
+func TestBucketStatsCollectReturnsOneOfEachMetricForASingleBucketWithAutoCompactionObject(t *testing.T) {
+	defaultConfig := config.GetDefaultConfig()
+	mockCtrl := gomock.NewController(t)
+
+	defer mockCtrl.Finish()
+
+	mockClient := mocks.NewMockCbClient(mockCtrl)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
+
+	buckets := make([]objects.BucketInfo, 0)
+	singleBucket := test.GenerateBucket("wawa-bucket")
+	singleBucket.AutoCompactionSettings = map[string]interface{}{
+		"parallelDBAndViewCompaction": false,
+		"databaseFragmentationThreshold": map[string]interface{}{
+			"percentage": 30,
+			"size":       "undefined",
+		},
+		"viewFragmentationThreshold": map[string]interface{}{
+			"percentage": 30,
+			"size":       "undefined",
+		},
+	}
+	buckets = append(buckets, singleBucket)
+	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
+
+	stats := test.GenerateBucketStats()
+
+	mockClient.EXPECT().BucketStats(singleBucket.Name).Times(1).Return(stats, nil)
+
+	Node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
+	lblManager := util.NewLabelManager(mockClient, 600*time.Second)
+
+	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, lblManager)
+	c := make(chan prometheus.Metric, 9)
+	count := 0
+
+	defer close(c)
+
+	go testCollector.Collect(c)
+
+	for {
+		select {
+		case m := <-c:
+			fqName := test.GetFQNameFromDesc(m.Desc())
+			switch fqName {
+			case "cbbucketstat_up":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.Equal(t, 1.0, gauge, fqName)
+			case "cbbucketstat_scrape_duration_seconds":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.True(t, gauge > 0, fqName)
+			default:
+				key := test.GetKeyFromFQName(defaultConfig.Collectors.BucketStats, fqName)
+				name := defaultConfig.Collectors.BucketStats.Metrics[key].Name
+				bucketName, err := test.GetBucketIfPresent(m)
+
+				assert.Nil(t, err)
+				assert.Equal(t, singleBucket.Name, bucketName)
+
+				gauge, err := test.GetGaugeValue(m)
+
+				testValue := test.Last(stats.Op.Samples[name])
+
+				if key == "AvgBgWaitTime" {
+					testValue /= 1000000
+				}
+
+				if key == "EpCacheMissRate" {
+					testValue = test.Min(testValue, 100)
+				}
+
+				assert.Nil(t, err)
+				assert.Equal(t, testValue, gauge, fqName, name, key, stats.Op.Samples[name])
+			}
+			count++
+		case <-time.After(1 * time.Second):
+			if count >= len(defaultConfig.Collectors.BucketStats.Metrics)+2 {
+				return
+			}
+		}
+	}
+}
 func TestBucketStatsCollectReturnsCorrectValuesWithMultipleBuckets(t *testing.T) {
 	defaultConfig := config.GetDefaultConfig()
 	mockCtrl := gomock.NewController(t)

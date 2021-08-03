@@ -49,6 +49,7 @@ type PrometheusVecSetter interface {
 type PerNodeBucketStatsCollector struct {
 	config         *objects.CollectorConfig
 	metrics        map[string]*prometheus.GaugeVec
+	registry       *prometheus.Registry
 	client         util.CbClient
 	up             *prometheus.GaugeVec
 	scrapeDuration *prometheus.GaugeVec
@@ -63,6 +64,7 @@ func NewPerNodeBucketStatsCollector(client util.CbClient, config *objects.Collec
 	collector := &PerNodeBucketStatsCollector{
 		client:         client,
 		metrics:        map[string]*prometheus.GaugeVec{},
+		registry:       prometheus.NewRegistry(),
 		config:         config,
 		up:             upVec,
 		scrapeDuration: scrapeVec,
@@ -144,7 +146,7 @@ func (c *PerNodeBucketStatsCollector) setMetric(metric objects.MetricInfo, sampl
 	if mt, ok := c.metrics[metric.Name]; ok {
 		c.Setter.SetGaugeVec(*mt, last(strToFloatArr(fmt.Sprint(samples[metric.Name]))), c.labelManger.GetLabelValues(metric.Labels, ctx)...)
 	} else {
-		mt := metric.GetPrometheusGaugeVec(c.config.Namespace, c.config.Subsystem)
+		mt := metric.GetPrometheusGaugeVec(c.registry, c.config.Namespace, c.config.Subsystem)
 		c.metrics[metric.Name] = mt
 		stats := strToFloatArr(fmt.Sprint(samples[metric.Name]))
 		if len(stats) > 0 {

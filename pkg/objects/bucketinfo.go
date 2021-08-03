@@ -50,9 +50,9 @@ type BucketInfo struct {
 	Ddocs        struct {
 		URI string `json:"uri"`
 	} `json:"ddocs"`
-	ReplicaIndex           bool   `json:"replicaIndex"`
-	AutoCompactionSettings bool   `json:"autoCompactionSettings"`
-	UUID                   string `json:"uuid"`
+	ReplicaIndex           bool        `json:"replicaIndex"`
+	AutoCompactionSettings interface{} `json:"autoCompactionSettings"`
+	UUID                   string      `json:"uuid"`
 	VBucketServerMap       struct {
 		HashAlgorithm string   `json:"hashAlgorithm"`
 		NumReplicas   int      `json:"numReplicas"`

@@ -177,7 +177,7 @@ type AuthTransport struct {
 }
 
 func (t *AuthTransport) transport() http.RoundTripper {
-	if t.Transport != nil {
+	if nil != t.Transport {
 		return t.Transport
 	}
 

@@ -66,13 +66,13 @@ func GetLabelKeys(labels []string) []string {
 	return values
 }
 
-func (m *MetricInfo) GetPrometheusGaugeVec(namespace string, subsystem string) *prometheus.GaugeVec {
+func (m *MetricInfo) GetPrometheusGaugeVec(registry prometheus.Registerer, namespace string, subsystem string) *prometheus.GaugeVec {
 	name := m.Name
 	if m.NameOverride != "" {
 		name = m.NameOverride
 	}
 
-	return promauto.NewGaugeVec(
+	return promauto.With(registry).NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   subsystem,

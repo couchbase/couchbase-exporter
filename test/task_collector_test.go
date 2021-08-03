@@ -344,3 +344,145 @@ func TestTaskCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 		}
 	}
 }
+
+func TestTaskCollectReturnsOneOfEachMetricWithCorrectValuesWithAutoCompactionObject(t *testing.T) {
+	defaultConfig := config.GetDefaultConfig()
+	mockCtrl := gomock.NewController(t)
+
+	defer mockCtrl.Finish()
+
+	mockClient := mocks.NewMockCbClient(mockCtrl)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
+
+	Tasks := test.GenerateTasks()
+	mockClient.EXPECT().Tasks().Times(1).Return(Tasks, nil)
+
+	buckets := make([]objects.BucketInfo, 0)
+	singleBucket := test.GenerateBucket("wawa-bucket")
+	singleBucket.AutoCompactionSettings = map[string]interface{}{
+		"parallelDBAndViewCompaction": false,
+		"databaseFragmentationThreshold": map[string]interface{}{
+			"percentage": 30,
+			"size":       "undefined",
+		},
+		"viewFragmentationThreshold": map[string]interface{}{
+			"percentage": 30,
+			"size":       "undefined",
+		},
+	}
+	buckets = append(buckets, singleBucket)
+	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
+
+	Node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
+	lblManager := util.NewLabelManager(mockClient, 600*time.Second)
+
+	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task, lblManager)
+	c := make(chan prometheus.Metric, 9)
+	count := 0
+
+	defer close(c)
+
+	go testCollector.Collect(c)
+
+	for {
+		select {
+		case m := <-c:
+			fqName := test.GetFQNameFromDesc(m.Desc())
+			switch fqName {
+			case "cbtask_up":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.Equal(t, 1.0, gauge, fqName)
+			case "cbtask_scrape_duration_seconds":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.True(t, gauge > 0, fqName)
+			default:
+				key := test.GetKeyFromFQName(defaultConfig.Collectors.Task, fqName)
+				name := defaultConfig.Collectors.Task.Metrics[key].Name
+
+				gauge, err := test.GetGaugeValue(m)
+				testValue := test.GetTaskTestValue(key, name, Tasks)
+
+				assert.Equal(t, testValue, gauge)
+				assert.Nil(t, err)
+				log.Debug("%s: %v", name, gauge)
+			}
+			count++
+		case <-time.After(1 * time.Second):
+			log.Debug("%v", count)
+
+			if count >= len(defaultConfig.Collectors.Task.Metrics)+2 {
+				return
+			}
+		}
+	}
+}
+
+func TestTaskCollectReturnsOneOfEachMetricWithCorrectValuesWithAutocompactionBoolean(t *testing.T) {
+	defaultConfig := config.GetDefaultConfig()
+	mockCtrl := gomock.NewController(t)
+
+	defer mockCtrl.Finish()
+
+	mockClient := mocks.NewMockCbClient(mockCtrl)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
+
+	Tasks := test.GenerateTasks()
+	mockClient.EXPECT().Tasks().Times(1).Return(Tasks, nil)
+
+	buckets := make([]objects.BucketInfo, 0)
+	singleBucket := test.GenerateBucket("wawa-bucket")
+	singleBucket.AutoCompactionSettings = true
+	buckets = append(buckets, singleBucket)
+	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
+
+	Node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
+	lblManager := util.NewLabelManager(mockClient, 600*time.Second)
+
+	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task, lblManager)
+	c := make(chan prometheus.Metric, 9)
+	count := 0
+
+	defer close(c)
+
+	go testCollector.Collect(c)
+
+	for {
+		select {
+		case m := <-c:
+			fqName := test.GetFQNameFromDesc(m.Desc())
+			switch fqName {
+			case "cbtask_up":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.Equal(t, 1.0, gauge, fqName)
+			case "cbtask_scrape_duration_seconds":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.True(t, gauge > 0, fqName)
+			default:
+				key := test.GetKeyFromFQName(defaultConfig.Collectors.Task, fqName)
+				name := defaultConfig.Collectors.Task.Metrics[key].Name
+
+				gauge, err := test.GetGaugeValue(m)
+				testValue := test.GetTaskTestValue(key, name, Tasks)
+
+				assert.Equal(t, testValue, gauge)
+				assert.Nil(t, err)
+				log.Debug("%s: %v", name, gauge)
+			}
+			count++
+		case <-time.After(1 * time.Second):
+			log.Debug("%v", count)
+
+			if count >= len(defaultConfig.Collectors.Task.Metrics)+2 {
+				return
+			}
+		}
+	}
+}
