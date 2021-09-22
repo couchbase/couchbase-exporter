@@ -1,4 +1,3 @@
-// nolint: dupl
 package test
 
 import (
@@ -163,7 +162,7 @@ func TestIndexCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrorDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
@@ -186,7 +185,7 @@ func TestIndexCollectReturnsDownIfClientReturnsErrorOnIndex(t *testing.T) {
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
 	Index := objects.Index{}
-	mockClient.EXPECT().Index().Times(1).Return(Index, ErrorDummy)
+	mockClient.EXPECT().Index().Times(1).Return(Index, ErrDummy)
 
 	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
 	c := make(chan prometheus.Metric, 1)
@@ -218,6 +217,9 @@ func TestIndexCollectReturnsUpWithNoErrors(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	Node := objects.Node{}
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
 	Index := objects.Index{}
 	mockClient.EXPECT().Index().Times(1).Return(Index, nil)
 
@@ -235,6 +237,16 @@ func TestIndexCollectReturnsUpWithNoErrors(t *testing.T) {
 	}
 }
 
+func contains(haystack []string, needle string) bool {
+	for _, val := range haystack {
+		if val == needle {
+			return true
+		}
+	}
+
+	return false
+}
+
 func TestIndexCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 	defaultConfig := config.GetDefaultConfig()
 	mockCtrl := gomock.NewController(t)
@@ -247,11 +259,22 @@ func TestIndexCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 	Index := test.GenerateIndex()
 	mockClient.EXPECT().Index().Times(1).Return(Index, nil)
 
+	Node := objects.Node{}
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
 	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
 	c := make(chan prometheus.Metric, 9)
 	count := 0
 
 	defer close(c)
+
+	metricCount := 2
+
+	for _, val := range defaultConfig.Collectors.Index.Metrics {
+		if !contains(val.Labels, objects.KeyspaceLabel) {
+			metricCount++
+		}
+	}
 
 	go testCollector.Collect(c)
 
@@ -283,7 +306,86 @@ func TestIndexCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 			}
 			count++
 		case <-time.After(1 * time.Second):
-			if count >= len(defaultConfig.Collectors.Index.Metrics)+2 {
+			if count >= metricCount {
+				return
+			}
+		}
+	}
+}
+
+func TestIndexCollectReturnsOneOfEachMetricWithCorrectValuesWithIndexer(t *testing.T) {
+	defaultConfig := config.GetDefaultConfig()
+	mockCtrl := gomock.NewController(t)
+
+	defer mockCtrl.Finish()
+
+	mockClient := mocks.NewMockCbClient(mockCtrl)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
+
+	Index := test.GenerateIndex()
+	mockClient.EXPECT().Index().Times(1).Return(Index, nil)
+
+	Node := objects.Node{
+		Services: []string{"index"},
+	}
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
+	Stats := test.GenerateIndexerStats()
+	mockClient.EXPECT().IndexStats().Times(1).Return(Stats, nil)
+
+	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
+	c := make(chan prometheus.Metric, 9)
+	count := 0
+
+	defer close(c)
+
+	metricCount := len(defaultConfig.Collectors.Index.Metrics) + 2
+
+	go testCollector.Collect(c)
+
+	for {
+		select {
+		case m := <-c:
+			fqName := test.GetFQNameFromDesc(m.Desc())
+			switch fqName {
+			case "cbindex_up":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.Equal(t, 1.0, gauge, fqName)
+			case "cbindex_scrape_duration_seconds":
+				gauge, err := test.GetGaugeValue(m)
+				assert.Nil(t, err)
+				assert.True(t, gauge > 0, fqName)
+			default:
+				key := test.GetKeyFromFQName(defaultConfig.Collectors.Index, fqName)
+				name := defaultConfig.Collectors.Index.Metrics[key].Name
+
+				if !contains(defaultConfig.Collectors.Index.Metrics[key].Labels, "keyspace") {
+					sampleName := "index_" + name
+
+					gauge, err := test.GetGaugeValue(m)
+					testValue := test.Last(Index.Op.Samples[sampleName])
+
+					assert.Equal(t, testValue, gauge)
+					assert.Nil(t, err)
+					log.Debug("%s: %v", name, gauge)
+				} else {
+					gauge, err := test.GetGaugeValue(m)
+					assert.Nil(t, err)
+
+					keyspace, err := test.GetKeyspaceLabelIfPresent(m)
+					assert.Nil(t, err)
+
+					testValue, ok := Stats[keyspace][name].(float64)
+					assert.True(t, ok)
+
+					assert.Equal(t, testValue, gauge)
+					log.Debug("%s: %v", name, gauge)
+				}
+			}
+			count++
+		case <-time.After(1 * time.Second):
+			if count >= metricCount {
 				return
 			}
 		}

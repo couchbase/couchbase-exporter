@@ -30,4 +30,8 @@ config-container:
 	docker build -f ./example/Dockerfile -t ${DOCKER_USER}/couchbase-exporter:${DOCKER_TAG}-config ./example/
 
 test:
-	go test ./test --timeout 60s -v
+	go test ./test --timeout 60s
+
+gen:
+	go install github.com/golang/mock/mockgen@v1.6.0
+	$$GOPATH/bin/mockgen -source=./pkg/util/networking.go -destination=./test/mocks/mock_client.go -package mocks

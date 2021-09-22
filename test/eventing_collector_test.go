@@ -162,7 +162,7 @@ func TestEventingCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrorDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
@@ -185,7 +185,7 @@ func TestEventingCollectReturnsDownIfClientReturnsErrorOnEventing(t *testing.T) 
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
 	eventing := objects.Eventing{}
-	mockClient.EXPECT().Eventing().Times(1).Return(eventing, ErrorDummy)
+	mockClient.EXPECT().Eventing().Times(1).Return(eventing, ErrDummy)
 
 	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing)
 	c := make(chan prometheus.Metric, 1)

@@ -162,7 +162,7 @@ func TestTaskCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrorDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
@@ -185,7 +185,7 @@ func TestTaskCollectReturnsDownIfClientReturnsErrorOnTask(t *testing.T) {
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
 	Tasks := []objects.Task{}
-	mockClient.EXPECT().Tasks().Times(1).Return(Tasks, ErrorDummy)
+	mockClient.EXPECT().Tasks().Times(1).Return(Tasks, ErrDummy)
 
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task)
 	c := make(chan prometheus.Metric, 1)
@@ -212,7 +212,7 @@ func TestTaskCollectReturnsDownIfClientReturnsErrorOnBuckets(t *testing.T) {
 	mockClient.EXPECT().Tasks().Times(1).Return(Tasks, nil)
 
 	buckets := make([]objects.BucketInfo, 0)
-	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrorDummy)
+	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrDummy)
 
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task)
 	c := make(chan prometheus.Metric, 1)

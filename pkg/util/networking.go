@@ -49,19 +49,22 @@ type CbClient interface {
 	Eventing() (objects.Eventing, error)
 	QueryNode(string) (objects.Query, error)
 	IndexNode(string) (objects.Index, error)
-	GetCurrentNode() (string, error)
+	GetCurrentNode() (objects.Node, error)
+	IndexStats() (map[string]map[string]interface{}, error)
 }
 
 // Client is the couchbase client.
 type Client struct {
+	port   int
 	domain string
 	Client http.Client
 }
 
 // NewClient creates a new couchbase client.
-func NewClient(domain, user, password string, config *tls.Config) Client {
+func NewClient(domain string, port int, user, password string, config *tls.Config) Client {
 	var client = Client{
 		domain: domain,
+		port:   port,
 		Client: http.Client{
 			Transport: &AuthTransport{
 				Username: user,
@@ -100,7 +103,45 @@ func ConfigClientTLS(cacert, chain, key string) *tls.Config {
 }
 
 func (c Client) URL(path string) string {
-	return c.domain + "/" + path
+	return fmt.Sprintf("%s:%d/%s", c.domain, c.port, path)
+}
+
+func (c Client) IndexerURL(path string) string {
+	var url string
+
+	switch c.port {
+	case 18091:
+		url = fmt.Sprintf("%s:%d/%s", c.domain, 19102, path)
+	case 8091:
+		url = fmt.Sprintf("%s:%d/%s", c.domain, 9102, path)
+	default:
+		url = fmt.Sprintf("%s:%d/%s", c.domain, 9102, path)
+	}
+
+	return url
+}
+
+func (c Client) IndexAPIGet(path string, v interface{}) error {
+	resp, err := c.Client.Get(c.IndexerURL(path))
+	if err != nil {
+		return errors.Wrapf(err, "failed to Get %s", path)
+	}
+
+	bts, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrapf(err, "failed to read response body from %s", path)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return errors.Wrapf(err, "%s failed to Get metrics: %s %d", path, string(bts), resp.StatusCode)
+	}
+
+	if err := json.Unmarshal(bts, v); err != nil {
+		return errors.Wrapf(err, "failed to unmarshall %s output: %s", path, string(bts))
+	}
+
+	return nil
 }
 
 func (c Client) Get(path string, v interface{}) error {
@@ -285,20 +326,35 @@ func (c Client) IndexNode(node string) (objects.Index, error) {
 	return index, errors.Wrap(err, "failed to Get index stats")
 }
 
-// potentially deprecated.
-func (c Client) GetCurrentNode() (string, error) {
-	nodes, err := c.Nodes()
+func (c Client) IndexStats() (map[string]map[string]interface{}, error) {
+	var data map[string]map[string]interface{}
+	err := c.IndexAPIGet("/api/v1/stats", &data)
+
 	if err != nil {
-		return "", fmt.Errorf("unable to retrieve nodes, %w", err)
+		return data, errors.Wrap(err, "Failed to get Indexer stats")
+	}
+
+	return data, nil
+}
+
+// potentially deprecated.
+func (c Client) GetCurrentNode() (objects.Node, error) {
+	nodes, err := c.Nodes()
+
+	var retNode objects.Node
+
+	if err != nil {
+		return retNode, fmt.Errorf("unable to retrieve nodes, %w", err)
 	}
 
 	for _, node := range nodes.Nodes {
 		if node.ThisNode {
-			return node.Hostname, nil // hostname seems to work? just don't use for single node setups
+			retNode = node
+			return retNode, nil // hostname seems to work? just don't use for single node setups
 		}
 	}
 
-	return "", errors.New("sidecar container cannot find Couchbase Hostname")
+	return retNode, errors.New("sidecar container cannot find Couchbase Hostname")
 }
 
 type AuthHandler struct {

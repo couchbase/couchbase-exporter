@@ -162,7 +162,7 @@ func TestCbasCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrorDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 	testCollector := collectors.NewCbasCollector(mockClient, defaultConfig.Collectors.Analytics)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
@@ -185,7 +185,7 @@ func TestCbasCollectReturnsDownIfClientReturnsErrorOnCbas(t *testing.T) {
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
 	anal := objects.Analytics{}
-	mockClient.EXPECT().Cbas().Times(1).Return(anal, ErrorDummy)
+	mockClient.EXPECT().Cbas().Times(1).Return(anal, ErrDummy)
 
 	testCollector := collectors.NewCbasCollector(mockClient, defaultConfig.Collectors.Analytics)
 	c := make(chan prometheus.Metric, 1)

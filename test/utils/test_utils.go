@@ -38,6 +38,22 @@ func GetGaugeValue(m prometheus.Metric) (float64, error) {
 	return GetMetricValue(*obj), err
 }
 
+func GetKeyspaceLabelIfPresent(m prometheus.Metric) (string, error) {
+	obj := new(io_prometheus_client.Metric)
+
+	if err := m.Write(obj); err != nil {
+		return "", err
+	}
+
+	for _, label := range obj.Label {
+		if *label.Name == "keyspace" {
+			return label.GetValue(), nil
+		}
+	}
+
+	return "", nil
+}
+
 func GetBucketIfPresent(m prometheus.Metric) (string, error) {
 	obj := new(io_prometheus_client.Metric)
 
@@ -779,16 +795,16 @@ func GenerateBucketStats() objects.BucketStats {
 				objects.RestRequests:                        GetRandomFloatSlice(0, 1000, 10),
 				objects.BucketStatsSwapTotal:                GetRandomFloatSlice(0, 1000, 10),
 				objects.BucketStatsSwapUsed:                 GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDEpDcpCbasBackoff:                    GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDEpDcpCbasItemsRemaining:             GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDEpDcpTotalBytes:                     GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDEpDcpCbasTotalBacklogSize:           GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDEpDataWriteFailed:                   GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDEpDataReadFailed:                    GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDEpDcpCbasProducerCount:              GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDEpDcpCbasCount:                      GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDEpDcpCbasItemsSent:                  GetRandomFloatSlice(0, 1000, 10),
-				objects.DEPRECATEDVbActiveQuueItems:                   GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasBackoff:          GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasItemsRemaining:   GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpTotalBytes:           GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasTotalBacklogSize: GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDataWriteFailed:         GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDataReadFailed:          GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasProducerCount:    GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasCount:            GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDEpDcpCbasItemsSent:        GetRandomFloatSlice(0, 1000, 10),
+				objects.DEPRECATEDVbActiveQuueItems:         GetRandomFloatSlice(0, 1000, 10),
 			},
 		},
 	}
@@ -819,4 +835,25 @@ func GenerateBucket(name string) objects.BucketInfo {
 	}
 
 	return singleBucket
+}
+
+func GenerateIndexerStats() map[string]map[string]interface{} {
+	stats := map[string]map[string]interface{}{
+		"indexer": {},
+		"mybucket:keyspace": {
+			objects.IndexDocsIndexed:          GetRandomFloat64(0, 1000),
+			objects.IndexItemsCount:           GetRandomFloat64(0, 1000),
+			objects.IndexFragPercent:          GetRandomFloat64(0, 1000),
+			objects.IndexNumDocsPendingQueued: GetRandomFloat64(0, 1000),
+			objects.IndexNumRequests:          GetRandomFloat64(0, 1000),
+			objects.IndexCacheMisses:          GetRandomFloat64(0, 1000),
+			objects.IndexCacheHits:            GetRandomFloat64(0, 1000),
+			objects.IndexCacheHitPercent:      GetRandomFloat64(0, 1000),
+			objects.IndexNumRowsReturned:      GetRandomFloat64(0, 1000),
+			objects.IndexResidentPercent:      GetRandomFloat64(0, 1000),
+			objects.IndexAvgScanLatency:       GetRandomFloat64(0, 1000),
+		},
+	}
+
+	return stats
 }

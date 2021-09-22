@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	ErrorDummy = fmt.Errorf(DummyError)
+	ErrDummy = fmt.Errorf(DummyError)
 )
 
 func TestBucketInfoDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing.T) {
@@ -144,7 +144,7 @@ func TestBucketInfoCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrorDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
@@ -167,7 +167,7 @@ func TestBucketInfoCollectReturnsDownIfClientReturnsErrorOnBuckets(t *testing.T)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
 	buckets := make([]objects.BucketInfo, 0)
-	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrorDummy)
+	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrDummy)
 
 	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo)
 	c := make(chan prometheus.Metric, 1)

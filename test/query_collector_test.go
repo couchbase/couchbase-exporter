@@ -163,7 +163,7 @@ func TestQueryCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrorDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
@@ -186,7 +186,7 @@ func TestQueryCollectReturnsDownIfClientReturnsErrorOnQuery(t *testing.T) {
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
 	Query := objects.Query{}
-	mockClient.EXPECT().Query().Times(1).Return(Query, ErrorDummy)
+	mockClient.EXPECT().Query().Times(1).Return(Query, ErrDummy)
 
 	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query)
 	c := make(chan prometheus.Metric, 1)

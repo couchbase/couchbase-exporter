@@ -23,6 +23,7 @@ const (
 	ClusterLabel                    = "cluster"
 	NodeLabel                       = "node"
 	BucketLabel                     = "bucket"
+	KeyspaceLabel                   = "keyspace"
 	SearchMetricPrefix              = "fts_"
 	QueryMetricPrefix               = "query_"
 	IndexMetricPrefix               = "index_"
@@ -3288,6 +3289,83 @@ func indexCollectorDefaultConfig() *CollectorConfig {
 				Enabled:      true,
 				HelpText:     "Bytes of Index RAM quota still available on this server.",
 				Labels:       []string{ClusterLabel},
+			},
+			"DocsIndexed": {
+				Name:         "num_docs_indexed",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Number of documents indexed by the indexer since last startup.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"ItemsCount": {
+				Name:         "items_count",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "The number of items currently indexed.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"IndexFragPercent": {
+				Name:         "frag_percent",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Percentage fragmentation of the index.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"NumDocsPendingQueued": {
+				Name:         "num_docs_pending_queued",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Number of documents pending to be indexed.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"NumRequests": {
+				Name:         "num_requests",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Number of requests served by the indexer since last startup.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"CacheMisses": {
+				Name:         "cache_misses",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Accesses to this index data from disk.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"CacheHits": {
+				Name:         "cache_hits",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Accesses to this index data from RAM.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"CacheHitPercent": {
+				Name:         "cache_hit_percent",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Percentage of memory accesses that were served from the managed cache.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"NumRowsReturned": {
+				Name:         "num_rows_returned",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Total number of rows returned so far by the indexer.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"IndexResidentPercent": {
+				Name:         "resident_percent",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Percentage of the data held in memory.",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
+			},
+			"AvgScanLatency": {
+				Name:         "avg_scan_latency",
+				NameOverride: "",
+				Enabled:      true,
+				HelpText:     "Average time to serve a scan request (nanoseconds).",
+				Labels:       []string{ClusterLabel, KeyspaceLabel},
 			},
 		},
 	}

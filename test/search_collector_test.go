@@ -163,7 +163,7 @@ func TestSearchCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrorDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 	testCollector := collectors.NewFTSCollector(mockClient, defaultConfig.Collectors.Search)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
@@ -186,7 +186,7 @@ func TestSearchCollectReturnsDownIfClientReturnsErrorOnFts(t *testing.T) {
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
 	fts := objects.FTS{}
-	mockClient.EXPECT().Fts().Times(1).Return(fts, ErrorDummy)
+	mockClient.EXPECT().Fts().Times(1).Return(fts, ErrDummy)
 
 	testCollector := collectors.NewFTSCollector(mockClient, defaultConfig.Collectors.Search)
 	c := make(chan prometheus.Metric, 1)

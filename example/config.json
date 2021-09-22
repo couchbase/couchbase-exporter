@@ -2029,6 +2029,66 @@
             "namespace": "cbindex",
             "subsystem": "",
             "metrics": {
+                "AvgScanLatency": {
+                    "name": "avg_scan_latency",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Average time to serve a scan request (nanoseconds).",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
+                "CacheHitPercent": {
+                    "name": "cache_hit_percent",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Percentage of memory accesses that were served from the managed cache.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
+                "CacheHits": {
+                    "name": "cache_hits",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Accesses to this index data from RAM.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
+                "CacheMisses": {
+                    "name": "cache_misses",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Accesses to this index data from disk.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
+                "DocsIndexed": {
+                    "name": "num_docs_indexed",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of documents indexed by the indexer since last startup.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
+                "IndexFragPercent": {
+                    "name": "frag_percent",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Percentage fragmentation of the index.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
                 "IndexMemoryQuota": {
                     "name": "memory_quota",
                     "enabled": true,
@@ -2063,6 +2123,56 @@
                     "helpText": "Bytes of Index RAM quota still available on this server.",
                     "labels": [
                         "cluster"
+                    ]
+                },
+                "IndexResidentPercent": {
+                    "name": "resident_percent",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Percentage of the data held in memory.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
+                "ItemsCount": {
+                    "name": "items_count",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "The number of items currently indexed.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
+                "NumDocsPendingQueued": {
+                    "name": "num_docs_pending_queued",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of documents pending to be indexed.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
+                "NumRequests": {
+                    "name": "num_requests",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Number of requests served by the indexer since last startup.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
+                    ]
+                },
+                "NumRowsReturned": {
+                    "name": "num_rows_returned",
+                    "enabled": true,
+                    "nameOverride": "",
+                    "helpText": "Total number of rows returned so far by the indexer.",
+                    "labels": [
+                        "cluster",
+                        "keyspace"
                     ]
                 }
             }

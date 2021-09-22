@@ -89,14 +89,63 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	for _, value := range c.config.Metrics {
-		if value.Enabled {
-			ch <- prometheus.MustNewConstMetric(
-				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-				prometheus.GaugeValue,
-				last(indexStats.Op.Samples[objects.IndexMetricPrefix+value.Name]),
-				clusterName,
-			)
+	currentNode, err := c.m.client.GetCurrentNode()
+	if err != nil {
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
+		log.Error("failed to scrape index stats")
+
+		return
+	}
+
+	if contains(currentNode.Services, "index") {
+		stats, err := c.m.client.IndexStats()
+		if err != nil {
+			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+
+			log.Error("failed to scrape index stats")
+
+			return
+		}
+
+		for _, value := range c.config.Metrics {
+			if value.Enabled && !contains(value.Labels, objects.KeyspaceLabel) {
+				ch <- prometheus.MustNewConstMetric(
+					value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+					prometheus.GaugeValue,
+					last(indexStats.Op.Samples[objects.IndexMetricPrefix+value.Name]),
+					clusterName,
+				)
+			} else {
+				for key, values := range stats {
+					if key == "indexer" {
+						continue
+					}
+
+					val, ok := values[value.Name].(float64)
+
+					if !ok {
+						continue
+					}
+
+					ch <- prometheus.MustNewConstMetric(
+						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+						prometheus.GaugeValue,
+						val,
+						clusterName, key)
+				}
+			}
+		}
+	} else {
+		for _, value := range c.config.Metrics {
+			if value.Enabled && !contains(value.Labels, objects.KeyspaceLabel) {
+				ch <- prometheus.MustNewConstMetric(
+					value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
+					prometheus.GaugeValue,
+					last(indexStats.Op.Samples[objects.IndexMetricPrefix+value.Name]),
+					clusterName,
+				)
+			}
 		}
 	}
 

@@ -28,7 +28,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetCurrentNode(t *testing.T) {
 	Node := test.GenerateNode()
 	Nodes := test.GenerateNodes("dummy-cluster", []objects.Node{Node})
 
-	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrorDummy)
+	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrDummy)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
 	testCollector.Setter = &mockSetter
@@ -50,7 +50,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetClusterName(t *testing.T) {
 	Nodes := test.GenerateNodes("dummy-cluster", []objects.Node{Node})
 
 	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrorDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
 	testCollector.Setter = &mockSetter
@@ -73,7 +73,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetClusterBalanceStatus(t *testing.T
 
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 	first := mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
-	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrorDummy).After(first)
+	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrDummy).After(first)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
 	testCollector.Setter = &mockSetter
@@ -98,7 +98,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetBuckets(t *testing.T) {
 	mockClient.EXPECT().Nodes().Times(2).Return(Nodes, nil)
 
 	buckets := make([]objects.BucketInfo, 0)
-	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrorDummy)
+	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrDummy)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
 	testCollector.Setter = &mockSetter
@@ -125,7 +125,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetBucketStats(t *testing.T) {
 	buckets := []objects.BucketInfo{test.GenerateBucket("wawa-bucket")}
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
 
-	mockClient.EXPECT().Get(gomock.Any(), gomock.Any()).Times(1).Return(ErrorDummy)
+	mockClient.EXPECT().Get(gomock.Any(), gomock.Any()).Times(1).Return(ErrDummy)
 
 	servers := test.GenerateServers()
 	mockClient.EXPECT().Servers(gomock.Any()).Times(1).Return(servers, nil)

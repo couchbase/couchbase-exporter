@@ -162,7 +162,7 @@ func TestNodeCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrorDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 	testCollector := collectors.NewNodesCollector(mockClient, defaultConfig.Collectors.Node)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
@@ -185,7 +185,7 @@ func TestNodeCollectReturnsDownIfClientReturnsErrorOnNode(t *testing.T) {
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
 	Nodes := objects.Nodes{}
-	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrorDummy)
+	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrDummy)
 
 	testCollector := collectors.NewNodesCollector(mockClient, defaultConfig.Collectors.Node)
 	c := make(chan prometheus.Metric, 1)

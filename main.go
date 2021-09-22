@@ -278,10 +278,10 @@ func createClient(exporterConfig *objects.ExporterConfig) (util.Client, error) {
 		return client, certError
 	}
 
-	couchFullAddress := fmt.Sprintf("%v://%v:%v", scheme, exporterConfig.CouchbaseAddress, exporterConfig.CouchbasePort)
-	log.Info("dial CB Server at: %v", couchFullAddress)
+	couchFullAddress := fmt.Sprintf("%v://%v", scheme, exporterConfig.CouchbaseAddress)
+	log.Info("dial CB Server at %s:%d", couchFullAddress, exporterConfig.CouchbasePort)
 
-	client = util.NewClient(couchFullAddress, exporterConfig.CouchbaseUser, exporterConfig.CouchbasePassword, &tlsClientConfig)
+	client = util.NewClient(couchFullAddress, exporterConfig.CouchbasePort, exporterConfig.CouchbaseUser, exporterConfig.CouchbasePassword, &tlsClientConfig)
 
 	return client, nil
 }
