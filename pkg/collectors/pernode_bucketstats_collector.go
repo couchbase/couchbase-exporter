@@ -30,7 +30,7 @@ var (
 			Help:        objects.DefaultUptimeMetricHelp,
 			ConstLabels: nil,
 		},
-		[]string{objects.NodeLabel})
+		[]string{objects.ClusterLabel})
 	scrapeVec = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
@@ -39,7 +39,7 @@ var (
 			Help:        objects.DefaultScrapeDurationMetricHelp,
 			ConstLabels: nil,
 		},
-		[]string{objects.NodeLabel})
+		[]string{objects.ClusterLabel})
 )
 
 type PrometheusVecSetter interface {
@@ -50,22 +50,23 @@ type PerNodeBucketStatsCollector struct {
 	config         *objects.CollectorConfig
 	metrics        map[string]*prometheus.GaugeVec
 	client         util.CbClient
-	nodeCache      string
 	up             *prometheus.GaugeVec
 	scrapeDuration *prometheus.GaugeVec
+	labelManger    util.CbLabelManager
 	// This is for TESTING purposes only.
 	// By default PerNodeBucketStatsCollector implements and uses itself to
 	// fulfill this functionality.
 	Setter PrometheusVecSetter
 }
 
-func NewPerNodeBucketStatsCollector(client util.CbClient, config *objects.CollectorConfig) PerNodeBucketStatsCollector {
+func NewPerNodeBucketStatsCollector(client util.CbClient, config *objects.CollectorConfig, labelManager util.CbLabelManager) PerNodeBucketStatsCollector {
 	collector := &PerNodeBucketStatsCollector{
 		client:         client,
 		metrics:        map[string]*prometheus.GaugeVec{},
 		config:         config,
 		up:             upVec,
 		scrapeDuration: scrapeVec,
+		labelManger:    labelManager,
 	}
 	collector.Setter = collector
 
@@ -82,36 +83,19 @@ func (c *PerNodeBucketStatsCollector) CollectMetrics() {
 
 	log.Info("Begin collection of Node Stats")
 	// get current node hostname and cache it as we'll need it later when we re-execute
-	if c.nodeCache == "" {
-		log.Info("Current Node Cache empty. Retrieving")
-
-		currNode, err := getCurrentNode(c.client)
-
-		if err != nil {
-			c.Setter.SetGaugeVec(*c.up, 0, currNode)
-			log.Error("Could not retrieve current node information. %s", err)
-
-			return
-		}
-
-		log.Debug("Current node is: %s", currNode)
-
-		c.nodeCache = currNode
-	}
-
-	clusterName, err := c.client.ClusterName()
+	ctx, err := c.labelManger.GetBasicMetricContext()
 	if err != nil {
-		c.Setter.SetGaugeVec(*c.up, 0, c.nodeCache)
+		c.Setter.SetGaugeVec(*c.up, 0, objects.ClusterLabel)
 		log.Error("%s", err)
 
 		return
 	}
 
-	log.Info("Cluster name is: %s", clusterName)
+	log.Info("Cluster name is: %s", ctx.ClusterName)
 
 	rebalanced, err := getClusterBalancedStatus(c.client)
 	if err != nil {
-		c.Setter.SetGaugeVec(*c.up, 0, c.nodeCache)
+		c.Setter.SetGaugeVec(*c.up, 0, ctx.ClusterName)
 		log.Error("Unable to get rebalance status %s", err)
 
 		return
@@ -124,63 +108,49 @@ func (c *PerNodeBucketStatsCollector) CollectMetrics() {
 
 	buckets, err := c.client.Buckets()
 	if err != nil {
-		c.Setter.SetGaugeVec(*c.up, 0, c.nodeCache)
+		c.Setter.SetGaugeVec(*c.up, 0, ctx.ClusterName)
 		log.Error("Unable to get buckets %s", err)
 
 		return
 	}
 
 	for _, bucket := range buckets {
-		log.Debug("Collecting per-node bucket stats, node=%s, bucket=%s", c.nodeCache, bucket.Name)
+		log.Debug("Collecting per-node bucket stats, node=%s, bucket=%s", ctx.NodeHostname, bucket.Name)
 
-		samples, err := getPerNodeBucketStats(c.client, bucket.Name, c.nodeCache)
+		ctx, _ := c.labelManger.GetMetricContext(bucket.Name, "")
+		samples, err := getPerNodeBucketStats(c.client, ctx)
 
 		if err != nil {
-			c.Setter.SetGaugeVec(*c.up, 0, c.nodeCache)
+			c.Setter.SetGaugeVec(*c.up, 0, ctx.ClusterName)
 
 			return
 		}
 
 		for _, value := range c.config.Metrics {
-			c.setMetric(value, samples, bucket.Name, c.nodeCache)
+			c.setMetric(value, samples, ctx)
 		}
 	}
 
-	c.Setter.SetGaugeVec(*c.up, 1, c.nodeCache)
-	c.Setter.SetGaugeVec(*c.scrapeDuration, time.Since(start).Seconds(), c.nodeCache)
+	c.Setter.SetGaugeVec(*c.up, 1, ctx.ClusterName)
+	c.Setter.SetGaugeVec(*c.scrapeDuration, time.Since(start).Seconds(), ctx.ClusterName)
 	log.Info("Per node bucket stats is complete Duration: %v", time.Since(start))
 }
 
-func (c *PerNodeBucketStatsCollector) setMetric(metric objects.MetricInfo, samples map[string]interface{}, bucketName string, clusterName string) {
+func (c *PerNodeBucketStatsCollector) setMetric(metric objects.MetricInfo, samples map[string]interface{}, ctx util.MetricContext) {
 	if !metric.Enabled {
 		return
 	}
 
 	if mt, ok := c.metrics[metric.Name]; ok {
-		c.Setter.SetGaugeVec(*mt, last(strToFloatArr(fmt.Sprint(samples[metric.Name]))), bucketName, c.nodeCache, clusterName)
+		c.Setter.SetGaugeVec(*mt, last(strToFloatArr(fmt.Sprint(samples[metric.Name]))), c.labelManger.GetLabelValues(metric.Labels, ctx)...)
 	} else {
 		mt := metric.GetPrometheusGaugeVec(c.config.Namespace, c.config.Subsystem)
 		c.metrics[metric.Name] = mt
 		stats := strToFloatArr(fmt.Sprint(samples[metric.Name]))
 		if len(stats) > 0 {
-			c.Setter.SetGaugeVec(*mt, last(stats), bucketName, c.nodeCache, clusterName)
+			c.Setter.SetGaugeVec(*mt, last(stats), c.labelManger.GetLabelValues(metric.Labels, ctx)...)
 		}
 	}
-}
-
-func getCurrentNode(c util.CbClient) (string, error) {
-	nodes, err := c.Nodes()
-	if err != nil {
-		return "", fmt.Errorf("unable to retrieve nodes: %w", err)
-	}
-
-	for _, node := range nodes.Nodes {
-		if node.ThisNode { // "ThisNode" is a boolean value indicating that it is the current node
-			return node.Hostname, nil // hostname seems to work? just don't use for single node setups
-		}
-	}
-
-	return "", ErrNotFound
 }
 
 func getClusterBalancedStatus(c util.CbClient) (bool, error) {
@@ -227,8 +197,8 @@ func strToFloatArr(floatsStr string) []float64 {
 	return floatsArr
 }
 
-func getPerNodeBucketStats(client util.CbClient, bucketName, nodeName string) (map[string]interface{}, error) {
-	url, err := getSpecificNodeBucketStatsURL(client, bucketName, nodeName)
+func getPerNodeBucketStats(client util.CbClient, ctx util.MetricContext) (map[string]interface{}, error) {
+	url, err := getSpecificNodeBucketStatsURL(client, ctx.BucketName, ctx.NodeHostname)
 
 	if err != nil {
 		log.Error("unable to GET PerNodeBucketStats %s", err)

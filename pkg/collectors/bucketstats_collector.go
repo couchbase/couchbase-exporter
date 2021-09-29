@@ -63,9 +63,9 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 
 	log.Info("Collecting bucketstats metrics...")
 
-	clusterName, err := c.m.client.ClusterName()
+	ctx, err := c.m.labelManger.GetBasicMetricContext()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, objects.ClusterLabel)
 
 		log.Error("%s", err)
 
@@ -74,7 +74,7 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 
 	buckets, err := c.m.client.Buckets()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 		log.Error("failed to scrape buckets")
 
@@ -83,10 +83,13 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, bucket := range buckets {
 		log.Debug("Collecting %s bucket stats metrics...", bucket.Name)
+
+		ctx, _ := c.m.labelManger.GetMetricContext(bucket.Name, "")
+
 		stats, err := c.m.client.BucketStats(bucket.Name)
 
 		if err != nil {
-			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 			log.Error("failed to scrape bucket stats")
 
@@ -103,35 +106,32 @@ func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
 						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 						prometheus.GaugeValue,
 						last(stats.Op.Samples[objects.AvgBgWaitTime])/1000000, // this comes as microseconds from cb
-						bucket.Name,
-						clusterName,
+						c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
 					)
 				case "EpCacheMissRate":
 					ch <- prometheus.MustNewConstMetric(
 						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 						prometheus.GaugeValue,
 						min(last(stats.Op.Samples[value.Name]), 100), // percentage can exceed 100 due to code within CB, so needs limiting to 100
-						bucket.Name,
-						clusterName,
+						c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
 					)
 				default:
 					ch <- prometheus.MustNewConstMetric(
 						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 						prometheus.GaugeValue,
 						last(stats.Op.Samples[value.Name]),
-						bucket.Name,
-						clusterName,
+						c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
 					)
 				}
 			}
 		}
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, ctx.ClusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), ctx.ClusterName)
 }
 
-func NewBucketStatsCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
+func NewBucketStatsCollector(client util.CbClient, config *objects.CollectorConfig, labelManager util.CbLabelManager) prometheus.Collector {
 	if config == nil {
 		config = objects.GetBucketStatsCollectorDefaultConfig()
 	}
@@ -151,6 +151,7 @@ func NewBucketStatsCollector(client util.CbClient, config *objects.CollectorConf
 				[]string{objects.ClusterLabel},
 				nil,
 			),
+			labelManger: labelManager,
 		},
 		config: config,
 	}

@@ -11,6 +11,7 @@ import (
 	"github.com/couchbase/couchbase-exporter/pkg/config"
 	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
+	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/couchbase/couchbase-exporter/test/mocks"
 	test "github.com/couchbase/couchbase-exporter/test/utils"
 	"github.com/golang/mock/gomock"
@@ -51,7 +52,9 @@ func TestQueryDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing.T)
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan *prometheus.Desc, 9)
 
 	defer close(c)
@@ -125,7 +128,9 @@ func TestQueryDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T) {
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan *prometheus.Desc, 9)
 
 	defer close(c)
@@ -164,7 +169,9 @@ func TestQueryCollectReturnsDownIfClientReturnsError(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -185,10 +192,14 @@ func TestQueryCollectReturnsDownIfClientReturnsErrorOnQuery(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	Node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
 	Query := objects.Query{}
 	mockClient.EXPECT().Query().Times(1).Return(Query, ErrDummy)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query)
+	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -218,10 +229,14 @@ func TestQueryCollectReturnsUpWithNoErrors(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	Node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
 	Query := objects.Query{}
 	mockClient.EXPECT().Query().Times(1).Return(Query, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query)
+	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan prometheus.Metric, 2)
 	testCollector.Collect(c)
 	close(c)
@@ -244,10 +259,14 @@ func TestQueryCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	Node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+
 	Query := test.GenerateQuery()
 	mockClient.EXPECT().Query().Times(1).Return(Query, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query)
+	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan prometheus.Metric, 9)
 	count := 0
 

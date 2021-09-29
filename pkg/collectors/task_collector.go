@@ -44,7 +44,7 @@ type taskCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewTaskCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
+func NewTaskCollector(client util.CbClient, config *objects.CollectorConfig, labelManager util.CbLabelManager) prometheus.Collector {
 	if config == nil {
 		config = objects.GetTaskCollectorDefaultConfig()
 	}
@@ -64,6 +64,7 @@ func NewTaskCollector(client util.CbClient, config *objects.CollectorConfig) pro
 				[]string{objects.ClusterLabel},
 				nil,
 			),
+			labelManger: labelManager,
 		},
 		config: config,
 	}
@@ -82,23 +83,23 @@ func (c *taskCollector) Describe(ch chan<- *prometheus.Desc) {
 	}
 }
 
-func (c *taskCollector) collectTasks(ch chan<- prometheus.Metric, clusterName string, tasks []objects.Task) map[string]bool {
+func (c *taskCollector) collectTasks(ch chan<- prometheus.Metric, tasks []objects.Task) map[string]bool {
 	var compactsReported = map[string]bool{}
 
 	for _, task := range tasks {
 		switch task.Type {
 		case taskRebalance:
-			c.addRebalance(ch, task, clusterName)
+			c.addRebalance(ch, task)
 		case taskBucketCompaction:
 			// XXX: there can be more than one compacting tasks for the same
 			// bucket for now, let's report just the first.
-			c.addBucketCompaction(ch, task, clusterName, compactsReported[task.Bucket])
+			c.addBucketCompaction(ch, task, compactsReported[task.Bucket])
 			compactsReported[task.Bucket] = true
 		case taskXdcr:
 			log.Debug("found xdcr tasks from %s to %s", task.Source, task.Target)
-			c.addXdcr(ch, task, clusterName)
+			c.addXdcr(ch, task)
 		case taskClusterLogCollection:
-			c.addClusterLogCollection(ch, task, clusterName)
+			c.addClusterLogCollection(ch, task)
 		default:
 			log.Warn("not implemented")
 		}
@@ -106,54 +107,58 @@ func (c *taskCollector) collectTasks(ch chan<- prometheus.Metric, clusterName st
 
 	return compactsReported
 }
-func (c *taskCollector) addBucketCompaction(ch chan<- prometheus.Metric, task objects.Task, clusterName string, compactsReported bool) {
+func (c *taskCollector) addBucketCompaction(ch chan<- prometheus.Metric, task objects.Task, compactsReported bool) {
 	if cp, ok := c.config.Metrics[metricCompacting]; ok && cp.Enabled && !compactsReported {
+		ctx, _ := c.m.labelManger.GetMetricContext(task.Bucket, "")
 		ch <- prometheus.MustNewConstMetric(
 			cp.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 			prometheus.GaugeValue,
 			task.Progress,
-			task.Bucket,
-			clusterName)
+			c.m.labelManger.GetLabelValues(cp.Labels, ctx)...)
 	}
 }
 
-func (c *taskCollector) addClusterLogCollection(ch chan<- prometheus.Metric, task objects.Task, clusterName string) {
+func (c *taskCollector) addClusterLogCollection(ch chan<- prometheus.Metric, task objects.Task) {
 	if clc, ok := c.config.Metrics[taskClusterLogCollection]; ok && clc.Enabled {
+		ctx, _ := c.m.labelManger.GetMetricContext(task.Bucket, "")
 		ch <- prometheus.MustNewConstMetric(
 			clc.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 			prometheus.GaugeValue,
 			task.Progress,
-			clusterName)
+			c.m.labelManger.GetLabelValues(clc.Labels, ctx)...)
 	}
 }
 
-func (c *taskCollector) addRebalance(ch chan<- prometheus.Metric, task objects.Task, clusterName string) {
+func (c *taskCollector) addRebalance(ch chan<- prometheus.Metric, task objects.Task) {
 	if rb, ok := c.config.Metrics[taskRebalance]; ok && rb.Enabled {
-		ch <- prometheus.MustNewConstMetric(rb.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem), prometheus.GaugeValue, task.Progress, clusterName)
+		ctx, _ := c.m.labelManger.GetMetricContext(task.Bucket, "")
+
+		ch <- prometheus.MustNewConstMetric(rb.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem), prometheus.GaugeValue, task.Progress, c.m.labelManger.GetLabelValues(rb.Labels, ctx)...)
 	}
 
 	if rbPN, ok := c.config.Metrics[metricRebalancePerNode]; ok && rbPN.Enabled {
 		for node, progress := range task.PerNode {
+			ctx, _ := c.m.labelManger.GetMetricContext(task.Bucket, "")
+			ctx.NodeHostname = node
 			ch <- prometheus.MustNewConstMetric(
 				rbPN.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
 				progress.Progress,
-				node,
-				clusterName)
+				c.m.labelManger.GetLabelValues(rbPN.Labels, ctx)...)
 		}
 	}
 }
 
 // nolint: cyclop
-func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, clusterName string) {
+func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task) {
+	ctx, _ := c.m.labelManger.GetMetricContextWithSourceAndTarget(task.Bucket, "", task.Source, task.Target)
+
 	if xcl, ok := c.config.Metrics[metricXdcrChangesLeft]; ok && xcl.Enabled {
 		ch <- prometheus.MustNewConstMetric(
 			xcl.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 			prometheus.GaugeValue,
 			float64(task.ChangesLeft),
-			task.Source,
-			task.Target,
-			clusterName)
+			c.m.labelManger.GetLabelValues(xcl.Labels, ctx)...)
 	}
 
 	if xdc, ok := c.config.Metrics[metricXdcrDocsChecked]; ok && xdc.Enabled {
@@ -161,9 +166,7 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 			xdc.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 			prometheus.GaugeValue,
 			float64(task.DocsChecked),
-			task.Source,
-			task.Target,
-			clusterName)
+			c.m.labelManger.GetLabelValues(xdc.Labels, ctx)...)
 	}
 
 	if xdw, ok := c.config.Metrics[metricXdcrDocsWritten]; ok && xdw.Enabled {
@@ -171,9 +174,7 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 			xdw.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 			prometheus.GaugeValue,
 			float64(task.DocsWritten),
-			task.Source,
-			task.Target,
-			clusterName)
+			c.m.labelManger.GetLabelValues(xdw.Labels, ctx)...)
 	}
 
 	if xp, ok := c.config.Metrics[metricXdcrPaused]; ok && xp.Enabled {
@@ -181,9 +182,7 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 			xp.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 			prometheus.GaugeValue,
 			boolToFloat64(task.PauseRequested),
-			task.Source,
-			task.Target,
-			clusterName)
+			c.m.labelManger.GetLabelValues(xp.Labels, ctx)...)
 	}
 
 	if xe, ok := c.config.Metrics[metricXdcrErrors]; ok && xe.Enabled {
@@ -191,23 +190,20 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 			xe.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 			prometheus.GaugeValue,
 			float64(len(task.Errors)),
-			task.Source,
-			task.Target,
-			clusterName)
+			c.m.labelManger.GetLabelValues(xe.Labels, ctx)...)
 	}
 
 	for _, data := range task.DetailedProgress.PerNode {
 		// for each node grab these specific metrics from the config (if they exist)
 		// then grab their data from the request and dump it into prometheus.
+		ctx, _ := c.m.labelManger.GetMetricContextWithSourceAndTarget(task.DetailedProgress.Bucket, "", task.Source, task.Target)
+
 		if dt, ok := c.config.Metrics[metricDocsTotal]; ok && dt.Enabled {
 			ch <- prometheus.MustNewConstMetric(
 				dt.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
 				float64(data.Ingoing.DocsTotal),
-				task.DetailedProgress.Bucket,
-				task.Source,
-				task.Target,
-				clusterName)
+				c.m.labelManger.GetLabelValues(dt.Labels, ctx)...)
 		}
 
 		if dtrans, ok := c.config.Metrics[metricDocsTransferred]; ok && dtrans.Enabled {
@@ -215,10 +211,7 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 				dtrans.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
 				float64(data.Ingoing.DocsTransferred),
-				task.DetailedProgress.Bucket,
-				task.Source,
-				task.Target,
-				clusterName)
+				c.m.labelManger.GetLabelValues(dtrans.Labels, ctx)...)
 		}
 
 		if avbl, ok := c.config.Metrics[metricDocsActiveVbucketsLeft]; ok && avbl.Enabled {
@@ -226,10 +219,7 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 				avbl.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
 				float64(data.Ingoing.ActiveVBucketsLeft),
-				task.DetailedProgress.Bucket,
-				task.Source,
-				task.Target,
-				clusterName)
+				c.m.labelManger.GetLabelValues(avbl.Labels, ctx)...)
 		}
 
 		if rvbl, ok := c.config.Metrics[metricDocsTotalReplicaVBucketsLeft]; ok && rvbl.Enabled {
@@ -237,10 +227,7 @@ func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task, 
 				rvbl.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
 				float64(data.Ingoing.ReplicaVBucketsLeft),
-				task.DetailedProgress.Bucket,
-				task.Source,
-				task.Target,
-				clusterName)
+				c.m.labelManger.GetLabelValues(rvbl.Labels, ctx)...)
 		}
 	}
 }
@@ -253,9 +240,9 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 
 	log.Info("Collecting tasks metrics...")
 
-	clusterName, err := c.m.client.ClusterName()
+	ctx, err := c.m.labelManger.GetBasicMetricContext()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, objects.ClusterLabel)
 
 		log.Error("%s", err)
 
@@ -264,7 +251,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 
 	tasks, err := c.m.client.Tasks()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 		log.Error("failed to scrape tasks")
 
@@ -273,7 +260,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 
 	buckets, err := c.m.client.Buckets()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 		log.Error("failed to scrape tasks")
 
@@ -281,7 +268,7 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	// nolint: lll
-	compactsReported := c.collectTasks(ch, clusterName, tasks)
+	compactsReported := c.collectTasks(ch, tasks)
 	// always report the compacting task, even if it is not happening
 	// this is to not break dashboards and make it easier to test alert rule
 	// and etc.
@@ -290,13 +277,13 @@ func (c *taskCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, bucket := range buckets {
 		if _, ok := compactsReported[bucket.Name]; !ok {
 			// nolint: lll
-			ch <- prometheus.MustNewConstMetric(compact.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem), prometheus.GaugeValue, 0, bucket.Name, clusterName)
+			ch <- prometheus.MustNewConstMetric(compact.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem), prometheus.GaugeValue, 0, bucket.Name, ctx.ClusterName)
 		}
 
 		compactsReported[bucket.Name] = true
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, ctx.ClusterName)
 	// nolint: lll
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), ctx.ClusterName)
 }

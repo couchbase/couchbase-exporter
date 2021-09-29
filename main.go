@@ -146,23 +146,25 @@ func main() {
 		os.Exit(1)
 	}
 
+	labelManager := util.NewLabelManager(client)
+
 	log.Info("Registering Collectors...")
 
-	prometheus.MustRegister(collectors.NewNodesCollector(client, exporterConfig.Collectors.Node))
-	prometheus.MustRegister(collectors.NewBucketInfoCollector(client, exporterConfig.Collectors.BucketInfo))
-	prometheus.MustRegister(collectors.NewBucketStatsCollector(client, exporterConfig.Collectors.BucketStats))
-	prometheus.MustRegister(collectors.NewTaskCollector(client, exporterConfig.Collectors.Task))
+	prometheus.MustRegister(collectors.NewNodesCollector(client, exporterConfig.Collectors.Node, labelManager))
+	prometheus.MustRegister(collectors.NewBucketInfoCollector(client, exporterConfig.Collectors.BucketInfo, labelManager))
+	prometheus.MustRegister(collectors.NewBucketStatsCollector(client, exporterConfig.Collectors.BucketStats, labelManager))
+	prometheus.MustRegister(collectors.NewTaskCollector(client, exporterConfig.Collectors.Task, labelManager))
 
-	prometheus.MustRegister(collectors.NewQueryCollector(client, exporterConfig.Collectors.Query))
-	prometheus.MustRegister(collectors.NewIndexCollector(client, exporterConfig.Collectors.Index))
-	prometheus.MustRegister(collectors.NewFTSCollector(client, exporterConfig.Collectors.Search))
-	prometheus.MustRegister(collectors.NewCbasCollector(client, exporterConfig.Collectors.Analytics))
-	prometheus.MustRegister(collectors.NewEventingCollector(client, exporterConfig.Collectors.Eventing))
+	prometheus.MustRegister(collectors.NewQueryCollector(client, exporterConfig.Collectors.Query, labelManager))
+	prometheus.MustRegister(collectors.NewIndexCollector(client, exporterConfig.Collectors.Index, labelManager))
+	prometheus.MustRegister(collectors.NewFTSCollector(client, exporterConfig.Collectors.Search, labelManager))
+	prometheus.MustRegister(collectors.NewCbasCollector(client, exporterConfig.Collectors.Analytics, labelManager))
+	prometheus.MustRegister(collectors.NewEventingCollector(client, exporterConfig.Collectors.Eventing, labelManager))
 
 	// moved to a goroutine to improve startup time.
 	// Create my cycle controller with refreshrate (seconds) in milliseconds
 	cycle := util.NewCycleController(exporterConfig.RefreshRate * 1000)
-	perNodeBucketStatCollector := collectors.NewPerNodeBucketStatsCollector(client, exporterConfig.Collectors.PerNodeBucketStats)
+	perNodeBucketStatCollector := collectors.NewPerNodeBucketStatsCollector(client, exporterConfig.Collectors.PerNodeBucketStats, labelManager)
 
 	cycle.Subscribe(&perNodeBucketStatCollector)
 	cycle.Start()

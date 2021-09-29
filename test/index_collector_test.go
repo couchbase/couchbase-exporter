@@ -10,6 +10,7 @@ import (
 	"github.com/couchbase/couchbase-exporter/pkg/config"
 	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
+	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/couchbase/couchbase-exporter/test/mocks"
 	test "github.com/couchbase/couchbase-exporter/test/utils"
 	"github.com/golang/mock/gomock"
@@ -50,7 +51,9 @@ func TestIndexDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing.T)
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index, labelManager)
 	c := make(chan *prometheus.Desc, 9)
 
 	defer close(c)
@@ -124,7 +127,9 @@ func TestIndexDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T) {
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index, labelManager)
 	c := make(chan *prometheus.Desc, 9)
 
 	defer close(c)
@@ -163,7 +168,9 @@ func TestIndexCollectReturnsDownIfClientReturnsError(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index, labelManager)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -184,10 +191,14 @@ func TestIndexCollectReturnsDownIfClientReturnsErrorOnIndex(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
+
 	Index := objects.Index{}
 	mockClient.EXPECT().Index().Times(1).Return(Index, ErrDummy)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
+	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index, labelManager)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -217,13 +228,14 @@ func TestIndexCollectReturnsUpWithNoErrors(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
-	Node := objects.Node{}
-	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+	Node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(2).Return(Node, nil)
 
 	Index := objects.Index{}
 	mockClient.EXPECT().Index().Times(1).Return(Index, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
+	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index, labelManager)
 	c := make(chan prometheus.Metric, 2)
 	testCollector.Collect(c)
 	close(c)
@@ -259,16 +271,17 @@ func TestIndexCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 	Index := test.GenerateIndex()
 	mockClient.EXPECT().Index().Times(1).Return(Index, nil)
 
-	Node := objects.Node{}
-	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+	Node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(2).Return(Node, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
+	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index, labelManager)
 	c := make(chan prometheus.Metric, 9)
 	count := 0
 
 	defer close(c)
 
-	metricCount := 2
+	metricCount := 0
 
 	for _, val := range defaultConfig.Collectors.Index.Metrics {
 		if !contains(val.Labels, objects.KeyspaceLabel) {
@@ -328,12 +341,13 @@ func TestIndexCollectReturnsOneOfEachMetricWithCorrectValuesWithIndexer(t *testi
 	Node := objects.Node{
 		Services: []string{"index"},
 	}
-	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+	mockClient.EXPECT().GetCurrentNode().Times(2).Return(Node, nil)
 
 	Stats := test.GenerateIndexerStats()
 	mockClient.EXPECT().IndexStats().Times(1).Return(Stats, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index)
+	testCollector := collectors.NewIndexCollector(mockClient, defaultConfig.Collectors.Index, labelManager)
 	c := make(chan prometheus.Metric, 9)
 	count := 0
 

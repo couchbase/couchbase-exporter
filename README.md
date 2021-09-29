@@ -109,13 +109,38 @@ An example default config file is provided: [/example/config.json](./example/con
 To use a config file, use the `--config-file` flag when you run the executable:
 
 ```
-docker run --name couchbase-exporter -d -p 9091:9091 couchbase/couchbase-exporter:v1 --config-file ./sample/config.json` 
+docker run --name couchbase-exporter -d -p 9091:9091 couchbase/couchbase-exporter:v1 --config-file ./sample/config.json`
 ```
 
 Alternatively, you can set the `COUCHBASE_CONFIG_FILE` environment variable.
 **NOTE:** CLI Parameters take precedent over Env Vars and Configuration file values.
 
-#### Using a Config File with Docker and the Couchbase Autonomous Operator
+### Dynamic Labeling
+
+To dynamically label a metric, you can add a string to the "labels" property of the metric in the configuration.
+
+**Example**
+```
+"dataUsed": {
+    "name": "basic_dataused_bytes",
+    "enabled": true,
+    "nameOverride": "",
+    "helpText": "basic_dataused",
+    "labels": [
+        "bucket",
+        "cluster",
+        "service:data"
+    ]
+},
+```
+Certain label values will be used to specify couchbase data to be attached to the metric.  The values of  "cluster", "node", "bucket", "keyspace", "target", and "source" will utilize available information from the Couchbase Cluster to populate.  **NOTE** not all of these values are available to all metrics.
+
+If a label value is not in the above list, it will simply apply a static value label to the metric.  If that value contains a colon, the value will be split, and the first part will be used as the label key, and the second part as the label value.
+
+The example metric would be recorded with the "bucket" label with the value being the bucket name,  the cluster label with the value of the cluster name, and a static label with a key of "service" and a value of "data".
+
+
+### Using a Config File with Docker and the Couchbase Autonomous Operator
 
 To use a config file with the Couchbase Autonomous Operator, you must build a custom `couchbase-exporter` Docker image that sets the `COUCHBASE_CONFIG_FILE` environment variable and copies the config file.
 

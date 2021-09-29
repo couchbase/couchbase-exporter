@@ -23,7 +23,7 @@ type indexCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewIndexCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
+func NewIndexCollector(client util.CbClient, config *objects.CollectorConfig, labelManager util.CbLabelManager) prometheus.Collector {
 	if config == nil {
 		config = objects.GetIndexCollectorDefaultConfig()
 	}
@@ -43,6 +43,7 @@ func NewIndexCollector(client util.CbClient, config *objects.CollectorConfig) pr
 				[]string{objects.ClusterLabel},
 				nil,
 			),
+			labelManger: labelManager,
 		},
 		config: config,
 	}
@@ -71,9 +72,9 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 
 	log.Info("Collecting index metrics...")
 
-	clusterName, err := c.m.client.ClusterName()
+	ctx, err := c.m.labelManger.GetBasicMetricContext()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, objects.ClusterLabel)
 
 		log.Error("%s", err)
 
@@ -82,7 +83,7 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 
 	indexStats, err := c.m.client.Index()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 		log.Error("failed to scrape index stats")
 
@@ -91,7 +92,7 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 
 	currentNode, err := c.m.client.GetCurrentNode()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 		log.Error("failed to scrape index stats")
 
@@ -101,7 +102,7 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 	if contains(currentNode.Services, "index") {
 		stats, err := c.m.client.IndexStats()
 		if err != nil {
-			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 			log.Error("failed to scrape index stats")
 
@@ -114,10 +115,11 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 					value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 					prometheus.GaugeValue,
 					last(indexStats.Op.Samples[objects.IndexMetricPrefix+value.Name]),
-					clusterName,
+					c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
 				)
 			} else {
 				for key, values := range stats {
+					ctx, _ = c.m.labelManger.GetMetricContext("", key)
 					if key == "indexer" {
 						continue
 					}
@@ -132,7 +134,7 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 						prometheus.GaugeValue,
 						val,
-						clusterName, key)
+						c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 				}
 			}
 		}
@@ -143,12 +145,12 @@ func (c *indexCollector) Collect(ch chan<- prometheus.Metric) {
 					value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 					prometheus.GaugeValue,
 					last(indexStats.Op.Samples[objects.IndexMetricPrefix+value.Name]),
-					clusterName,
+					c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
 				)
 			}
 		}
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, ctx.ClusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), ctx.ClusterName)
 }

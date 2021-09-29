@@ -10,6 +10,8 @@
 package objects
 
 import (
+	"strings"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -24,6 +26,8 @@ const (
 	NodeLabel                       = "node"
 	BucketLabel                     = "bucket"
 	KeyspaceLabel                   = "keyspace"
+	TargetLabel                     = "target"
+	SourceLabel                     = "source"
 	SearchMetricPrefix              = "fts_"
 	QueryMetricPrefix               = "query_"
 	IndexMetricPrefix               = "index_"
@@ -47,8 +51,19 @@ func (m *MetricInfo) GetPrometheusDescription(namespace string, subsystem string
 	return prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, name),
 		m.HelpText,
-		m.Labels,
+		GetLabelKeys(m.Labels),
 		nil)
+}
+
+func GetLabelKeys(labels []string) []string {
+	values := []string{}
+
+	for _, label := range labels {
+		splits := strings.Split(label, ":")
+		values = append(values, splits[0])
+	}
+
+	return values
 }
 
 func (m *MetricInfo) GetPrometheusGaugeVec(namespace string, subsystem string) *prometheus.GaugeVec {
@@ -65,7 +80,7 @@ func (m *MetricInfo) GetPrometheusGaugeVec(namespace string, subsystem string) *
 			Help:        m.HelpText,
 			ConstLabels: nil,
 		},
-		m.Labels)
+		GetLabelKeys(m.Labels))
 }
 
 type MetricInfo struct {
@@ -3159,63 +3174,63 @@ func taskCollectorDefaultConfig() *CollectorConfig {
 				NameOverride: "",
 				Enabled:      true,
 				HelpText:     "Number of updates still pending replication",
-				Labels:       []string{BucketLabel, "target", ClusterLabel},
+				Labels:       []string{BucketLabel, TargetLabel, ClusterLabel},
 			},
 			"xdcrDocsChecked": {
 				Name:         "xdcr_docs_checked",
 				NameOverride: "",
 				Enabled:      true,
 				HelpText:     "Number of documents checked for changes",
-				Labels:       []string{BucketLabel, "target", ClusterLabel},
+				Labels:       []string{BucketLabel, TargetLabel, ClusterLabel},
 			},
 			"xdcrDocsWritten": {
 				Name:         "xdcr_docs_written",
 				NameOverride: "",
 				Enabled:      true,
 				HelpText:     "Number of documents written to the destination cluster",
-				Labels:       []string{BucketLabel, "target", ClusterLabel},
+				Labels:       []string{BucketLabel, TargetLabel, ClusterLabel},
 			},
 			"xdcrPaused": {
 				Name:         "xdcr_paused",
 				NameOverride: "",
 				Enabled:      true,
 				HelpText:     "Is this replication paused",
-				Labels:       []string{BucketLabel, "target", ClusterLabel},
+				Labels:       []string{BucketLabel, TargetLabel, ClusterLabel},
 			},
 			"xdcrErrors": {
 				Name:         "xdcr_errors",
 				NameOverride: "",
 				Enabled:      true,
 				HelpText:     "Number of errors",
-				Labels:       []string{BucketLabel, "target", ClusterLabel},
+				Labels:       []string{BucketLabel, TargetLabel, ClusterLabel},
 			},
 			"progressDocsTotal": {
 				Name:         "docs_total",
 				NameOverride: "",
 				Enabled:      true,
 				HelpText:     "docs_total",
-				Labels:       []string{BucketLabel, "source", "target", ClusterLabel},
+				Labels:       []string{BucketLabel, SourceLabel, TargetLabel, ClusterLabel},
 			},
 			"progressDocsTransferred": {
 				Name:         "docs_transferred",
 				NameOverride: "",
 				Enabled:      true,
 				HelpText:     "docs_transferred",
-				Labels:       []string{BucketLabel, "source", "target", ClusterLabel},
+				Labels:       []string{BucketLabel, SourceLabel, TargetLabel, ClusterLabel},
 			},
 			"progressActiveVBucketsLeft": {
 				Name:         "active_vbuckets_left",
 				NameOverride: "",
 				Enabled:      true,
 				HelpText:     "Number of Active VBuckets remaining",
-				Labels:       []string{BucketLabel, "source", "target", ClusterLabel},
+				Labels:       []string{BucketLabel, SourceLabel, TargetLabel, ClusterLabel},
 			},
 			"progressReplicaVBucketsLeft": {
 				Name:         "replica_vbuckets_left",
 				NameOverride: "",
 				Enabled:      true,
 				HelpText:     "Number of Replica VBuckets remaining",
-				Labels:       []string{BucketLabel, "source", "target", ClusterLabel},
+				Labels:       []string{BucketLabel, SourceLabel, TargetLabel, ClusterLabel},
 			},
 		},
 	}

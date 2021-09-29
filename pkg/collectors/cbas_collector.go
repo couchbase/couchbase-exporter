@@ -23,7 +23,7 @@ type cbasCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewCbasCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
+func NewCbasCollector(client util.CbClient, config *objects.CollectorConfig, labelManager util.CbLabelManager) prometheus.Collector {
 	if config == nil {
 		config = objects.GetAnalyticsCollectorDefaultConfig()
 	}
@@ -43,6 +43,7 @@ func NewCbasCollector(client util.CbClient, config *objects.CollectorConfig) pro
 				[]string{objects.ClusterLabel},
 				nil,
 			),
+			labelManger: labelManager,
 		},
 		config: config,
 	}
@@ -70,9 +71,9 @@ func (c *cbasCollector) Collect(ch chan<- prometheus.Metric) {
 
 	log.Info("Collecting cbas metrics...")
 
-	clusterName, err := c.m.client.ClusterName()
+	ctx, err := c.m.labelManger.GetBasicMetricContext()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, objects.ClusterLabel)
 
 		log.Error("%s", err)
 
@@ -81,7 +82,7 @@ func (c *cbasCollector) Collect(ch chan<- prometheus.Metric) {
 
 	cbas, err := c.m.client.Cbas()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 		log.Error("failed to scrape cbas stats")
 
@@ -94,11 +95,11 @@ func (c *cbasCollector) Collect(ch chan<- prometheus.Metric) {
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
 				last(cbas.Op.Samples[objects.AnalyticsMetricPrefix+value.Name]),
-				clusterName,
+				c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
 			)
 		}
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, ctx.ClusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), ctx.ClusterName)
 }

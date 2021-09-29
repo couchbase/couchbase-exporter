@@ -10,6 +10,7 @@ import (
 	"github.com/couchbase/couchbase-exporter/pkg/config"
 	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
+	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/couchbase/couchbase-exporter/test/mocks"
 	test "github.com/couchbase/couchbase-exporter/test/utils"
 	"github.com/golang/mock/gomock"
@@ -50,7 +51,9 @@ func TestEventingDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan *prometheus.Desc, 9)
 
 	defer close(c)
@@ -124,7 +127,9 @@ func TestEventingDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T) 
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan *prometheus.Desc, 9)
 
 	defer close(c)
@@ -163,7 +168,10 @@ func TestEventingCollectReturnsDownIfClientReturnsError(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing)
+
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -183,11 +191,15 @@ func TestEventingCollectReturnsDownIfClientReturnsErrorOnEventing(t *testing.T) 
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-
+	
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
+	
 	eventing := objects.Eventing{}
 	mockClient.EXPECT().Eventing().Times(1).Return(eventing, ErrDummy)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing)
+	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -216,11 +228,15 @@ func TestEventingCollectReturnsUpWithNoErrors(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-
+	
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
+	
 	eventing := objects.Eventing{}
 	mockClient.EXPECT().Eventing().Times(1).Return(eventing, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing)
+	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan prometheus.Metric, 2)
 	testCollector.Collect(c)
 	close(c)
@@ -243,10 +259,14 @@ func TestEventingCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
+
 	eventing := test.GenerateEventing()
 	mockClient.EXPECT().Eventing().Times(1).Return(eventing, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing)
+	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan prometheus.Metric, 9)
 	count := 0
 

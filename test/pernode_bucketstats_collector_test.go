@@ -7,6 +7,7 @@ import (
 	"github.com/couchbase/couchbase-exporter/pkg/config"
 	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
+	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/couchbase/couchbase-exporter/test/mocks"
 	test "github.com/couchbase/couchbase-exporter/test/utils"
 	"github.com/golang/mock/gomock"
@@ -26,16 +27,18 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetCurrentNode(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockSetter := mocks.NewMockSetter()
 	Node := test.GenerateNode()
-	Nodes := test.GenerateNodes("dummy-cluster", []objects.Node{Node})
 
-	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrDummy)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, ErrDummy)
 
-	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
 
 	testCollector.CollectMetrics()
 
-	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, ""))
+	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, "cluster"))
 }
 
 func TestPerNodeBucketStatsReturnsDownIfCantGetClusterName(t *testing.T) {
@@ -46,18 +49,16 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetClusterName(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockSetter := mocks.NewMockSetter()
-	Node := test.GenerateNode()
-	Nodes := test.GenerateNodes("dummy-cluster", []objects.Node{Node})
 
-	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
+	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
 
 	testCollector.CollectMetrics()
 
-	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, Node.Hostname))
+	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, "cluster"))
 }
 
 func TestPerNodeBucketStatsReturnsDownIfCantGetClusterBalanceStatus(t *testing.T) {
@@ -71,16 +72,18 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetClusterBalanceStatus(t *testing.T
 	Node := test.GenerateNode()
 	Nodes := test.GenerateNodes("dummy-cluster", []objects.Node{Node})
 
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-	first := mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
-	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrDummy).After(first)
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
 
-	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
+	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrDummy)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
 
 	testCollector.CollectMetrics()
 
-	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, Node.Hostname))
+	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, "dummy-cluster"))
 }
 
 func TestPerNodeBucketStatsReturnsDownIfCantGetBuckets(t *testing.T) {
@@ -95,17 +98,19 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetBuckets(t *testing.T) {
 	Nodes := test.GenerateNodes("dummy-cluster", []objects.Node{Node})
 
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-	mockClient.EXPECT().Nodes().Times(2).Return(Nodes, nil)
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
+	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
 
 	buckets := make([]objects.BucketInfo, 0)
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrDummy)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
+	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
 
 	testCollector.CollectMetrics()
 
-	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, Node.Hostname))
+	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, "dummy-cluster"))
 }
 
 func TestPerNodeBucketStatsReturnsDownIfCantGetBucketStats(t *testing.T) {
@@ -120,7 +125,8 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetBucketStats(t *testing.T) {
 	Nodes := test.GenerateNodes("dummy-cluster", []objects.Node{Node})
 
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-	mockClient.EXPECT().Nodes().Times(2).Return(Nodes, nil)
+	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
 
 	buckets := []objects.BucketInfo{test.GenerateBucket("wawa-bucket")}
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
@@ -129,13 +135,14 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetBucketStats(t *testing.T) {
 
 	servers := test.GenerateServers()
 	mockClient.EXPECT().Servers(gomock.Any()).Times(1).Return(servers, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
+	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
 
 	testCollector.CollectMetrics()
 
-	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, Node.Hostname))
+	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 0, "dummy-cluster"))
 }
 
 func TestPerNodeBucketStatsReturnsUp(t *testing.T) {
@@ -170,7 +177,8 @@ func TestPerNodeBucketStatsReturnsUp(t *testing.T) {
 	}
 
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-	mockClient.EXPECT().Nodes().Times(2).Return(Nodes, nil)
+	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
 
 	buckets := []objects.BucketInfo{test.GenerateBucket("wawa-bucket")}
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
@@ -179,14 +187,15 @@ func TestPerNodeBucketStatsReturnsUp(t *testing.T) {
 
 	servers := test.GenerateServers()
 	mockClient.EXPECT().Servers(gomock.Any()).Times(1).Return(servers, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
+	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
 
 	testCollector.CollectMetrics()
 
-	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 1, Node.Hostname))
-	assert.True(t, mockSetter.TestMetricGreaterThanOrEqual(metricPrefix+objects.DefaultScrapeDurationMetric, 0, Node.Hostname))
+	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 1, "dummy-cluster"))
+	assert.True(t, mockSetter.TestMetricGreaterThanOrEqual(metricPrefix+objects.DefaultScrapeDurationMetric, 0, "dummy-cluster"))
 }
 
 func TestPerNodeBucketStatsReturnsCorrectValues(t *testing.T) {
@@ -212,23 +221,25 @@ func TestPerNodeBucketStatsReturnsCorrectValues(t *testing.T) {
 	}
 
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-	mockClient.EXPECT().Nodes().Times(2).Return(Nodes, nil)
+	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
 
 	buckets := []objects.BucketInfo{test.GenerateBucket("wawa-bucket")}
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
 
 	mockClient.EXPECT().Get(gomock.Any(), gomock.Any()).SetArg(1, stats).Return(nil).Times(1)
 
 	servers := test.GenerateServers()
 	mockClient.EXPECT().Servers(gomock.Any()).Times(1).Return(servers, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats)
+	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
 
 	testCollector.CollectMetrics()
 
-	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 1, Node.Hostname))
-	assert.True(t, mockSetter.TestMetricGreaterThanOrEqual(metricPrefix+objects.DefaultScrapeDurationMetric, 0, Node.Hostname))
+	assert.True(t, mockSetter.TestMetric(metricPrefix+objects.DefaultUptimeMetric, 1, "dummy-cluster"))
+	assert.True(t, mockSetter.TestMetricGreaterThanOrEqual(metricPrefix+objects.DefaultScrapeDurationMetric, 0, "dummy-cluster"))
 
 	for _, value := range defaultConfig.Collectors.PerNodeBucketStats.Metrics {
 		sample, ok := stats.Op.Samples[value.Name].([]float64)

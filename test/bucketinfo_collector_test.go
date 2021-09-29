@@ -9,6 +9,7 @@ import (
 	"github.com/couchbase/couchbase-exporter/pkg/collectors"
 	"github.com/couchbase/couchbase-exporter/pkg/config"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
+	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/couchbase/couchbase-exporter/test/mocks"
 	test "github.com/couchbase/couchbase-exporter/test/utils"
 	"github.com/golang/mock/gomock"
@@ -31,7 +32,8 @@ func TestBucketInfoDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testi
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo)
+	labelManager := util.NewLabelManager(mockClient)
+	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo, labelManager)
 	c := make(chan *prometheus.Desc, 9)
 	testCollector.Describe(c)
 	close(c)
@@ -92,7 +94,9 @@ func TestBucketInfoDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo, labelManager)
 	c := make(chan *prometheus.Desc, 9)
 	testCollector.Describe(c)
 	close(c)
@@ -145,7 +149,9 @@ func TestBucketInfoCollectReturnsDownIfClientReturnsError(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo)
+	labelManager := util.NewLabelManager(mockClient)
+
+	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo, labelManager)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -166,10 +172,14 @@ func TestBucketInfoCollectReturnsDownIfClientReturnsErrorOnBuckets(t *testing.T)
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
+
 	buckets := make([]objects.BucketInfo, 0)
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrDummy)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo)
+	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo, labelManager)
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -190,10 +200,14 @@ func TestBucketInfoCollectReturnsUpWithNoErrors(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
+
 	buckets := make([]objects.BucketInfo, 0)
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo)
+	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo, labelManager)
 	c := make(chan prometheus.Metric, 2)
 	testCollector.Collect(c)
 	close(c)
@@ -216,12 +230,16 @@ func TestBucketInfoCollectReturnsOneOfEachMetricForASingleBucketWithCorrectValue
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
+
 	buckets := make([]objects.BucketInfo, 0)
 	singleBucket := test.GenerateBucketInfo("wawa-bucket")
 	buckets = append(buckets, singleBucket)
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo)
+	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo, labelManager)
 	c := make(chan prometheus.Metric, 9)
 	testCollector.Collect(c)
 	close(c)
@@ -256,6 +274,9 @@ func TestBucketInfoCollectReturnsMultipleMetricsForMultipleBuckets(t *testing.T)
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
+
 	buckets := make([]objects.BucketInfo, 0)
 	singleBucket := test.GenerateBucketInfo("wawa-bucket")
 	buckets = append(buckets, singleBucket)
@@ -263,8 +284,9 @@ func TestBucketInfoCollectReturnsMultipleMetricsForMultipleBuckets(t *testing.T)
 	secondBucket := test.GenerateBucketInfo("double-bucket")
 	buckets = append(buckets, secondBucket)
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
+	labelManager := util.NewLabelManager(mockClient)
 
-	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo)
+	testCollector := collectors.NewBucketInfoCollector(mockClient, defaultConfig.Collectors.BucketInfo, labelManager)
 	c := make(chan prometheus.Metric, 16)
 	testCollector.Collect(c)
 	close(c)

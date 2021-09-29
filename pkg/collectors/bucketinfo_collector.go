@@ -43,9 +43,9 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 
 	log.Info("Collecting bucketinfo metrics...")
 
-	clusterName, err := c.m.client.ClusterName()
+	ctx, err := c.m.labelManger.GetBasicMetricContext()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, objects.ClusterLabel)
 
 		log.Error("%s", err)
 
@@ -54,7 +54,7 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 
 	buckets, err := c.m.client.Buckets()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 		log.Error("failed to scrape buckets")
 
@@ -64,6 +64,8 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, bucket := range buckets {
 		log.Debug("Collecting %s bucket metrics...", bucket.Name)
 
+		ctx, _ = c.m.labelManger.GetMetricContext(bucket.Name, "")
+
 		for key, value := range c.config.Metrics {
 			log.Debug("Collecting for metric %s.", value.Name)
 
@@ -72,18 +74,17 @@ func (c *bucketInfoCollector) Collect(ch chan<- prometheus.Metric) {
 					value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 					prometheus.GaugeValue,
 					bucket.BucketBasicStats[key],
-					bucket.Name,
-					clusterName,
+					c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
 				)
 			}
 		}
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, ctx.ClusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), ctx.ClusterName)
 }
 
-func NewBucketInfoCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
+func NewBucketInfoCollector(client util.CbClient, config *objects.CollectorConfig, labelManager util.CbLabelManager) prometheus.Collector {
 	if config == nil {
 		config = objects.GetBucketInfoCollectorDefaultConfig()
 	}
@@ -103,6 +104,7 @@ func NewBucketInfoCollector(client util.CbClient, config *objects.CollectorConfi
 				[]string{objects.ClusterLabel},
 				nil,
 			),
+			labelManger: labelManager,
 		},
 		config: config,
 	}

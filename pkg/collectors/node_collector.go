@@ -42,7 +42,7 @@ type nodesCollector struct {
 	config *objects.CollectorConfig
 }
 
-func NewNodesCollector(client util.CbClient, config *objects.CollectorConfig) prometheus.Collector {
+func NewNodesCollector(client util.CbClient, config *objects.CollectorConfig, labelManager util.CbLabelManager) prometheus.Collector {
 	if config == nil {
 		config = objects.GetNodeCollectorDefaultConfig()
 	}
@@ -63,6 +63,7 @@ func NewNodesCollector(client util.CbClient, config *objects.CollectorConfig) pr
 				[]string{objects.ClusterLabel},
 				nil,
 			),
+			labelManger: labelManager,
 		},
 		config: config,
 	}
@@ -120,9 +121,10 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 
 	log.Info("Collecting nodes metrics...")
 
-	clusterName, err := c.m.client.ClusterName()
+	ctx, err := c.m.labelManger.GetBasicMetricContext()
+
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, objects.ClusterLabel)
 
 		log.Error("%s", err)
 
@@ -131,7 +133,7 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 
 	nodes, err := c.m.client.Nodes()
 	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, clusterName)
+		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
 
 		log.Error("failed to scrape nodes")
 
@@ -139,19 +141,19 @@ func (c *nodesCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for key, value := range c.config.Metrics {
-		if contains(value.Labels, objects.NodeLabel) {
-			c.addNodeStats(ch, key, value, clusterName, &nodes)
+		if contains(nodeSpecificStats, key) || strings.HasPrefix(key, interestingStats) || strings.HasPrefix(key, systemStats) {
+			c.addNodeStats(ch, key, value, &nodes)
 		} else {
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.CounterValue,
 				nodes.Counters[value.Name],
-				clusterName)
+				c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 		}
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, clusterName)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), clusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, ctx.ClusterName)
+	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), ctx.ClusterName)
 }
 
 func getUptimeValue(uptime string, bitSize int) float64 {
@@ -164,9 +166,15 @@ func getUptimeValue(uptime string, bitSize int) float64 {
 	return up
 }
 
-func (c *nodesCollector) addNodeStats(ch chan<- prometheus.Metric, key string, value objects.MetricInfo, clusterName string, nodes *objects.Nodes) {
+// These are the metrics that we collect per node.  Including metrics with "InterestingStats" and "SystemStats" prefixes.  This list allows us to check
+// metrics to see if we should collect them per node, or not.
+var nodeSpecificStats = []string{healthyState, uptime, clusterMembership, memoryTotal, memoryFree, mcdMemoryAllocated, mcdMemoryReserved}
+
+func (c *nodesCollector) addNodeStats(ch chan<- prometheus.Metric, key string, value objects.MetricInfo, nodes *objects.Nodes) {
 	for _, node := range nodes.Nodes {
-		log.Debug("Collecting %s-%s node metrics for metric %s", node.Hostname, clusterName, key)
+		ctx, _ := c.m.labelManger.GetMetricContext("", "")
+		ctx.NodeHostname = node.Hostname
+		log.Debug("Collecting %s-%s node metrics for metric %s", ctx.ClusterName, ctx.NodeHostname, key)
 
 		switch key {
 		case healthyState:
@@ -174,71 +182,62 @@ func (c *nodesCollector) addNodeStats(ch chan<- prometheus.Metric, key string, v
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.GaugeValue,
 				boolToFloat64(node.Status == healthyState),
-				node.Hostname,
-				clusterName)
+				c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 		case uptime:
 			up := getUptimeValue(node.Uptime, 64)
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.CounterValue,
 				up,
-				node.Hostname,
-				clusterName)
+				c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 		case clusterMembership:
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.CounterValue,
 				ifActive(node.ClusterMembership),
-				node.Hostname,
-				clusterName)
+				c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 		case memoryTotal:
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.CounterValue,
 				node.MemoryTotal,
-				node.Hostname,
-				clusterName)
+				c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 		case memoryFree:
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.CounterValue,
 				node.MemoryFree,
-				node.Hostname,
-				clusterName)
+				c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 		case mcdMemoryAllocated:
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.CounterValue,
 				node.McdMemoryAllocated,
-				node.Hostname,
-				clusterName)
+				c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 		case mcdMemoryReserved:
 			ch <- prometheus.MustNewConstMetric(
 				value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 				prometheus.CounterValue,
 				node.McdMemoryReserved,
-				node.Hostname,
-				clusterName)
+				c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 		default:
-			c.handleNonSpecificNodeMetrics(ch, key, value, clusterName, node)
+			c.handleNonSpecificNodeMetrics(ch, key, value, node, ctx)
 		}
 	}
 }
 
-func (c *nodesCollector) handleNonSpecificNodeMetrics(ch chan<- prometheus.Metric, key string, value objects.MetricInfo, clusterName string, node objects.Node) {
+func (c *nodesCollector) handleNonSpecificNodeMetrics(ch chan<- prometheus.Metric, key string, value objects.MetricInfo, node objects.Node, ctx util.MetricContext) {
 	if strings.HasPrefix(key, interestingStats) {
 		ch <- prometheus.MustNewConstMetric(
 			value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 			prometheus.GaugeValue,
 			node.InterestingStats[strings.TrimPrefix(value.Name, interestingStatsTrim)],
-			node.Hostname,
-			clusterName)
+			c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 	} else if strings.HasPrefix(key, systemStats) {
 		ch <- prometheus.MustNewConstMetric(
 			value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
 			prometheus.GaugeValue,
 			node.SystemStats[strings.TrimPrefix(value.Name, systemStatsTrim)],
-			node.Hostname,
-			clusterName)
+			c.m.labelManger.GetLabelValues(value.Labels, ctx)...)
 	}
 }
