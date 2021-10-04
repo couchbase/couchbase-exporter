@@ -149,7 +149,6 @@ func (c *taskCollector) addRebalance(ch chan<- prometheus.Metric, task objects.T
 	}
 }
 
-// nolint: cyclop
 func (c *taskCollector) addXdcr(ch chan<- prometheus.Metric, task objects.Task) {
 	ctx, _ := c.m.labelManger.GetMetricContextWithSourceAndTarget(task.Bucket, "", task.Source, task.Target)
 

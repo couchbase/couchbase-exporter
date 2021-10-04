@@ -2,6 +2,7 @@ run:
   timeout: 5m
   skip-dirs:
     - pkg/generated
+    - go
   skip-files: [zz_generated.deepcopy.go]
 
 linters:
@@ -41,13 +42,15 @@ linters:
     - nlreturn # seems at odds with cuddling
     - noctx # do want to fix this
     - wrapcheck # we do want this, but I want https://github.com/tomarrell/wrapcheck/issues/2 fixing first
+    - tagliatelle # This chokes on Couchbase Server Models that cannot be changed
 
 linters-settings:
   # Code duplication filter catches a lot of duplication in test
   # this needs refactoring at some point.
   dupl:
     threshold: 500
-
+  cyclop:
+    max-complexity: 25
 issues:
   exclude-rules:
     # Deep copies have 'in' as the receiver, ours have something else.

@@ -191,10 +191,10 @@ func TestEventingCollectReturnsDownIfClientReturnsErrorOnEventing(t *testing.T) 
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-	
+
 	node := test.GenerateNode()
 	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
-	
+
 	eventing := objects.Eventing{}
 	mockClient.EXPECT().Eventing().Times(1).Return(eventing, ErrDummy)
 	labelManager := util.NewLabelManager(mockClient)
@@ -228,10 +228,10 @@ func TestEventingCollectReturnsUpWithNoErrors(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-	
+
 	node := test.GenerateNode()
 	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
-	
+
 	eventing := objects.Eventing{}
 	mockClient.EXPECT().Eventing().Times(1).Return(eventing, nil)
 	labelManager := util.NewLabelManager(mockClient)

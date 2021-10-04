@@ -4,7 +4,7 @@ pipeline {
   }
 
   environment {
-    GOVERSION = '1.16.3'
+    GOVERSION = '1.17.1'
     PATH = "${env.WORKSPACE}/go/bin:${PATH}"
   }
 
@@ -14,9 +14,9 @@ pipeline {
         sh 'wget -q -O- https://dl.google.com/go/go${GOVERSION}.linux-amd64.tar.gz | tar xz'
       }
     }
-    stage('Build & test') {
+    stage('Lint, build & test') {
       steps {
-        sh 'make build test'
+        sh 'make lint build test'
       }
     }
   }

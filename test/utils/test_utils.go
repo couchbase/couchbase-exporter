@@ -397,7 +397,6 @@ func getTask(tasks []objects.Task, taskType string) objects.Task {
 	return task
 }
 
-// nolint: cyclop
 func GetTaskTestValue(key string, name string, tasks []objects.Task) float64 {
 	switch key {
 	case "compacting":

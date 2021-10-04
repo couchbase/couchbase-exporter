@@ -190,7 +190,7 @@ func TestCbasCollectReturnsDownIfClientReturnsErrorOnCbas(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-	
+
 	Node := test.GenerateNode()
 	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
 
@@ -227,7 +227,7 @@ func TestCbasCollectReturnsUpWithNoErrors(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-	
+
 	Node := test.GenerateNode()
 	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, nil)
 

@@ -35,3 +35,6 @@ test:
 gen:
 	go install github.com/golang/mock/mockgen@v1.6.0
 	$$GOPATH/bin/mockgen -source=./pkg/util/networking.go -destination=./test/mocks/mock_client.go -package mocks
+
+lint: 
+		go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./pkg/... ./test/... ./
