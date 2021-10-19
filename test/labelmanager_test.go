@@ -157,3 +157,25 @@ func TestLabelManagerSplitsValueOnColonAndRetursFirstValueAsLabel(t *testing.T) 
 	assert.Contains(t, labelValues, "new")
 	assert.Contains(t, labelValues, "foobarbaz")
 }
+func TestLabelManagerGetMetricContextCacheRace(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+
+	defer mockCtrl.Finish()
+
+	mockClient := mocks.NewMockCbClient(mockCtrl)
+	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
+
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
+
+	manager := util.NewLabelManager(mockClient)
+
+	for i := 0; i < 1000; i++ {
+		go func() {
+			ctx, err := manager.GetMetricContext("a", "b")
+
+			assert.Nil(t, err)
+			assert.Equal(t, "dummy-cluster", ctx.ClusterName)
+		}()
+	}
+}

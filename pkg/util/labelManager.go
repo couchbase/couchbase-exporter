@@ -32,14 +32,18 @@ type CbLabelManager interface {
 }
 
 type labelManager struct {
-	client     CbClient
-	labelCache cache
+	client            CbClient
+	labelCacheChannel chan cache
 }
 
 func NewLabelManager(client CbClient) CbLabelManager {
+	cacheChannel := make(chan cache, 1)
+
+	cacheChannel <- newCache()
+
 	lbl := &labelManager{
-		client:     client,
-		labelCache: newCache(),
+		client:            client,
+		labelCacheChannel: cacheChannel,
 	}
 
 	return lbl
@@ -50,9 +54,10 @@ func (l *labelManager) GetMetricContext(bucket, keyspace string) (MetricContext,
 		BucketName: bucket,
 		Keyspace:   keyspace,
 	}
+	labelCache := <-l.labelCacheChannel
 
-	if !l.labelCache.isExpired(objects.ClusterLabel) {
-		val, _ := l.labelCache.get(objects.ClusterLabel).(string)
+	if !labelCache.isExpired(objects.ClusterLabel) {
+		val, _ := labelCache.get(objects.ClusterLabel).(string)
 		ctx.ClusterName = val
 	} else {
 		clusterName, err := l.client.ClusterName()
@@ -60,11 +65,11 @@ func (l *labelManager) GetMetricContext(bucket, keyspace string) (MetricContext,
 			return ctx, err
 		}
 		ctx.ClusterName = clusterName
-		l.labelCache.set(objects.ClusterLabel, clusterName)
+		labelCache.set(objects.ClusterLabel, clusterName)
 	}
 
-	if !l.labelCache.isExpired(objects.NodeLabel) {
-		val, _ := l.labelCache.get(objects.NodeLabel).(string)
+	if !labelCache.isExpired(objects.NodeLabel) {
+		val, _ := labelCache.get(objects.NodeLabel).(string)
 		ctx.NodeHostname = val
 	} else {
 		node, err := l.client.GetCurrentNode()
@@ -72,8 +77,9 @@ func (l *labelManager) GetMetricContext(bucket, keyspace string) (MetricContext,
 			return ctx, err
 		}
 		ctx.NodeHostname = node.Hostname
-		l.labelCache.set(objects.NodeLabel, node.Hostname)
+		labelCache.set(objects.NodeLabel, node.Hostname)
 	}
+	l.labelCacheChannel <- labelCache
 
 	return ctx, nil
 }
