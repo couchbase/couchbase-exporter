@@ -36,10 +36,10 @@ type labelManager struct {
 	labelCacheChannel chan cache
 }
 
-func NewLabelManager(client CbClient) CbLabelManager {
+func NewLabelManager(client CbClient, duration time.Duration) CbLabelManager {
 	cacheChannel := make(chan cache, 1)
 
-	cacheChannel <- newCache()
+	cacheChannel <- newCache(duration)
 
 	lbl := &labelManager{
 		client:            client,
@@ -55,6 +55,10 @@ func (l *labelManager) GetMetricContext(bucket, keyspace string) (MetricContext,
 		Keyspace:   keyspace,
 	}
 	labelCache := <-l.labelCacheChannel
+
+	defer func() {
+		l.labelCacheChannel <- labelCache
+	}()
 
 	if !labelCache.isExpired(objects.ClusterLabel) {
 		val, _ := labelCache.get(objects.ClusterLabel).(string)
@@ -79,7 +83,6 @@ func (l *labelManager) GetMetricContext(bucket, keyspace string) (MetricContext,
 		ctx.NodeHostname = node.Hostname
 		labelCache.set(objects.NodeLabel, node.Hostname)
 	}
-	l.labelCacheChannel <- labelCache
 
 	return ctx, nil
 }
@@ -135,21 +138,23 @@ func (l *labelManager) GetLabelKeys(labels []string) []string {
 }
 
 type cache struct {
-	items map[string]entry
+	items    map[string]entry
+	duration time.Duration
 }
 
-func newCache() cache {
+func newCache(duration time.Duration) cache {
 	return cache{
-		items: make(map[string]entry),
+		items:    make(map[string]entry),
+		duration: duration,
 	}
 }
 
-const cacheDuration = 10
+// const cacheDuration = 10
 
 func (c *cache) set(key string, data interface{}) {
 	c.items[key] = entry{
 		data:       data,
-		expiration: time.Now().Add(cacheDuration * time.Minute),
+		expiration: time.Now().Add(c.duration),
 	}
 }
 

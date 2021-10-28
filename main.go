@@ -18,6 +18,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/couchbase/couchbase-exporter/pkg/collectors"
 	"github.com/couchbase/couchbase-exporter/pkg/config"
@@ -146,7 +147,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	labelManager := util.NewLabelManager(client)
+	labelManager := util.NewLabelManager(client, 600*time.Second)
 
 	log.Info("Registering Collectors...")
 

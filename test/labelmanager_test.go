@@ -1,7 +1,9 @@
 package test
 
 import (
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
@@ -11,6 +13,36 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestMetricsConcurrency(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+
+	defer mockCtrl.Finish()
+
+	mockClient := mocks.NewMockCbClient(mockCtrl)
+	mockClient.EXPECT().ClusterName().Times(15).Return("dummy-cluster", nil)
+
+	node := test.GenerateNode()
+	mockClient.EXPECT().GetCurrentNode().Times(15).Return(node, nil)
+	manager := util.NewLabelManager(mockClient, 1*time.Second)
+
+	var wg sync.WaitGroup
+
+	f := func() {
+		defer wg.Done()
+
+		for start := time.Now(); time.Since(start) < 15*time.Second; {
+			ctx, err := manager.GetMetricContext("a", "b")
+
+			assert.Nil(t, err)
+			assert.Equal(t, "dummy-cluster", ctx.ClusterName)
+		}
+	}
+
+	go f()
+	go f()
+	wg.Add(2)
+	wg.Wait()
+}
 func TestLabelManagerCallsClusterNameOnce(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 
@@ -22,7 +54,7 @@ func TestLabelManagerCallsClusterNameOnce(t *testing.T) {
 	node := test.GenerateNode()
 	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
 
-	manager := util.NewLabelManager(mockClient)
+	manager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	ctx, err := manager.GetMetricContext("a", "b")
 
@@ -41,7 +73,7 @@ func TestLabelManagerCallsClusterNameOnceEvenOnSubsequentRequests(t *testing.T) 
 	node := test.GenerateNode()
 	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
 
-	manager := util.NewLabelManager(mockClient)
+	manager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	ctx, err := manager.GetMetricContext("a", "b")
 	assert.Nil(t, err)
@@ -62,7 +94,7 @@ func TestLabelManagerReturnsErrorIfClientErrors(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("", ErrDummy)
 
-	manager := util.NewLabelManager(mockClient)
+	manager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	_, err := manager.GetMetricContext("a", "b")
 	assert.NotNil(t, err)
@@ -74,7 +106,7 @@ func TestLabelManagerGetsAppropriateValuesFromCTX(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	manager := util.NewLabelManager(mockClient)
+	manager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	ctx := util.MetricContext{
 		ClusterName:  "dummy-cluster",
@@ -97,7 +129,7 @@ func TestLabelManagerSplitsValuesWithColonAndUsesSecondForValue(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	manager := util.NewLabelManager(mockClient)
+	manager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	ctx := util.MetricContext{
 		ClusterName:  "dummy-cluster",
@@ -121,7 +153,7 @@ func TestLabelManagerTakesLabelForValueIfUnrecognized(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	manager := util.NewLabelManager(mockClient)
+	manager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	ctx := util.MetricContext{
 		ClusterName:  "dummy-cluster",
@@ -146,7 +178,7 @@ func TestLabelManagerSplitsValueOnColonAndRetursFirstValueAsLabel(t *testing.T) 
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	manager := util.NewLabelManager(mockClient)
+	manager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	labelValues := manager.GetLabelKeys([]string{objects.ClusterLabel, objects.BucketLabel, objects.KeyspaceLabel, objects.NodeLabel, "new:value", "foobarbaz"})
 
@@ -156,26 +188,4 @@ func TestLabelManagerSplitsValueOnColonAndRetursFirstValueAsLabel(t *testing.T) 
 	assert.Contains(t, labelValues, "keyspace")
 	assert.Contains(t, labelValues, "new")
 	assert.Contains(t, labelValues, "foobarbaz")
-}
-func TestLabelManagerGetMetricContextCacheRace(t *testing.T) {
-	mockCtrl := gomock.NewController(t)
-
-	defer mockCtrl.Finish()
-
-	mockClient := mocks.NewMockCbClient(mockCtrl)
-	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
-
-	node := test.GenerateNode()
-	mockClient.EXPECT().GetCurrentNode().Times(1).Return(node, nil)
-
-	manager := util.NewLabelManager(mockClient)
-
-	for i := 0; i < 1000; i++ {
-		go func() {
-			ctx, err := manager.GetMetricContext("a", "b")
-
-			assert.Nil(t, err)
-			assert.Equal(t, "dummy-cluster", ctx.ClusterName)
-		}()
-	}
 }

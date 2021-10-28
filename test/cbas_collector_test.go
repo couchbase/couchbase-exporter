@@ -51,7 +51,7 @@ func TestCbasDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing.T) 
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewCbasCollector(mockClient, defaultConfig.Collectors.Analytics, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -127,7 +127,7 @@ func TestCbasDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T) {
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewCbasCollector(mockClient, defaultConfig.Collectors.Analytics, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -168,7 +168,7 @@ func TestCbasCollectReturnsDownIfClientReturnsError(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewCbasCollector(mockClient, defaultConfig.Collectors.Analytics, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -196,7 +196,7 @@ func TestCbasCollectReturnsDownIfClientReturnsErrorOnCbas(t *testing.T) {
 
 	anal := objects.Analytics{}
 	mockClient.EXPECT().Cbas().Times(1).Return(anal, ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewCbasCollector(mockClient, defaultConfig.Collectors.Analytics, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -233,7 +233,7 @@ func TestCbasCollectReturnsUpWithNoErrors(t *testing.T) {
 
 	anal := objects.Analytics{}
 	mockClient.EXPECT().Cbas().Times(1).Return(anal, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewCbasCollector(mockClient, defaultConfig.Collectors.Analytics, labelManager)
 	c := make(chan prometheus.Metric, 2)
@@ -263,7 +263,7 @@ func TestCbasCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 
 	anal := test.GenerateAnalytics()
 	mockClient.EXPECT().Cbas().Times(1).Return(anal, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewCbasCollector(mockClient, defaultConfig.Collectors.Analytics, labelManager)
 	c := make(chan prometheus.Metric, 9)

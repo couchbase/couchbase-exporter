@@ -2,6 +2,7 @@ package test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/couchbase/couchbase-exporter/pkg/collectors"
 	"github.com/couchbase/couchbase-exporter/pkg/config"
@@ -31,7 +32,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetCurrentNode(t *testing.T) {
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 	mockClient.EXPECT().GetCurrentNode().Times(1).Return(Node, ErrDummy)
 
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
@@ -51,7 +52,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetClusterName(t *testing.T) {
 	mockSetter := mocks.NewMockSetter()
 
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
@@ -76,7 +77,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetClusterBalanceStatus(t *testing.T
 
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", nil)
 	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
@@ -103,7 +104,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetBuckets(t *testing.T) {
 
 	buckets := make([]objects.BucketInfo, 0)
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
@@ -135,7 +136,7 @@ func TestPerNodeBucketStatsReturnsDownIfCantGetBucketStats(t *testing.T) {
 
 	servers := test.GenerateServers()
 	mockClient.EXPECT().Servers(gomock.Any()).Times(1).Return(servers, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
@@ -187,7 +188,7 @@ func TestPerNodeBucketStatsReturnsUp(t *testing.T) {
 
 	servers := test.GenerateServers()
 	mockClient.EXPECT().Servers(gomock.Any()).Times(1).Return(servers, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter
@@ -231,7 +232,7 @@ func TestPerNodeBucketStatsReturnsCorrectValues(t *testing.T) {
 
 	servers := test.GenerateServers()
 	mockClient.EXPECT().Servers(gomock.Any()).Times(1).Return(servers, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewPerNodeBucketStatsCollector(mockClient, defaultConfig.Collectors.PerNodeBucketStats, labelManager)
 	testCollector.Setter = &mockSetter

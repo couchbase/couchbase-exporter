@@ -51,7 +51,7 @@ func TestNodeDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing.T) 
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewNodesCollector(mockClient, defaultConfig.Collectors.Node, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -127,7 +127,7 @@ func TestNodeDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T) {
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewNodesCollector(mockClient, defaultConfig.Collectors.Node, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -168,7 +168,7 @@ func TestNodeCollectReturnsDownIfClientReturnsError(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewNodesCollector(mockClient, defaultConfig.Collectors.Node, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -196,7 +196,7 @@ func TestNodeCollectReturnsDownIfClientReturnsErrorOnNode(t *testing.T) {
 
 	Nodes := objects.Nodes{}
 	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewNodesCollector(mockClient, defaultConfig.Collectors.Node, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -233,7 +233,7 @@ func TestNodeCollectReturnsUpWithNoErrors(t *testing.T) {
 
 	Nodes := objects.Nodes{}
 	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewNodesCollector(mockClient, defaultConfig.Collectors.Node, labelManager)
 	c := make(chan prometheus.Metric, 22)
@@ -263,7 +263,7 @@ func TestNodeCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 
 	Nodes := test.GenerateNodes("dummy-cluster", []objects.Node{Node})
 	mockClient.EXPECT().Nodes().Times(1).Return(Nodes, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewNodesCollector(mockClient, defaultConfig.Collectors.Node, labelManager)
 	c := make(chan prometheus.Metric, 9)

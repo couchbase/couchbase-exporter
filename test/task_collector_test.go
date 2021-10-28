@@ -51,7 +51,7 @@ func TestTaskDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing.T) 
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -127,7 +127,7 @@ func TestTaskDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T) {
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -168,7 +168,7 @@ func TestTaskCollectReturnsDownIfClientReturnsError(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -196,7 +196,7 @@ func TestTaskCollectReturnsDownIfClientReturnsErrorOnTask(t *testing.T) {
 
 	Tasks := []objects.Task{}
 	mockClient.EXPECT().Tasks().Times(1).Return(Tasks, ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -227,7 +227,7 @@ func TestTaskCollectReturnsDownIfClientReturnsErrorOnBuckets(t *testing.T) {
 
 	buckets := make([]objects.BucketInfo, 0)
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -266,7 +266,7 @@ func TestTaskCollectReturnsUpWithNoErrors(t *testing.T) {
 
 	buckets := make([]objects.BucketInfo, 0)
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task, labelManager)
 	c := make(chan prometheus.Metric, 2)
@@ -300,7 +300,7 @@ func TestTaskCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 	buckets := make([]objects.BucketInfo, 0)
 	buckets = append(buckets, test.GenerateBucket("wawa-bucket"))
 	mockClient.EXPECT().Buckets().Times(1).Return(buckets, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewTaskCollector(mockClient, defaultConfig.Collectors.Task, labelManager)
 	c := make(chan prometheus.Metric, 9)

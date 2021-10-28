@@ -52,7 +52,7 @@ func TestQueryDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing.T)
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -128,7 +128,7 @@ func TestQueryDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T) {
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -169,7 +169,7 @@ func TestQueryCollectReturnsDownIfClientReturnsError(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -197,7 +197,7 @@ func TestQueryCollectReturnsDownIfClientReturnsErrorOnQuery(t *testing.T) {
 
 	Query := objects.Query{}
 	mockClient.EXPECT().Query().Times(1).Return(Query, ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -234,7 +234,7 @@ func TestQueryCollectReturnsUpWithNoErrors(t *testing.T) {
 
 	Query := objects.Query{}
 	mockClient.EXPECT().Query().Times(1).Return(Query, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan prometheus.Metric, 2)
@@ -264,7 +264,7 @@ func TestQueryCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 
 	Query := test.GenerateQuery()
 	mockClient.EXPECT().Query().Times(1).Return(Query, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewQueryCollector(mockClient, defaultConfig.Collectors.Query, labelManager)
 	c := make(chan prometheus.Metric, 9)

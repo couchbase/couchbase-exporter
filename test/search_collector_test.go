@@ -52,7 +52,7 @@ func TestSearchDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing.T
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewFTSCollector(mockClient, defaultConfig.Collectors.Search, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -128,7 +128,7 @@ func TestSearchDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T) {
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewFTSCollector(mockClient, defaultConfig.Collectors.Search, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -169,7 +169,7 @@ func TestSearchCollectReturnsDownIfClientReturnsError(t *testing.T) {
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewFTSCollector(mockClient, defaultConfig.Collectors.Search, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -197,7 +197,7 @@ func TestSearchCollectReturnsDownIfClientReturnsErrorOnFts(t *testing.T) {
 
 	fts := objects.FTS{}
 	mockClient.EXPECT().Fts().Times(1).Return(fts, ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewFTSCollector(mockClient, defaultConfig.Collectors.Search, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -234,7 +234,7 @@ func TestSearchCollectReturnsUpWithNoErrors(t *testing.T) {
 
 	fts := objects.FTS{}
 	mockClient.EXPECT().Fts().Times(1).Return(fts, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewFTSCollector(mockClient, defaultConfig.Collectors.Search, labelManager)
 	c := make(chan prometheus.Metric, 2)
@@ -264,7 +264,7 @@ func TestSearchCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 
 	fts := test.GenerateFTS()
 	mockClient.EXPECT().Fts().Times(1).Return(fts, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewFTSCollector(mockClient, defaultConfig.Collectors.Search, labelManager)
 	c := make(chan prometheus.Metric, 9)

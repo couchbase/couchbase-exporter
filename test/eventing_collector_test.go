@@ -51,7 +51,7 @@ func TestEventingDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *testing
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -127,7 +127,7 @@ func TestEventingDescribeReturnsAppropriateValuesWithNameOverride(t *testing.T) 
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan *prometheus.Desc, 9)
@@ -169,7 +169,7 @@ func TestEventingCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	mockClient := mocks.NewMockCbClient(mockCtrl)
 	mockClient.EXPECT().ClusterName().Times(1).Return("dummy-cluster", ErrDummy)
 
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -197,7 +197,7 @@ func TestEventingCollectReturnsDownIfClientReturnsErrorOnEventing(t *testing.T) 
 
 	eventing := objects.Eventing{}
 	mockClient.EXPECT().Eventing().Times(1).Return(eventing, ErrDummy)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan prometheus.Metric, 1)
@@ -234,7 +234,7 @@ func TestEventingCollectReturnsUpWithNoErrors(t *testing.T) {
 
 	eventing := objects.Eventing{}
 	mockClient.EXPECT().Eventing().Times(1).Return(eventing, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan prometheus.Metric, 2)
@@ -264,7 +264,7 @@ func TestEventingCollectReturnsOneOfEachMetricWithCorrectValues(t *testing.T) {
 
 	eventing := test.GenerateEventing()
 	mockClient.EXPECT().Eventing().Times(1).Return(eventing, nil)
-	labelManager := util.NewLabelManager(mockClient)
+	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewEventingCollector(mockClient, defaultConfig.Collectors.Eventing, labelManager)
 	c := make(chan prometheus.Metric, 9)
