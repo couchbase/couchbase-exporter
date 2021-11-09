@@ -1,0 +1,10 @@
+on:
+  push:
+    tags:
+      # Only act on unhyphenated tags - e.g. 1.0.2 = ok, 1.0.2-beta = skip
+      - "*"
+      - "!*-*"
+
+jobs:
+  release:
+    uses: couchbase/build-tools/.github/workflows/k8s-microservice-release.yml@master
