@@ -7,6 +7,10 @@ DOCKER_TAG = v1
 DOCKER_USER = couchbase
 .PHONY: all test clean
 
+GOPATH := $(shell go env GOPATH)
+GOBIN := $(if $(GOPATH),$(GOPATH)/bin,$(HOME)/go/bin)
+GOLINT_VERSION := v1.42.1
+
 build: $(SOURCE) go.mod
 	for platform in linux darwin ; do \
 	  echo "Building $$platform binary" ; \
@@ -37,4 +41,5 @@ gen:
 	$$GOPATH/bin/mockgen -source=./pkg/util/networking.go -destination=./test/mocks/mock_client.go -package mocks
 
 lint: 
-		go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./pkg/... ./test/... ./
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLINT_VERSION)
+	$(GOBIN)/golangci-lint run ./pkg/... ./test/...
