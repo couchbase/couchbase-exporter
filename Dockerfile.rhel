@@ -25,6 +25,7 @@ LABEL name="couchbase/exporter" \
       summary="Couchbase Exporter ${PROD_VERSION}" \
       description="Couchbase Exporter ${PROD_VERSION}" \
       architecture="x86_64" \
-      run="docker run --rm couchbase-exporter registry.connect.redhat.com/couchbase/exporter:${PROD_VERSION}-${OS_BUILD} --help"
+      run="docker run --rm couchbase-exporter registry.connect.redhat.com/couchbase/exporter:${PROD_VERSION}-${OS_BUILD} --help" \
+      io.k8s.description="The Couchbase Prometheus Exporter is an official Prometheus Exporter which supplies Couchbase Server metrics to Prometheus."
 
 ENTRYPOINT ["couchbase-exporter"]
