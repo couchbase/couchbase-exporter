@@ -1,3 +1,4 @@
 FROM scratch
-COPY bin/linux/couchbase-exporter /
+ARG TARGETARCH
+COPY bin/linux/couchbase-exporter-${TARGETARCH} /couchbase-exporter
 ENTRYPOINT ["/couchbase-exporter"]

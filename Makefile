@@ -13,13 +13,15 @@ GOLINT_VERSION := v1.42.1
 
 build: $(SOURCE) go.mod
 	for platform in linux darwin ; do \
-	  echo "Building $$platform binary" ; \
-	  GOOS=$$platform GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -ldflags="-s -w" -o bin/$$platform/couchbase-exporter ; \
+		for arch in amd64 arm64 ; do \
+	  	echo "Building $$platform $$arch binary " ; \
+	  	GOOS=$$platform GOARCH=$$arch CGO_ENABLED=0 GO111MODULE=on go build -ldflags="-s -w" -o bin/$$platform/couchbase-exporter-$$arch ; \
+	  done \
 	done
 
 image-artifacts: build
 	mkdir -p $(ARTIFACTS)/bin/linux
-	cp bin/linux/couchbase-exporter $(ARTIFACTS)/bin/linux
+	cp bin/linux/couchbase-exporter-* $(ARTIFACTS)/bin/linux/
 	cp Dockerfile* LICENSE README.md $(ARTIFACTS)
 
 dist: image-artifacts
@@ -40,6 +42,6 @@ gen:
 	go install github.com/golang/mock/mockgen@v1.6.0
 	$$GOPATH/bin/mockgen -source=./pkg/util/networking.go -destination=./test/mocks/mock_client.go -package mocks
 
-lint: 
+lint:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLINT_VERSION)
 	$(GOBIN)/golangci-lint run ./pkg/... ./test/...

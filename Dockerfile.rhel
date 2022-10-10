@@ -1,5 +1,7 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal
 
+ARG TARGETARCH
+
 # ubi-minimal updates frequently and has very few packages installed,
 # so no need for a "security-only" update.
 RUN microdnf update && microdnf clean all
@@ -14,7 +16,7 @@ ARG PROD_BUILD
 ARG OS_BUILD
 
 # Install Couchbase Exporter
-COPY bin/linux/couchbase-exporter /usr/local/bin/couchbase-exporter
+COPY bin/linux/couchbase-exporter-${TARGETARCH} /usr/local/bin/couchbase-exporter
 
 LABEL name="couchbase/exporter" \
       vendor="Couchbase" \
