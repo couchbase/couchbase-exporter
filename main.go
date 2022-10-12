@@ -22,9 +22,11 @@ import (
 
 	"github.com/couchbase/couchbase-exporter/pkg/collectors"
 	"github.com/couchbase/couchbase-exporter/pkg/config"
+	"github.com/couchbase/couchbase-exporter/pkg/handlers"
 	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -170,10 +172,10 @@ func main() {
 	cycle.Subscribe(&perNodeBucketStatCollector)
 	cycle.Start()
 
-	log.Info("Serving Metrics")
+	log.Info("Serving all exposed endpoints...")
 
 	for {
-		serveMetrics(exporterConfig)
+		serveHandlers(client, exporterConfig)
 	}
 }
 
@@ -198,11 +200,11 @@ func writeToTerminationLog(mainErr error) {
 	}
 }
 
-// serve the actual metrics.
-func serveMetrics(exporterConfig *objects.ExporterConfig) {
+// serve all endpoints registered on the HTTP server.
+func serveHandlers(client util.Client, exporterConfig *objects.ExporterConfig) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Warn("Recovered in serveMetrics(): %s", r)
+			log.Warn("Recovered in serveHandlers(): %s", r)
 		}
 	}()
 
@@ -215,6 +217,8 @@ func serveMetrics(exporterConfig *objects.ExporterConfig) {
 	}
 
 	handler.ServeMux.Handle("/metrics", promhttp.Handler())
+
+	handler.ServeMux.HandleFunc("/readiness-probe", handlers.Readyz(client))
 
 	metricsServer := fmt.Sprintf("%v:%v", exporterConfig.ServerAddress, exporterConfig.ServerPort)
 	log.Info("starting server on %s", metricsServer)

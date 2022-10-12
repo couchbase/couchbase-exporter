@@ -134,7 +134,7 @@ func (c Client) IndexAPIGet(path string, v interface{}) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return errors.Wrapf(err, "%s failed to Get metrics: %s %d", path, string(bts), resp.StatusCode)
+		return errors.Errorf("failed to Get 200 response status: %d", resp.StatusCode)
 	}
 
 	if err := json.Unmarshal(bts, v); err != nil {
@@ -157,7 +157,7 @@ func (c Client) Get(path string, v interface{}) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return errors.Wrapf(err, "%s failed to Get metrics: %s %d", path, string(bts), resp.StatusCode)
+		return errors.Errorf("failed to Get 200 response status: %d", resp.StatusCode)
 	}
 
 	if err := json.Unmarshal(bts, v); err != nil {
