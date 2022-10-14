@@ -50,8 +50,10 @@ func TestBucketStatsDescribeReturnsAppropriateValuesBasedOnDefaultConfig(t *test
 	}
 
 	mockClient := mocks.NewMockCbClient(mockCtrl)
+
 	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, labelManager)
+
 	c := make(chan *prometheus.Desc, 9)
 
 	defer close(c)
@@ -170,6 +172,9 @@ func TestBucketStatsCollectReturnsDownIfClientReturnsError(t *testing.T) {
 	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, labelManager)
+
+	testCollector.DoWork()
+
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -199,6 +204,9 @@ func TestBucketStatsCollectReturnsDownIfClientReturnsErrorOnBuckets(t *testing.T
 	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, labelManager)
+
+	testCollector.DoWork()
+
 	c := make(chan prometheus.Metric, 1)
 	testCollector.Collect(c)
 	close(c)
@@ -235,6 +243,8 @@ func TestBucketStatsCollectReturnsDownIfClientReturnsErrorOnBucketStats(t *testi
 
 	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, labelManager)
 
+	testCollector.DoWork()
+
 	c := make(chan prometheus.Metric, 10)
 	testCollector.Collect(c)
 	close(c)
@@ -263,6 +273,9 @@ func TestBucketStatsCollectReturnsUpWithNoErrors(t *testing.T) {
 	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, labelManager)
+
+	testCollector.DoWork()
+
 	c := make(chan prometheus.Metric, 2)
 	testCollector.Collect(c)
 	close(c)
@@ -299,6 +312,9 @@ func TestBucketStatsCollectReturnsOneOfEachMetricForASingleBucketWithCorrectValu
 	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, labelManager)
+
+	testCollector.DoWork()
+
 	c := make(chan prometheus.Metric, 9)
 	count := 0
 
@@ -376,6 +392,9 @@ func TestBucketStatsCollectReturnsOneOfEachMetricForASingleBucketWithAutoCompact
 	lblManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, lblManager)
+
+	testCollector.DoWork()
+
 	c := make(chan prometheus.Metric, 9)
 	count := 0
 
@@ -421,7 +440,7 @@ func TestBucketStatsCollectReturnsOneOfEachMetricForASingleBucketWithAutoCompact
 			}
 			count++
 		case <-time.After(1 * time.Second):
-			if count >= len(defaultConfig.Collectors.BucketStats.Metrics)+2 {
+			if count >= len(defaultConfig.Collectors.BucketStats.Metrics) {
 				return
 			}
 		}
@@ -463,6 +482,9 @@ func TestBucketStatsCollectReturnsOneOfEachMetricForASingleBucketWithAutoCompact
 	lblManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, lblManager)
+
+	testCollector.DoWork()
+
 	c := make(chan prometheus.Metric, 9)
 	count := 0
 
@@ -508,7 +530,7 @@ func TestBucketStatsCollectReturnsOneOfEachMetricForASingleBucketWithAutoCompact
 			}
 			count++
 		case <-time.After(1 * time.Second):
-			if count >= len(defaultConfig.Collectors.BucketStats.Metrics)+2 {
+			if count >= len(defaultConfig.Collectors.BucketStats.Metrics) {
 				return
 			}
 		}
@@ -544,6 +566,9 @@ func TestBucketStatsCollectReturnsCorrectValuesWithMultipleBuckets(t *testing.T)
 	labelManager := util.NewLabelManager(mockClient, 600*time.Second)
 
 	testCollector := collectors.NewBucketStatsCollector(mockClient, defaultConfig.Collectors.BucketStats, labelManager)
+
+	testCollector.DoWork()
+
 	c := make(chan prometheus.Metric)
 	count := 0
 
@@ -582,7 +607,7 @@ func TestBucketStatsCollectReturnsCorrectValuesWithMultipleBuckets(t *testing.T)
 			}
 			count++
 		case <-time.After(1 * time.Second):
-			if count >= 2*len(defaultConfig.Collectors.BucketStats.Metrics)+2 {
+			if count >= 2*len(defaultConfig.Collectors.BucketStats.Metrics) {
 				return
 			}
 		}

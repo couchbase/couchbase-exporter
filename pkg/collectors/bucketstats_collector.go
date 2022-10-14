@@ -18,12 +18,51 @@ import (
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-type bucketStatsCollector struct {
-	m MetaCollector
+var (
+	bucketUpVec = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace:   "bucketstats",
+			Subsystem:   "",
+			Name:        objects.DefaultUptimeMetric,
+			Help:        objects.DefaultUptimeMetricHelp,
+			ConstLabels: nil,
+		},
+		[]string{objects.ClusterLabel})
+	bucketScrapeVec = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace:   "bucketstats",
+			Subsystem:   "",
+			Name:        objects.DefaultScrapeDurationMetric,
+			Help:        objects.DefaultScrapeDurationMetricHelp,
+			ConstLabels: nil,
+		},
+		[]string{objects.ClusterLabel})
+)
 
-	config *objects.CollectorConfig
+type BucketStatsCollector struct {
+	config         *objects.CollectorConfig
+	metrics        map[string]*prometheus.GaugeVec
+	registry       *prometheus.Registry
+	client         util.CbClient
+	up             *prometheus.GaugeVec
+	scrapeDuration *prometheus.GaugeVec
+	labelManger    util.CbLabelManager
+	// This is for TESTING purposes only.
+	// By default bucketStatsCollector implements and uses itself to
+	// fulfill this functionality.
+	Setter PrometheusVecSetter
+}
+
+func (c *BucketStatsCollector) SetGaugeVec(vec prometheus.GaugeVec, stat float64, labelValues ...string) {
+	vec.WithLabelValues(labelValues...).Set(stat)
+}
+
+// Implements Worker interface for CycleController.
+func (c *BucketStatsCollector) DoWork() {
+	c.CollectMetrics()
 }
 
 func last(stats []float64) float64 {
@@ -42,10 +81,88 @@ func min(x, y float64) float64 {
 	return x
 }
 
-// Describe all metrics.
-func (c *bucketStatsCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- c.m.up
-	ch <- c.m.scrapeDuration
+func (c *BucketStatsCollector) setMetric(metric objects.MetricInfo, samples map[string][]float64, ctx util.MetricContext) {
+	if !metric.Enabled {
+		return
+	}
+
+	promMetric, ok := c.metrics[metric.Name]
+	if !ok {
+		promMetric = metric.GetPrometheusGaugeVec(c.registry, c.config.Namespace, c.config.Subsystem)
+		c.metrics[metric.Name] = promMetric
+	}
+
+	switch metric.Name {
+	case "avg_bg_wait_time":
+		// comes across as microseconds.  Convert
+		c.Setter.SetGaugeVec(*promMetric, last(samples[metric.Name])/1000000, c.labelManger.GetLabelValues(metric.Labels, ctx)...)
+	case "ep_cache_miss_rate":
+		c.Setter.SetGaugeVec(*promMetric, min(last(samples[metric.Name]), 100), c.labelManger.GetLabelValues(metric.Labels, ctx)...)
+	default:
+		c.Setter.SetGaugeVec(*promMetric, last(samples[metric.Name]), c.labelManger.GetLabelValues(metric.Labels, ctx)...)
+	}
+}
+
+func (c *BucketStatsCollector) CollectMetrics() {
+	start := time.Now()
+
+	log.Info("Begin collecting bucketstats metrics...")
+
+	ctx, err := c.labelManger.GetBasicMetricContext()
+	if err != nil {
+		c.Setter.SetGaugeVec(*c.up, 0, objects.ClusterLabel)
+		log.Error("%s", err)
+
+		return
+	}
+
+	buckets, err := c.client.Buckets()
+	if err != nil {
+		c.Setter.SetGaugeVec(*c.up, 0, objects.ClusterLabel)
+		log.Error("failed to scrape buckets")
+
+		return
+	}
+
+	for _, bucket := range buckets {
+		log.Debug("Collecting %s bucket stats metrics...", bucket.Name)
+
+		ctx, _ := c.labelManger.GetMetricContext(bucket.Name, "")
+
+		stats, err := c.client.BucketStats(bucket.Name)
+
+		if err != nil {
+			c.Setter.SetGaugeVec(*c.up, 0, objects.ClusterLabel)
+			log.Error("failed to scrape bucket stats")
+
+			return
+		}
+
+		for _, value := range c.config.Metrics {
+			log.Debug("Collecting bucket stats: %s", value.Name)
+
+			if value.Enabled {
+				c.setMetric(value, stats.Op.Samples, ctx)
+			}
+		}
+	}
+
+	c.Setter.SetGaugeVec(*c.up, 1, objects.ClusterLabel)
+	c.Setter.SetGaugeVec(*c.scrapeDuration, time.Since(start).Seconds(), ctx.ClusterName)
+	log.Info("Bucket stats is complete Duration: %v", time.Since(start))
+}
+
+func (c *BucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
+	for _, metric := range c.metrics {
+		metric.Collect(ch)
+	}
+}
+
+func (c *BucketStatsCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- prometheus.NewDesc(prometheus.BuildFQName(c.config.Namespace, c.config.Subsystem, objects.DefaultScrapeDurationMetric),
+		objects.DefaultScrapeDurationMetricHelp, []string{objects.ClusterLabel}, nil)
+	ch <- prometheus.NewDesc(prometheus.BuildFQName(c.config.Namespace, c.config.Subsystem, objects.DefaultUptimeMetric),
+		objects.DefaultUptimeMetricHelp, []string{objects.ClusterLabel}, nil)
 
 	for _, value := range c.config.Metrics {
 		if !value.Enabled {
@@ -55,104 +172,22 @@ func (c *bucketStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 	}
 }
 
-func (c *bucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
-	c.m.mutex.Lock()
-	defer c.m.mutex.Unlock()
-
-	start := time.Now()
-
-	log.Info("Collecting bucketstats metrics...")
-
-	ctx, err := c.m.labelManger.GetBasicMetricContext()
-	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, objects.ClusterLabel)
-
-		log.Error("%s", err)
-
-		return
-	}
-
-	buckets, err := c.m.client.Buckets()
-	if err != nil {
-		ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
-
-		log.Error("failed to scrape buckets")
-
-		return
-	}
-
-	for _, bucket := range buckets {
-		log.Debug("Collecting %s bucket stats metrics...", bucket.Name)
-
-		ctx, _ := c.m.labelManger.GetMetricContext(bucket.Name, "")
-
-		stats, err := c.m.client.BucketStats(bucket.Name)
-
-		if err != nil {
-			ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 0, ctx.ClusterName)
-
-			log.Error("failed to scrape bucket stats")
-
-			return
-		}
-
-		for key, value := range c.config.Metrics {
-			log.Debug("Collecting bucket stats: %s", value.Name)
-
-			if value.Enabled {
-				switch key {
-				case "AvgBgWaitTime":
-					ch <- prometheus.MustNewConstMetric(
-						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-						prometheus.GaugeValue,
-						last(stats.Op.Samples[objects.AvgBgWaitTime])/1000000, // this comes as microseconds from cb
-						c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
-					)
-				case "EpCacheMissRate":
-					ch <- prometheus.MustNewConstMetric(
-						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-						prometheus.GaugeValue,
-						min(last(stats.Op.Samples[value.Name]), 100), // percentage can exceed 100 due to code within CB, so needs limiting to 100
-						c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
-					)
-				default:
-					ch <- prometheus.MustNewConstMetric(
-						value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem),
-						prometheus.GaugeValue,
-						last(stats.Op.Samples[value.Name]),
-						c.m.labelManger.GetLabelValues(value.Labels, ctx)...,
-					)
-				}
-			}
-		}
-	}
-
-	ch <- prometheus.MustNewConstMetric(c.m.up, prometheus.GaugeValue, 1, ctx.ClusterName)
-	ch <- prometheus.MustNewConstMetric(c.m.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), ctx.ClusterName)
-}
-
-func NewBucketStatsCollector(client util.CbClient, config *objects.CollectorConfig, labelManager util.CbLabelManager) prometheus.Collector {
+func NewBucketStatsCollector(client util.CbClient, config *objects.CollectorConfig, labelManager util.CbLabelManager) BucketStatsCollector {
 	if config == nil {
 		config = objects.GetBucketStatsCollectorDefaultConfig()
 	}
 	// nolint: lll
-	return &bucketStatsCollector{
-		m: MetaCollector{
-			client: client,
-			up: prometheus.NewDesc(
-				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultUptimeMetric),
-				objects.DefaultUptimeMetricHelp,
-				[]string{objects.ClusterLabel},
-				nil,
-			),
-			scrapeDuration: prometheus.NewDesc(
-				prometheus.BuildFQName(config.Namespace, config.Subsystem, objects.DefaultScrapeDurationMetric),
-				objects.DefaultScrapeDurationMetricHelp,
-				[]string{objects.ClusterLabel},
-				nil,
-			),
-			labelManger: labelManager,
-		},
-		config: config,
+	collector := &BucketStatsCollector{
+		client:         client,
+		labelManger:    labelManager,
+		up:             bucketUpVec,
+		scrapeDuration: bucketScrapeVec,
+		registry:       prometheus.NewRegistry(),
+		config:         config,
+		metrics:        map[string]*prometheus.GaugeVec{},
 	}
+
+	collector.Setter = collector
+
+	return *collector
 }

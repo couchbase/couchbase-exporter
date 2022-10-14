@@ -155,7 +155,6 @@ func main() {
 
 	prometheus.MustRegister(collectors.NewNodesCollector(client, exporterConfig.Collectors.Node, labelManager))
 	prometheus.MustRegister(collectors.NewBucketInfoCollector(client, exporterConfig.Collectors.BucketInfo, labelManager))
-	prometheus.MustRegister(collectors.NewBucketStatsCollector(client, exporterConfig.Collectors.BucketStats, labelManager))
 	prometheus.MustRegister(collectors.NewTaskCollector(client, exporterConfig.Collectors.Task, labelManager))
 
 	prometheus.MustRegister(collectors.NewQueryCollector(client, exporterConfig.Collectors.Query, labelManager))
@@ -168,8 +167,13 @@ func main() {
 	// Create my cycle controller with refreshrate (seconds) in milliseconds
 	cycle := util.NewCycleController(exporterConfig.RefreshRate * 1000)
 	perNodeBucketStatCollector := collectors.NewPerNodeBucketStatsCollector(client, exporterConfig.Collectors.PerNodeBucketStats, labelManager)
-
+	prometheus.MustRegister(&perNodeBucketStatCollector)
+	
+	bucketStatCollector := collectors.NewBucketStatsCollector(client, exporterConfig.Collectors.BucketStats, labelManager)
+	prometheus.MustRegister(&bucketStatCollector)
+	
 	cycle.Subscribe(&perNodeBucketStatCollector)
+	cycle.Subscribe(&bucketStatCollector)
 	cycle.Start()
 
 	log.Info("Serving all exposed endpoints...")

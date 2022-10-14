@@ -75,6 +75,26 @@ func NewPerNodeBucketStatsCollector(client util.CbClient, config *objects.Collec
 	return *collector
 }
 
+func (c *PerNodeBucketStatsCollector) Collect(ch chan<- prometheus.Metric) {
+	for _, metric := range c.metrics {
+		metric.Collect(ch)
+	}
+}
+
+func (c *PerNodeBucketStatsCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- prometheus.NewDesc(prometheus.BuildFQName(c.config.Namespace, c.config.Subsystem, objects.DefaultScrapeDurationMetric),
+		objects.DefaultScrapeDurationMetricHelp, []string{objects.ClusterLabel}, nil)
+	ch <- prometheus.NewDesc(prometheus.BuildFQName(c.config.Namespace, c.config.Subsystem, objects.DefaultUptimeMetric),
+		objects.DefaultUptimeMetricHelp, []string{objects.ClusterLabel}, nil)
+
+	for _, value := range c.config.Metrics {
+		if !value.Enabled {
+			continue
+		}
+		ch <- value.GetPrometheusDescription(c.config.Namespace, c.config.Subsystem)
+	}
+}
+
 // Implements Worker interface for CycleController.
 func (c *PerNodeBucketStatsCollector) DoWork() {
 	c.CollectMetrics()

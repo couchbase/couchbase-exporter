@@ -114,7 +114,7 @@ func (e *ExporterConfig) SetDefaults() {
 	e.Key = ""
 	e.LogJSON = true
 	e.LogLevel = "info"
-	e.RefreshRate = 5
+	e.RefreshRate = 60
 	e.ServerAddress = "0.0.0.0"
 	e.ServerPort = 9091
 	e.Token = ""
@@ -207,6 +207,10 @@ func (e *ExporterConfig) SetOrDefaultServerPort(svrPort string) {
 func (e *ExporterConfig) SetOrDefaultRefreshRate(refreshRate string) {
 	if refreshRate != "" && isInt(refreshRate) {
 		e.RefreshRate, _ = strconv.Atoi(refreshRate)
+	}
+
+	if e.RefreshRate <= 0 {
+		e.RefreshRate = 60
 	}
 }
 

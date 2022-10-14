@@ -30,10 +30,6 @@ func TestParsesGoodConfigFile(t *testing.T) {
 	err := config.ParseConfigFile("../example/config.json")
 
 	if err != nil {
-		t.Error("Error during parsing of config file.")
-	}
-
-	if config.CouchbaseAddress != "localhost" {
-		t.Error("Parsing of config file did not work properly")
+		t.Error("Error during parsing of config file.", err)
 	}
 }
