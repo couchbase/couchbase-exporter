@@ -3,3 +3,4 @@ dist/
 bin/
 .vscode/
 __debug_bin
+.DS_Store
