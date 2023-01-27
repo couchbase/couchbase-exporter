@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
+	"github.com/couchbase/couchbase-exporter/pkg/version"
 	"github.com/pkg/errors"
 )
 
@@ -71,6 +72,7 @@ func NewClient(domain string, port int, user, password string, config *tls.Confi
 				Password: password,
 				config:   config,
 			},
+
 		},
 	}
 
@@ -191,6 +193,7 @@ func (t *AuthTransport) transport() http.RoundTripper {
 	}
 }
 
+
 // RoundTrip implements the RoundTripper interface.
 func (t *AuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req2 := new(http.Request)
@@ -202,6 +205,7 @@ func (t *AuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	req2.SetBasicAuth(t.Username, t.Password)
+	req2.Header.Set("User-Agent", version.UserAgent())
 
 	return t.transport().RoundTrip(req2)
 }

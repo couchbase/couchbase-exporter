@@ -26,6 +26,7 @@ import (
 	"github.com/couchbase/couchbase-exporter/pkg/log"
 	"github.com/couchbase/couchbase-exporter/pkg/objects"
 	"github.com/couchbase/couchbase-exporter/pkg/util"
+	"github.com/couchbase/couchbase-exporter/pkg/version"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -137,6 +138,9 @@ func main() {
 		os.Stdout.WriteString(string(c))
 		os.Exit(0)
 	}
+
+	log.Info("Starting %s: %s", version.Application, version.WithBuildNumberAndRevision())
+	log.Info("UserAgent: %s", version.UserAgent())
 
 	log.Info("Couchbase Address:  %s:%v", exporterConfig.CouchbaseAddress, exporterConfig.CouchbasePort)
 

@@ -2,6 +2,9 @@ SOURCE = $(shell find . -name *.go -type f)
 bldNum = $(if $(BLD_NUM),$(BLD_NUM),9999)
 version = $(if $(VERSION),$(VERSION),1.0.0)
 productVersion = $(version)-$(bldNum)
+# The git revision, infinitely more useful than an arbitrary build number.
+REVISION := $(shell git rev-parse HEAD)
+
 ARTIFACTS = build/artifacts/couchbase-exporter
 DOCKER_TAG = v1
 DOCKER_USER = couchbase
@@ -10,12 +13,19 @@ DOCKER_USER = couchbase
 GOPATH := $(shell go env GOPATH)
 GOBIN := $(if $(GOPATH),$(GOPATH)/bin,$(HOME)/go/bin)
 GOLINT_VERSION := v1.42.1
+# These are propagated into each binary so we can tell for sure the exact build
+# that a binary came from.
+LDFLAGS = \
+  -s -w \
+  -X github.com/couchbase/couchbase-exporter/pkg/version.Version=$(version) \
+  -X github.com/couchbase/couchbase-exporter/pkg/version.BuildNumber=$(bldNum) \
+  -X github.com/couchbase/couchbase-exporter/pkg/revision.gitRevision=$(REVISION)
 
 build: $(SOURCE) go.mod
 	for platform in linux darwin ; do \
 		for arch in amd64 arm64 ; do \
 	  	echo "Building $$platform $$arch binary " ; \
-	  	GOOS=$$platform GOARCH=$$arch CGO_ENABLED=0 GO111MODULE=on go build -ldflags="-s -w" -o bin/$$platform/couchbase-exporter-$$arch ; \
+	  	GOOS=$$platform GOARCH=$$arch CGO_ENABLED=0 GO111MODULE=on go build -ldflags="$(LDFLAGS)" -o bin/$$platform/couchbase-exporter-$$arch ; \
 	  done \
 	done
 
