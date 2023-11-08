@@ -4,7 +4,7 @@ pipeline {
   }
 
   environment {
-    GOVERSION = '1.20.8'
+    GOVERSION = '1.20.10'
     PATH = "${env.WORKSPACE}/go/bin:${PATH}"
   }
 

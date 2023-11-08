@@ -13,7 +13,8 @@ import (
 )
 
 func GetDescString(namespace string, subsystem string, name string, help string, labels []string) string {
-	return fmt.Sprintf("Desc{fqName: \"%s%s_%s\", help: \"%s\", constLabels: {}, variableLabels: %+v}", namespace, subsystem, name, help, labels)
+	l := "{" + strings.Join(labels, ",") + "}"
+	return fmt.Sprintf("Desc{fqName: \"%s%s_%s\", help: \"%s\", constLabels: {}, variableLabels: %s}", namespace, subsystem, name, help, l)
 }
 
 func GetMetricValue(metric io_prometheus_client.Metric) float64 {
