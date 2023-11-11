@@ -39,10 +39,10 @@ Firstly make sure to build the exporter binary using `make`.
 | `-cert`  | certificate file for exporter in order to serve metrics over TLS |
 | `-key` | private key file for exporter in order to serve metrics over TLS |
 | `-ca`  | PKI certificate authority file |
-| `-clientCert` | client certificate file to authenticate this client with couchbase-server |
-| `-clientKey`  | client private key file to authenticate this client with couchbase-server |
-| `-logLevel` | log level (debug/info/warn/error) | info
-| `-logJson` | if set to true, logs will be JSON formatted | true
+| `-client-cert` | client certificate file to authenticate this client with couchbase-server |
+| `-client-key`  | client private key file to authenticate this client with couchbase-server |
+| `-log-level` | log level (debug/info/warn/error) | info
+| `-log-json` | if set to true, logs will be JSON formatted | true
 
 ### Docker
 
